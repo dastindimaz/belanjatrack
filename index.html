@@ -1,0 +1,3404 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TrackBelanja Bulanan</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1d2433;
+      --muted: #667085;
+      --line: #d9dee8;
+      --panel: #ffffff;
+      --soft: #f4f7fb;
+      --accent: #0f766e;
+      --accent-2: #2563eb;
+      --warn: #b45309;
+      --danger: #b42318;
+      --good: #067647;
+      --shadow: 0 14px 34px rgba(30, 41, 59, .08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #eef3f8;
+      color: var(--ink);
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      border-radius: 8px;
+      min-height: 38px;
+      padding: 0 14px;
+      background: var(--ink);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 700;
+    }
+
+    button.secondary {
+      background: #fff;
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+
+    button.ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid transparent;
+    }
+
+    button.danger {
+      background: #fff1f1;
+      color: var(--danger);
+      border: 1px solid #ffd5d5;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      min-height: 40px;
+      padding: 9px 10px;
+      background: #fff;
+      color: var(--ink);
+      outline: none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, .12);
+    }
+
+    .date-field {
+      position: relative;
+      display: grid;
+    }
+
+    .date-native {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .date-display {
+      width: 100%;
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      padding: 9px 40px 9px 10px;
+      justify-content: flex-start;
+      font-weight: 700;
+    }
+
+    .date-display::after {
+      content: "";
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      width: 18px;
+      height: 18px;
+      transform: translateY(-50%);
+      background: currentColor;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M16 2v4'/%3E%3Crect width='18' height='18' x='3' y='4' rx='2'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E") center / contain no-repeat;
+    }
+
+    .date-display:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, .12);
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: #344054;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .app-shell {
+      width: min(1440px, 100%);
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 4px 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 240px;
+    }
+
+    .mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      box-shadow: var(--shadow);
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .brand p {
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+      position: relative;
+    }
+
+    .settings-menu {
+      position: relative;
+    }
+
+    .settings-menu summary {
+      list-style: none;
+    }
+
+    .settings-menu summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .settings-trigger {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 8px 13px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      color: #565661;
+      box-shadow: 0 1px 4px rgba(24, 24, 27, .08);
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 800;
+      user-select: none;
+    }
+
+    .settings-menu[open] .settings-trigger,
+    .settings-trigger:hover {
+      border-color: #b8e7d6;
+      color: var(--accent);
+      background: #f1fbf7;
+    }
+
+    .settings-popover {
+      position: absolute;
+      z-index: 30;
+      top: calc(100% + 10px);
+      right: 0;
+      width: min(320px, calc(100vw - 32px));
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel);
+      box-shadow: 0 18px 42px rgba(24, 24, 27, .18);
+      max-height: calc(100vh - 32px);
+      overflow-y: auto;
+    }
+
+    .settings-title {
+      margin: 2px 4px 10px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .settings-popover button {
+      width: 100%;
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+      padding: 9px 10px;
+      border: 0;
+      border-radius: 9px;
+      background: transparent;
+      color: var(--ink);
+      box-shadow: none;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    .settings-popover button:hover {
+      background: var(--soft);
+      color: var(--accent);
+    }
+
+    .settings-popover svg {
+      flex: 0 0 auto;
+    }
+
+    .settings-divider {
+      height: 1px;
+      margin: 8px 2px;
+      background: var(--line);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 360px minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid rgba(208, 213, 221, .8);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 16px 0;
+    }
+
+    .panel-header h2 {
+      margin: 0;
+      font-size: 16px;
+      letter-spacing: 0;
+    }
+
+    .panel-body {
+      padding: 16px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .span-2 { grid-column: span 2; }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .metric {
+      padding: 14px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #fff;
+      min-height: 104px;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 12px;
+      font-size: 22px;
+      line-height: 1.05;
+      overflow-wrap: anywhere;
+    }
+
+    .metric small {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .usage-meter {
+      height: 10px;
+      border-radius: 999px;
+      background: #e8edf5;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .usage-meter > i {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: var(--good);
+      transition: width .25s ease;
+    }
+
+    .usage-summary {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+    }
+
+    .usage-summary strong {
+      flex: 0 0 auto;
+      font-size: 28px;
+    }
+
+    .usage-summary span {
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 6px;
+      padding: 4px;
+      background: #e8edf5;
+      border-radius: 8px;
+    }
+
+    .tabs button {
+      flex: 1;
+      color: var(--muted);
+      background: transparent;
+      min-height: 34px;
+      padding: 0 10px;
+    }
+
+    .tabs button.active {
+      background: #fff;
+      color: var(--ink);
+      box-shadow: 0 2px 6px rgba(15, 23, 42, .08);
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 16px;
+    }
+
+    .chart-wrap {
+      min-height: 330px;
+      padding: 14px;
+    }
+
+    .chart-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .chart-head > *,
+    .panel-header > *,
+    .filter-summary > * {
+      min-width: 0;
+    }
+
+    .chart-head .pill {
+      max-width: 100%;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      text-align: right;
+    }
+
+    .chart-head h3 {
+      margin: 0;
+      font-size: 15px;
+    }
+
+    canvas {
+      width: 100%;
+      max-width: 100%;
+      display: block;
+    }
+
+    .chart-canvas-wrap {
+      position: relative;
+      width: 100%;
+      height: 290px;
+      padding: 0 14px 14px;
+    }
+
+    .chart-canvas-wrap canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      max-height: 430px;
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+    }
+
+    th, td {
+      padding: 11px 12px;
+      text-align: left;
+      border-bottom: 1px solid #edf1f7;
+      font-size: 13px;
+      vertical-align: top;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      background: #f8fafc;
+      color: #475467;
+      z-index: 1;
+    }
+
+    td.num, th.num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 0 9px;
+      border-radius: 999px;
+      background: #eef6ff;
+      color: #175cd3;
+      font-weight: 700;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .status {
+      display: grid;
+      gap: 10px;
+    }
+
+    .notice {
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--accent-2);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fff;
+      color: #344054;
+      line-height: 1.45;
+    }
+
+    .notice.warn {
+      border-left-color: var(--warn);
+      background: #fffbeb;
+    }
+
+    .notice.danger {
+      border-left-color: var(--danger);
+      background: #fff5f5;
+    }
+
+    .notice.good {
+      border-left-color: var(--good);
+      background: #f0fdf4;
+    }
+
+    .item-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .item-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .item-row b {
+      display: block;
+      font-size: 13px;
+    }
+
+    .item-row small {
+      color: var(--muted);
+    }
+
+    .empty {
+      border: 1px dashed #b8c0cc;
+      border-radius: 8px;
+      background: #fff;
+      padding: 24px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .toast-stack {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      width: min(380px, calc(100vw - 36px));
+      display: grid;
+      gap: 10px;
+      z-index: 20;
+    }
+
+    .toast {
+      padding: 12px 14px;
+      border-radius: 8px;
+      background: #101828;
+      color: #fff;
+      box-shadow: var(--shadow);
+      line-height: 1.4;
+      animation: rise .18s ease-out;
+    }
+
+    @keyframes rise {
+      from { transform: translateY(10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @media (max-width: 1100px) {
+      .layout, .content-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      .app-shell { padding: 12px; }
+      .topbar { align-items: stretch; flex-direction: column; }
+      .actions { justify-content: stretch; }
+      .actions button { flex: 1 1 140px; }
+      .form-grid, .field-row, .filters, .summary-grid {
+        grid-template-columns: 1fr;
+      }
+      .span-2 { grid-column: span 1; }
+      .brand h1 { font-size: 20px; }
+      .metric strong { font-size: 20px; }
+    }
+  </style>
+  <style>
+    :root {
+      --ink: #18181b;
+      --muted: #8f8f9b;
+      --line: #e7e7ec;
+      --soft: #f7f7f8;
+      --accent: #009f6b;
+      --accent-2: #0ea5e9;
+      --shadow: 0 3px 14px rgba(24, 24, 27, .12);
+    }
+
+    body {
+      background: #fafafa;
+      color: var(--ink);
+    }
+
+    .app-shell {
+      width: min(1780px, 100%);
+      padding: 32px 36px 56px;
+    }
+
+    .topbar {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 16px 22px;
+      box-shadow: var(--shadow);
+      margin-bottom: 34px;
+    }
+
+    .mark {
+      width: 58px;
+      height: 58px;
+      border-radius: 16px;
+      background: var(--accent);
+      box-shadow: 0 10px 20px rgba(0, 159, 107, .22);
+    }
+
+    .brand h1 {
+      font-size: 21px;
+      font-weight: 850;
+    }
+
+    .brand p {
+      margin-top: 4px;
+      color: #9a9aa5;
+      font-size: 11px;
+      font-weight: 850;
+      text-transform: uppercase;
+    }
+
+    .actions button {
+      min-height: 38px;
+      border-radius: 12px;
+      background: #fff;
+      border: 1px solid var(--line);
+      color: #676773;
+      padding-inline: 12px;
+      box-shadow: 0 1px 4px rgba(24, 24, 27, .06);
+      font-size: 14px;
+    }
+
+    .theme-control {
+      width: 100%;
+      gap: 6px;
+      padding: 4px;
+      color: #8f8f9b;
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .theme-control select {
+      width: 100%;
+      min-height: 38px;
+      border-radius: 9px;
+      padding: 7px 28px 7px 12px;
+      font-size: 13px;
+      font-weight: 800;
+      background: #fff;
+      color: #676773;
+      box-shadow: 0 1px 4px rgba(24, 24, 27, .06);
+    }
+
+    .settings-popover .theme-control + .theme-control {
+      margin-top: 8px;
+    }
+
+    .dashboard-summary {
+      margin-bottom: 34px;
+    }
+
+    .summary-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 34px;
+      margin-bottom: 0;
+    }
+
+    .metric {
+      position: relative;
+      min-height: 166px;
+      border-radius: 30px;
+      padding: 26px 28px;
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .metric:first-child {
+      background: #18191f;
+      color: #fff;
+      border-color: #18191f;
+    }
+
+    .metric:first-child::after {
+      content: "";
+      position: absolute;
+      right: -12px;
+      bottom: -8px;
+      width: 160px;
+      height: 160px;
+      opacity: .12;
+      background: currentColor;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' fill='none' stroke='black' stroke-width='15' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M29 38h102v84H29z'/%3E%3Cpath d='M29 55h102'/%3E%3Cpath d='M110 85h35v34h-35a17 17 0 0 1 0-34Z'/%3E%3Cpath d='M46 38h68'/%3E%3C/svg%3E") center / contain no-repeat;
+    }
+
+    .metric span {
+      color: #9a9aa5;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .metric:first-child span {
+      color: #11e3a1;
+    }
+
+    .metric strong {
+      margin-top: 14px;
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .metric small {
+      color: #70707c;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .metric:first-child small {
+      color: #a8a8b2;
+    }
+
+    .price-change-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0;
+      margin-top: auto;
+      padding-top: 22px;
+      border-top: 1px solid var(--line);
+    }
+
+    .price-change-metric {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .price-change-grid > div {
+      min-width: 0;
+      padding: 0 16px;
+    }
+
+    .price-change-grid > div:first-child {
+      padding-left: 0;
+    }
+
+    .price-change-grid > div + div {
+      border-left: 1px solid var(--line);
+    }
+
+    .price-change-grid small,
+    .price-change-grid b {
+      display: block;
+    }
+
+    .price-change-grid small {
+      margin: 0;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0;
+      line-height: 1.2;
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+
+    .price-change-grid b {
+      margin-top: 9px;
+      font-size: 23px;
+      line-height: 1.1;
+      letter-spacing: 0;
+      white-space: nowrap;
+    }
+
+    .price-change-grid b.positive {
+      color: var(--warn);
+    }
+
+    .price-change-grid b.negative {
+      color: var(--good);
+    }
+
+    .price-change-grid b.neutral {
+      color: var(--ink);
+    }
+
+    .dashboard-tabs {
+      width: fit-content;
+      margin-bottom: 34px;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .tabs {
+      background: transparent;
+      gap: 10px;
+      padding: 0;
+    }
+
+    .tabs button {
+      flex: 0 0 auto;
+      min-height: 42px;
+      border-radius: 12px;
+      padding: 0 18px;
+      color: #777782;
+      font-size: 14px;
+      font-weight: 850;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .tabs button.active {
+      color: #fff;
+      background: #18191f;
+      box-shadow: 0 8px 18px rgba(24, 24, 27, .18);
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: minmax(340px, 560px) minmax(0, 1fr);
+      gap: 34px;
+      align-items: start;
+    }
+
+    .dashboard-grid > *,
+    .right-stack,
+    .right-stack > *,
+    .content-grid > *,
+    .panel,
+    .panel-body,
+    .form-grid > *,
+    .filters > * {
+      min-width: 0;
+    }
+
+    .right-stack {
+      display: grid;
+      gap: 24px;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    .panel {
+      border-color: var(--line);
+      border-radius: 30px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel-header {
+      padding: 34px 36px 0;
+    }
+
+    .panel-header h2 {
+      font-size: 21px;
+      font-weight: 900;
+    }
+
+    .panel-body {
+      padding: 28px 36px 36px;
+    }
+
+    label {
+      position: relative;
+      color: #9a9aa5;
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    input, select, textarea, .date-display {
+      min-height: 48px;
+      border-radius: 16px;
+      border-color: var(--line);
+      background: #fbfbfc;
+      color: #25252c;
+      font-size: 15px;
+      font-weight: 750;
+      padding: 11px 16px;
+    }
+
+    textarea {
+      min-height: 64px;
+      resize: vertical;
+    }
+
+    .date-display {
+      padding-right: 52px;
+    }
+
+    .date-display::after {
+      right: 20px;
+    }
+
+    .form-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+    }
+
+    .form-grid .span-2 {
+      grid-column: span 2;
+    }
+
+    #entryForm > button[type="submit"],
+    .form-footer button[type="submit"] {
+      justify-self: end;
+      min-height: 46px;
+      border-radius: 16px;
+      padding: 0 22px;
+      background: #18191f;
+      box-shadow: 0 8px 18px rgba(24, 24, 27, .18);
+      font-size: 14px;
+    }
+
+    .form-footer {
+      grid-column: span 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding-top: 22px;
+      border-top: 1px solid #eeeeF2;
+    }
+
+    .form-actions,
+    .row-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-actions .ghost {
+      min-height: 46px;
+      border-radius: 16px;
+      padding: 0 16px;
+    }
+
+    .row-actions {
+      white-space: nowrap;
+    }
+
+    .row-actions button {
+      min-width: 62px;
+    }
+
+    .estimate {
+      display: grid;
+      gap: 6px;
+      color: #9a9aa5;
+      font-size: 13px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .estimate strong {
+      color: var(--accent);
+      font-size: 22px;
+      text-transform: none;
+    }
+
+    .income-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 34px;
+      align-items: start;
+    }
+
+    .income-grid > * {
+      min-width: 0;
+    }
+
+    .suggestion-box {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: calc(100% + 6px);
+      z-index: 30;
+      display: grid;
+      gap: 4px;
+      max-height: 220px;
+      overflow: auto;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: var(--shadow);
+      text-transform: none;
+    }
+
+    .suggestion-box button {
+      min-height: 36px;
+      justify-content: flex-start;
+      border-radius: 10px;
+      padding: 0 10px;
+      background: transparent;
+      color: #25252c;
+      font-size: 14px;
+      font-weight: 750;
+      box-shadow: none;
+    }
+
+    .suggestion-box button:hover,
+    .suggestion-box button:focus {
+      background: #f2f4f7;
+      color: #18191f;
+    }
+
+    .filters {
+      grid-template-columns: minmax(220px, 2fr) repeat(3, minmax(120px, 1fr));
+      gap: 16px;
+      align-items: end;
+      margin-bottom: 24px;
+    }
+
+    .filter-card .panel-header {
+      align-items: center;
+    }
+
+    .filter-summary {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 20px 26px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      color: #777782;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .filter-summary b {
+      color: var(--accent);
+      font-weight: 950;
+    }
+
+    .content-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .chart-wrap {
+      min-height: 380px;
+      padding: 0;
+    }
+
+    .chart-head {
+      padding: 28px 28px 0;
+    }
+
+    .chart-head h3 {
+      font-size: 17px;
+      font-weight: 900;
+    }
+
+    .table-wrap {
+      border: 0;
+      border-radius: 0;
+      max-height: 520px;
+    }
+
+    th {
+      background: #fbfbfc;
+      color: #9a9aa5;
+      text-transform: uppercase;
+      font-weight: 900;
+    }
+
+    th, td {
+      padding: 16px;
+      font-size: 14px;
+    }
+
+    .empty {
+      min-height: 220px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      background: transparent;
+      color: #a1a1aa;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .notice, .item-row {
+      border-color: var(--line);
+      border-radius: 16px;
+    }
+
+    .pill {
+      background: #eef8ff;
+      color: #0876b7;
+      font-weight: 900;
+    }
+
+    @media (max-width: 1180px) {
+      .dashboard-grid, .content-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 24px;
+      }
+
+      .price-change-metric {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .dashboard-tabs {
+        width: 100%;
+      }
+
+      .tabs {
+        overflow-x: auto;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .app-shell {
+        padding: 16px;
+      }
+
+      .topbar {
+        border-radius: 18px;
+      }
+
+      .summary-grid {
+        gap: 16px;
+      }
+
+      .metric {
+        min-height: 150px;
+        padding: 24px;
+      }
+
+      .metric strong {
+        font-size: 30px;
+      }
+
+      .panel-header, .panel-body {
+        padding-left: 22px;
+        padding-right: 22px;
+      }
+
+      .form-grid, .filters {
+        grid-template-columns: 1fr;
+      }
+
+      .income-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-grid .span-2, .form-footer {
+        grid-column: span 1;
+      }
+
+      .form-footer {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .form-actions {
+        width: 100%;
+      }
+
+      .form-actions button {
+        flex: 1 1 0;
+      }
+
+      #entryForm > button[type="submit"] {
+        width: 100%;
+      }
+    }
+
+    html[data-resolved-theme="dark"] {
+      color-scheme: dark;
+      --ink: #f5f5f7;
+      --muted: #a1a1aa;
+      --line: #30333a;
+      --soft: #17191f;
+      --panel: #181a20;
+      --shadow: 0 14px 34px rgba(0, 0, 0, .34);
+    }
+
+    html[data-resolved-theme="dark"] body {
+      background: #0f1115;
+      color: #f5f5f7;
+    }
+
+    html[data-resolved-theme="dark"] .topbar,
+    html[data-resolved-theme="dark"] .panel,
+    html[data-resolved-theme="dark"] .metric:not(:first-child),
+    html[data-resolved-theme="dark"] .dashboard-tabs,
+    html[data-resolved-theme="dark"] .filter-summary,
+    html[data-resolved-theme="dark"] .item-row,
+    html[data-resolved-theme="dark"] .notice,
+    html[data-resolved-theme="dark"] .settings-popover,
+    html[data-resolved-theme="dark"] .suggestion-box {
+      background: #181a20;
+      border-color: #30333a;
+      color: #f5f5f7;
+    }
+
+    html[data-resolved-theme="dark"] .metric:first-child {
+      background: #090a0d;
+      border-color: #24262d;
+    }
+
+    html[data-resolved-theme="dark"] .settings-trigger,
+    html[data-resolved-theme="dark"] .theme-control select,
+    html[data-resolved-theme="dark"] input,
+    html[data-resolved-theme="dark"] select,
+    html[data-resolved-theme="dark"] textarea,
+    html[data-resolved-theme="dark"] .date-display {
+      background: #111318;
+      border-color: #30333a;
+      color: #f5f5f7;
+    }
+
+    html[data-resolved-theme="dark"] .settings-popover button {
+      background: transparent;
+      color: #f5f5f7;
+      border-color: transparent;
+      box-shadow: none;
+    }
+
+    html[data-resolved-theme="dark"] .settings-popover button:hover,
+    html[data-resolved-theme="dark"] .settings-menu[open] .settings-trigger {
+      background: #252832;
+      color: #6ee7b7;
+    }
+
+    html[data-resolved-theme="dark"] .brand p,
+    html[data-resolved-theme="dark"] label,
+    html[data-resolved-theme="dark"] .metric span,
+    html[data-resolved-theme="dark"] .metric small,
+    html[data-resolved-theme="dark"] .item-row small,
+    html[data-resolved-theme="dark"] .empty {
+      color: #a1a1aa;
+    }
+
+    html[data-resolved-theme="dark"] th {
+      background: #101217;
+      color: #c8c8d0;
+    }
+
+    html[data-resolved-theme="dark"] .table-wrap,
+    html[data-resolved-theme="dark"] table {
+      background: #181a20;
+      color: #f5f5f7;
+    }
+
+    html[data-resolved-theme="dark"] td {
+      color: #e7e7ec;
+      border-bottom-color: #292c33;
+    }
+
+    html[data-resolved-theme="dark"] td b,
+    html[data-resolved-theme="dark"] td.num {
+      color: #ffffff;
+    }
+
+    html[data-resolved-theme="dark"] tr:hover td {
+      background: #20232b;
+    }
+
+    html[data-resolved-theme="dark"] button.ghost {
+      color: #c8c8d0;
+      border-color: #30333a;
+    }
+
+    html[data-resolved-theme="dark"] button.ghost:hover {
+      background: #252832;
+      color: #fff;
+    }
+
+    html[data-resolved-theme="dark"] .suggestion-box button {
+      color: #f5f5f7;
+    }
+
+    html[data-resolved-theme="dark"] .suggestion-box button:hover,
+    html[data-resolved-theme="dark"] .suggestion-box button:focus {
+      background: #252832;
+      color: #fff;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        overflow-x: hidden;
+      }
+
+      .app-shell {
+        padding: 12px;
+      }
+
+      .topbar {
+        align-items: center;
+        flex-direction: row;
+        gap: 14px;
+        padding: 14px;
+        margin-bottom: 18px;
+      }
+
+      .brand {
+        min-width: 0;
+      }
+
+      .brand > div:last-child {
+        min-width: 0;
+      }
+
+      .brand h1,
+      .brand p {
+        overflow-wrap: anywhere;
+      }
+
+      .mark {
+        width: 48px;
+        height: 48px;
+        flex: 0 0 auto;
+      }
+
+      .brand h1 {
+        font-size: 18px;
+      }
+
+      .brand p {
+        font-size: 10px;
+        overflow-wrap: anywhere;
+      }
+
+      .actions {
+        display: flex;
+        width: auto;
+        margin-left: auto;
+      }
+
+      .settings-trigger {
+        width: auto;
+      }
+
+      .settings-popover {
+        position: fixed;
+        top: 82px;
+        right: 12px;
+        left: 12px;
+        width: auto;
+        max-height: calc(100vh - 94px);
+      }
+
+      .dashboard-summary,
+      .dashboard-tabs {
+        margin-bottom: 16px;
+      }
+
+      .summary-grid {
+        gap: 12px;
+      }
+
+      .metric {
+        min-height: 132px;
+        border-radius: 18px;
+        padding: 18px;
+      }
+
+      .metric:first-child::after {
+        width: 110px;
+        height: 110px;
+      }
+
+      .metric strong {
+        font-size: 23px;
+      }
+
+      .dashboard-tabs {
+        max-width: 100%;
+        border-radius: 16px;
+        padding: 6px;
+      }
+
+      .tabs {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        width: 100%;
+        overflow: visible;
+      }
+
+      .tabs button {
+        min-height: 38px;
+        min-width: 0;
+        padding: 6px 10px;
+        white-space: normal;
+        text-align: center;
+      }
+
+      .dashboard-grid,
+      .income-grid,
+      .right-stack,
+      .content-grid {
+        gap: 14px;
+      }
+
+      .panel {
+        border-radius: 18px;
+      }
+
+      .panel-header {
+        align-items: flex-start;
+        flex-wrap: wrap;
+        padding: 20px 18px 0;
+      }
+
+      .panel-header h2 {
+        font-size: 18px;
+      }
+
+      .panel-body {
+        padding: 18px;
+      }
+
+      input,
+      select,
+      textarea,
+      .date-display {
+        min-height: 44px;
+        border-radius: 12px;
+        font-size: 14px;
+        padding: 10px 12px;
+      }
+
+      .form-grid {
+        gap: 14px;
+      }
+
+      .form-footer {
+        gap: 12px;
+      }
+
+      .estimate strong {
+        font-size: 20px;
+      }
+
+      .filters {
+        gap: 12px;
+      }
+
+      .filter-summary {
+        display: grid;
+        padding: 14px;
+        font-size: 13px;
+      }
+
+      .usage-summary {
+        display: grid;
+        gap: 6px;
+      }
+
+      .usage-summary strong {
+        font-size: 24px;
+      }
+
+      .chart-wrap {
+        min-height: 300px;
+      }
+
+      .chart-canvas-wrap {
+        height: 220px;
+      }
+
+      .chart-head {
+        display: grid;
+        padding: 18px 18px 0;
+      }
+
+      .table-wrap {
+        max-width: 100%;
+        max-height: none;
+        overflow: visible;
+        background: transparent;
+      }
+
+      table {
+        min-width: 0;
+        background: transparent;
+      }
+
+      table thead {
+        display: none;
+      }
+
+      table,
+      table tbody,
+      table tr,
+      td {
+        display: block;
+        width: 100%;
+      }
+
+      table tbody {
+        display: grid;
+        gap: 12px;
+      }
+
+      table tr {
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: var(--panel);
+      }
+
+      table td,
+      table td.num {
+        display: grid;
+        grid-template-columns: minmax(96px, .8fr) minmax(0, 1.2fr);
+        gap: 12px;
+        align-items: center;
+        padding: 11px 12px;
+        border-bottom: 1px solid var(--line);
+        text-align: right;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        font-size: 13px;
+      }
+
+      table td:last-child {
+        border-bottom: 0;
+      }
+
+      table td::before {
+        content: attr(data-label);
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 900;
+        text-align: left;
+        text-transform: uppercase;
+      }
+
+      .row-actions {
+        justify-content: flex-end;
+        white-space: normal;
+      }
+
+      table td > button {
+        justify-self: end;
+      }
+
+      .suggestion-box {
+        max-height: 180px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .settings-trigger {
+        width: 42px;
+        padding-inline: 10px;
+      }
+
+      .settings-trigger span {
+        display: none;
+      }
+
+      .metric strong {
+        font-size: 21px;
+      }
+
+      .price-change-grid > div {
+        padding-inline: 8px;
+      }
+
+      .price-change-grid b {
+        font-size: 17px;
+      }
+
+      .panel-header {
+        display: grid;
+      }
+
+      .filter-summary {
+        overflow-wrap: anywhere;
+      }
+
+      table { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 20V10"></path>
+            <path d="M12 20V4"></path>
+            <path d="M19 20v-7"></path>
+            <rect x="3" y="10" width="4" height="10" rx="1"></rect>
+            <rect x="10" y="4" width="4" height="16" rx="1"></rect>
+            <rect x="17" y="13" width="4" height="7" rx="1"></rect>
+          </svg>
+        </div>
+        <div>
+          <h1>BelanjaTrack Pro</h1>
+          <p>Personal Spending Intelligence</p>
+        </div>
+      </div>
+      <div class="actions">
+        <details class="settings-menu" id="settingsMenu">
+          <summary class="settings-trigger" aria-label="Buka menu settings" data-i18n-aria="openSettings">
+            <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"></path>
+              <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V21h-4v-.08A1.7 1.7 0 0 0 8.97 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.03H3v-4h.08A1.7 1.7 0 0 0 4.6 8.97a1.7 1.7 0 0 0-.34-1.88l-.06-.06L7.03 4.2l.06.06A1.7 1.7 0 0 0 8.97 4.6 1.7 1.7 0 0 0 10 3.04V3h4v.08a1.7 1.7 0 0 0 1.03 1.52 1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06a1.7 1.7 0 0 0-.34 1.88A1.7 1.7 0 0 0 20.96 10H21v4h-.08A1.7 1.7 0 0 0 19.4 15Z"></path>
+            </svg>
+            <span data-i18n="settings">Pengaturan</span>
+          </summary>
+          <div class="settings-popover">
+            <p class="settings-title" data-i18n="appSettings">Pengaturan aplikasi</p>
+            <label class="theme-control"><span data-i18n="language">Bahasa</span>
+              <select id="languageSelect" aria-label="Pilih bahasa" data-i18n-aria="chooseLanguage">
+                <option value="id">Bahasa Indonesia</option>
+                <option value="en">English</option>
+              </select>
+            </label>
+            <label class="theme-control"><span data-i18n="theme">Tema</span>
+              <select id="themeSelect" aria-label="Pilih tema" data-i18n-aria="chooseTheme">
+                <option value="system">System</option>
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+              </select>
+            </label>
+            <div class="settings-divider"></div>
+            <button type="button" id="sampleBtn">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+              <span data-i18n="fillSample">Isi data contoh</span>
+            </button>
+            <button type="button" id="exportBtn">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>
+              Export JSON
+            </button>
+            <button type="button" id="importBtn">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V9"></path><path d="m7 14 5-5 5 5"></path><path d="M5 3h14"></path></svg>
+              Import JSON
+            </button>
+            <input class="file-input" id="importFile" type="file" accept="application/json,.json">
+            <div class="settings-divider"></div>
+            <button type="button" id="exportExcelBtn">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 3h16v18H4z"></path><path d="M4 9h16M10 9v12"></path><path d="m7 13 4 4m0-4-4 4"></path></svg>
+              <span data-i18n="exportExcel">Export Excel</span>
+            </button>
+            <button type="button" id="importExcelBtn">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 3h16v18H4z"></path><path d="M12 7v8"></path><path d="m8 11 4 4 4-4"></path></svg>
+              <span data-i18n="importExcel">Import Excel</span>
+            </button>
+            <button type="button" id="sampleExcelBtn">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h9l5 5v15H6z"></path><path d="M14 2v6h6"></path><path d="M9 13h8M9 17h8"></path></svg>
+              <span data-i18n="downloadSampleExcel">Download Sample Excel</span>
+            </button>
+            <input class="file-input" id="importExcelFile" type="file" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel">
+          </div>
+        </details>
+      </div>
+    </header>
+
+    <section class="dashboard-summary">
+      <div class="summary-grid" id="summaryGrid"></div>
+    </section>
+
+    <nav class="dashboard-tabs">
+      <div class="tabs" role="tablist" aria-label="Periode laporan">
+        <button type="button" data-view="income" data-i18n="income">Pemasukan</button>
+        <button type="button" class="active" data-view="shopping" data-mode="monthly" data-i18n="shoppingRecords">Catatan Belanja</button>
+      </div>
+    </nav>
+
+    <section class="income-grid" id="incomeView" hidden>
+      <aside class="panel">
+        <div class="panel-header">
+          <h2 data-i18n="addIncome">Tambah Pemasukan</h2>
+          <span class="pill">Income</span>
+        </div>
+        <div class="panel-body">
+          <form id="incomeForm" class="form-grid" autocomplete="off">
+            <label><span data-i18n="incomeDate">Tanggal Pemasukan</span>
+              <span class="date-field">
+                <button type="button" class="date-display" data-date-target="incomeDateInput" id="incomeDateInputDisplay"></button>
+                <input class="date-native" id="incomeDateInput" type="date" autocomplete="off" required>
+              </span>
+            </label>
+            <label><span data-i18n="amountRp">Nominal (Rp)</span>
+              <input id="incomeAmountInput" type="text" inputmode="numeric" placeholder="Contoh: 5.000.000" data-i18n-placeholder="amountPlaceholder" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" required>
+            </label>
+            <label class="span-2"><span data-i18n="incomeSource">Sumber Pemasukan</span>
+              <input id="incomeSourceInput" type="text" placeholder="Contoh: Gaji, Freelance, Bonus" data-i18n-placeholder="incomeSourcePlaceholder" autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false" required>
+              <div class="suggestion-box" id="incomeSourceSuggestions" hidden></div>
+            </label>
+            <label class="span-2"><span data-i18n="notesOptional">Catatan (Opsional)</span>
+              <textarea id="incomeNoteInput" rows="2" placeholder="Contoh: Gaji bulan ini" data-i18n-placeholder="incomeNotePlaceholder" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea>
+            </label>
+            <div class="form-footer">
+              <div class="estimate">
+                <span data-i18n="monthlyIncomeTotal">Total Pemasukan Bulan Ini</span>
+                <strong id="incomeMonthTotal">Rp 0</strong>
+              </div>
+              <button type="submit" data-i18n="saveIncome">Simpan Pemasukan</button>
+            </div>
+          </form>
+        </div>
+      </aside>
+
+      <section class="panel income-history-panel">
+        <div class="panel-header">
+          <h2 data-i18n="incomeHistory">Riwayat Pemasukan</h2>
+        </div>
+        <div class="panel-body">
+          <div class="filter-summary" style="margin-bottom:18px;">
+            <span id="incomeCountText">Menampilkan 0 pemasukan</span>
+            <span><span data-i18n="total">Total</span>: <b id="incomeTotalText">Rp 0</b></span>
+          </div>
+          <div id="incomeTableMount"></div>
+        </div>
+      </section>
+    </section>
+
+    <section class="dashboard-grid" id="shoppingView">
+      <aside class="panel entry-panel">
+        <div class="panel-header">
+          <h2 id="entryFormTitle" data-i18n="addShopping">Tambah Belanjaan Baru</h2>
+          <span class="pill" id="storageStatus">Auto-save</span>
+        </div>
+        <div class="panel-body">
+          <form id="entryForm" class="form-grid" autocomplete="off">
+            <label><span data-i18n="shoppingDate">Tanggal Belanja</span>
+              <span class="date-field">
+                <button type="button" class="date-display" data-date-target="dateInput" id="dateInputDisplay"></button>
+                <input class="date-native" id="dateInput" type="date" autocomplete="off" required>
+              </span>
+            </label>
+            <label><span data-i18n="category">Kategori</span>
+              <input id="categoryInput" type="text" placeholder="Sembako" autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false">
+              <div class="suggestion-box" id="categorySuggestions" hidden></div>
+            </label>
+            <label class="span-2"><span data-i18n="itemName">Nama Barang</span>
+              <input id="itemInput" type="text" placeholder="Contoh: Beras Rojo Lele, Minyak Goreng Bimoli" data-i18n-placeholder="itemPlaceholder" autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false" required>
+              <div class="suggestion-box" id="itemSuggestions" hidden></div>
+            </label>
+            <label><span data-i18n="unitPriceRp">Harga Satuan (Rp)</span>
+              <input id="priceInput" type="text" inputmode="numeric" placeholder="Contoh: 15.000" data-i18n-placeholder="pricePlaceholder" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" required>
+            </label>
+            <label><span data-i18n="quantity">Jumlah Barang</span>
+              <input id="qtyInput" type="number" min="0.001" step="any" value="1" autocomplete="off" required>
+            </label>
+            <label class="span-2"><span data-i18n="notesOptional">Catatan (Opsional)</span>
+              <textarea id="noteInput" rows="2" placeholder="Contoh: Beli di supermarket ABC, sedang promo" data-i18n-placeholder="shoppingNotePlaceholder" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea>
+            </label>
+            <div class="form-footer">
+              <div class="estimate">
+                <span data-i18n="estimatedTotal">Estimasi Total</span>
+                <strong id="estimateTotal">Rp 0</strong>
+              </div>
+              <div class="form-actions">
+                <button type="button" class="ghost" id="cancelEditBtn" data-i18n="cancel" hidden>Batal</button>
+                <button type="submit" id="saveEntryBtn" data-i18n="saveTransaction">Simpan Transaksi</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </aside>
+
+      <section class="right-stack">
+        <div class="panel filter-card">
+          <div class="panel-header">
+            <h2 data-i18n="filterShopping">Filter & Cari Catatan Belanja</h2>
+          </div>
+          <div class="panel-body">
+            <div class="filters">
+              <label><span data-i18n="searchTransactions">Cari Transaksi</span>
+                <input id="transactionSearch" type="search" placeholder="Nama barang, kategori, atau catatan" data-i18n-placeholder="searchPlaceholder" autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false">
+              </label>
+              <label><span data-i18n="item">Barang</span>
+                <select id="itemFilter"></select>
+              </label>
+              <label><span data-i18n="month">Bulan</span>
+                <select id="monthFilter"></select>
+              </label>
+              <label><span data-i18n="year">Tahun</span>
+                <select id="yearFilter"></select>
+              </label>
+            </div>
+            <div class="filter-summary">
+              <span id="resultCountText">Menampilkan 0 transaksi belanja</span>
+              <span><span data-i18n="filteredTotal">Total Saringan</span>: <b id="filteredTotalText">Rp 0</b></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h2 data-i18n="transactionHistory">Riwayat Transaksi</h2>
+            <button type="button" class="danger" id="clearBtn" data-i18n="deleteAll">Hapus semua</button>
+          </div>
+          <div class="panel-body">
+            <div id="tableMount"></div>
+          </div>
+        </div>
+
+        <div class="content-grid">
+          <div class="panel chart-wrap">
+            <div class="chart-head">
+              <h3 id="mainChartTitle" data-i18n="monthlyExpenseChart">Total pengeluaran per bulan</h3>
+              <span class="pill" id="periodLabel">Bulan ini</span>
+            </div>
+            <div class="chart-canvas-wrap">
+              <canvas id="mainChart" role="img" aria-label="Grafik pengeluaran" data-i18n-aria="expenseChartAria"></canvas>
+            </div>
+          </div>
+          <div class="panel chart-wrap">
+            <div class="chart-head">
+              <h3 data-i18n="priceOverTime">Harga barang dari waktu ke waktu</h3>
+              <span class="pill" id="trendLabel">Semua barang</span>
+            </div>
+            <div class="chart-canvas-wrap">
+              <canvas id="priceChart" role="img" aria-label="Grafik harga barang" data-i18n-aria="priceChartAria"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel usage-panel">
+          <div class="panel-header">
+            <h2 data-i18n="incomeUsageTitle">Pengeluaran terhadap Pemasukan</h2>
+          </div>
+          <div class="panel-body">
+            <div class="usage-summary">
+              <strong id="incomeUsagePercent">0%</strong>
+              <span id="incomeUsageText"></span>
+            </div>
+            <div class="usage-meter" aria-label="Persentase pengeluaran terhadap pemasukan" data-i18n-aria="incomeUsageAria">
+              <i id="incomeUsageBar"></i>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+
+  <script src="./xlsx.full.min.js"></script>
+  <script src="./chart.umd.min.js"></script>
+  <script>
+    const STORAGE_KEY = "trackbelanja:v1";
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+    const englishMonthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const translations = {
+      id: {
+        settings: "Pengaturan", appSettings: "Pengaturan aplikasi", language: "Bahasa",
+        chooseLanguage: "Pilih bahasa", chooseTheme: "Pilih tema", openSettings: "Buka menu pengaturan", theme: "Tema",
+        fillSample: "Isi data contoh",
+        income: "Pemasukan", shoppingRecords: "Catatan Belanja", addIncome: "Tambah Pemasukan",
+        incomeDate: "Tanggal Pemasukan", amountRp: "Nominal (Rp)", amountPlaceholder: "Contoh: 5.000.000",
+        incomeSource: "Sumber Pemasukan", incomeSourcePlaceholder: "Contoh: Gaji, Freelance, Bonus",
+        notesOptional: "Catatan (Opsional)", incomeNotePlaceholder: "Contoh: Gaji bulan ini",
+        monthlyIncomeTotal: "Total Pemasukan Bulan Ini", saveIncome: "Simpan Pemasukan",
+        incomeHistory: "Riwayat Pemasukan", addShopping: "Tambah Belanjaan Baru",
+        shoppingDate: "Tanggal Belanja", category: "Kategori", itemName: "Nama Barang",
+        itemPlaceholder: "Contoh: Beras Rojo Lele, Minyak Goreng Bimoli", unitPriceRp: "Harga Satuan (Rp)",
+        pricePlaceholder: "Contoh: 15.000", quantity: "Jumlah Barang",
+        shoppingNotePlaceholder: "Contoh: Beli di supermarket ABC, sedang promo",
+        estimatedTotal: "Estimasi Total", cancel: "Batal", saveTransaction: "Simpan Transaksi",
+        editTransaction: "Edit Transaksi", saveChanges: "Simpan Perubahan",
+        filterShopping: "Filter & Cari Catatan Belanja", searchTransactions: "Cari Transaksi",
+        searchPlaceholder: "Nama barang, kategori, atau catatan", item: "Barang", month: "Bulan", year: "Tahun",
+        transactionHistory: "Riwayat Transaksi", deleteAll: "Hapus semua",
+        monthlyExpenseChart: "Total pengeluaran per bulan", priceOverTime: "Harga barang dari waktu ke waktu",
+        allItems: "Semua barang", selectItem: "Pilih barang untuk detail", shoppingByCategory: "Belanja per kategori",
+        incomeThisMonth: "Pemasukan Bulan Ini", expenseThisMonth: "Pengeluaran Bulan Ini",
+        calculatedPeriod: "Kalkulasi periode {period}", averageIncrease: "Rata-rata Kenaikan Harga Barang",
+        monthly: "Bulanan", sixMonths: "6 Bulan", yearly: "Tahunan",
+        showingTransactions: "Menampilkan {count} transaksi belanja", filteredTotal: "Total Saringan",
+        noTransactions: "Belum ada transaksi untuk filter ini.", date: "Tanggal", source: "Sumber",
+        amount: "Nominal", unitPrice: "Harga satuan", total: "Total", notes: "Catatan", actions: "Aksi",
+        edit: "Edit", delete: "Hapus", showingIncome: "Menampilkan {count} pemasukan",
+        noIncome: "Belum ada data pemasukan.", yearPeriod: "Tahun {year}",
+        localDataError: "Data lokal tidak bisa dibaca. Mulai dengan data kosong.", saved: "Tersimpan",
+        autoSave: "Auto-save", sampleAdded: "Data contoh Januari-Desember berhasil dibuat.",
+        sampleReplaceConfirm: "Semua data belanja dan pemasukan saat ini akan dihapus dan diganti dengan data contoh Januari-Desember. Lanjutkan?",
+        quantityPositive: "Jumlah barang harus lebih dari 0.", changesSaved: "Perubahan transaksi tersimpan.",
+        transactionSaved: "Transaksi belanja tersimpan.", incomeSaved: "Pemasukan tersimpan.",
+        exportReady: "Export JSON disiapkan. Cek folder Downloads browser.", importSuccess: "Import JSON berhasil.",
+        importInvalid: "File JSON tidak valid untuk TrackBelanja. Pastikan halaman sudah di-refresh.",
+        editCancelled: "Edit transaksi dibatalkan.", themeActive: "Tema {theme} aktif.",
+        deleteConfirm: "Hapus semua data belanja di browser ini?", allDeleted: "Semua data sudah dihapus.",
+        chooseDate: "Pilih tanggal", noChartData: "Belum ada data untuk grafik ini.", sampleDataNote: "Data contoh",
+        sampleSalary: "Gaji", sampleAnnualBonus: "Bonus Tahunan",
+        exportExcel: "Export Excel", importExcel: "Import Excel", downloadSampleExcel: "Download Sample Excel",
+        excelExported: "File Excel berhasil dibuat.", excelSampleDownloaded: "Sample Excel berhasil dibuat.",
+        excelImportSuccess: "Import Excel berhasil.", excelInvalid: "File Excel tidak valid. Gunakan sheet Income dan Expense dengan format yang ditentukan.",
+        excelLibraryMissing: "Fitur Excel tidak dapat dimuat. Pastikan file xlsx.full.min.js berada di folder yang sama.",
+        excelReplaceConfirm: "Data belanja dan pemasukan saat ini akan diganti dengan isi file Excel. Lanjutkan?",
+        importedIncomeSource: "Pemasukan Excel",
+        incomeUsageTitle: "Pengeluaran terhadap Pemasukan",
+        incomeUsageText: "Pengeluaran bulan ini sebesar {usage}% dari pemasukan.",
+        incomeUsageNoIncome: "Tambahkan pemasukan bulan ini untuk melihat persentase pengeluaran.",
+        incomeUsageAria: "Persentase pengeluaran terhadap pemasukan",
+        expenseChartAria: "Grafik pengeluaran interaktif", priceChartAria: "Grafik harga barang interaktif",
+        chartLibraryMissing: "Grafik interaktif tidak dapat dimuat. Pastikan file chart.umd.min.js berada di folder yang sama."
+      },
+      en: {
+        settings: "Settings", appSettings: "App settings", language: "Language",
+        chooseLanguage: "Choose language", chooseTheme: "Choose theme", openSettings: "Open settings menu", theme: "Theme",
+        fillSample: "Add sample data",
+        income: "Income", shoppingRecords: "Shopping Records", addIncome: "Add Income",
+        incomeDate: "Income Date", amountRp: "Amount (Rp)", amountPlaceholder: "Example: 5,000,000",
+        incomeSource: "Income Source", incomeSourcePlaceholder: "Example: Salary, Freelance, Bonus",
+        notesOptional: "Notes (Optional)", incomeNotePlaceholder: "Example: This month's salary",
+        monthlyIncomeTotal: "Total Income This Month", saveIncome: "Save Income",
+        incomeHistory: "Income History", addShopping: "Add New Purchase",
+        shoppingDate: "Purchase Date", category: "Category", itemName: "Item Name",
+        itemPlaceholder: "Example: Rice, Cooking Oil", unitPriceRp: "Unit Price (Rp)",
+        pricePlaceholder: "Example: 15,000", quantity: "Quantity",
+        shoppingNotePlaceholder: "Example: Bought at the supermarket during a promotion",
+        estimatedTotal: "Estimated Total", cancel: "Cancel", saveTransaction: "Save Transaction",
+        editTransaction: "Edit Transaction", saveChanges: "Save Changes",
+        filterShopping: "Filter & Search Shopping Records", searchTransactions: "Search Transactions",
+        searchPlaceholder: "Item name, category, or notes", item: "Item", month: "Month", year: "Year",
+        transactionHistory: "Transaction History", deleteAll: "Delete all",
+        monthlyExpenseChart: "Total monthly expenses", priceOverTime: "Item prices over time",
+        allItems: "All items", selectItem: "Select an item for details", shoppingByCategory: "Shopping by category",
+        incomeThisMonth: "Income This Month", expenseThisMonth: "Expenses This Month",
+        calculatedPeriod: "Calculated for {period}", averageIncrease: "Average Item Price Change",
+        monthly: "Monthly", sixMonths: "6 Months", yearly: "Yearly",
+        showingTransactions: "Showing {count} shopping transactions", filteredTotal: "Filtered Total",
+        noTransactions: "No transactions match the current filters.", date: "Date", source: "Source",
+        amount: "Amount", unitPrice: "Unit price", total: "Total", notes: "Notes", actions: "Actions",
+        edit: "Edit", delete: "Delete", showingIncome: "Showing {count} income entries",
+        noIncome: "No income data yet.", yearPeriod: "Year {year}",
+        localDataError: "Local data could not be read. Starting with an empty dataset.", saved: "Saved",
+        autoSave: "Auto-save", sampleAdded: "January-December sample data created.",
+        sampleReplaceConfirm: "All current shopping and income data will be deleted and replaced with January-December sample data. Continue?",
+        quantityPositive: "Quantity must be greater than 0.", changesSaved: "Transaction changes saved.",
+        transactionSaved: "Shopping transaction saved.", incomeSaved: "Income saved.",
+        exportReady: "JSON export prepared. Check your browser's Downloads folder.", importSuccess: "JSON imported successfully.",
+        importInvalid: "This JSON file is not valid for TrackBelanja. Make sure the page has been refreshed.",
+        editCancelled: "Transaction edit cancelled.", themeActive: "{theme} theme enabled.",
+        deleteConfirm: "Delete all shopping data in this browser?", allDeleted: "All shopping data has been deleted.",
+        chooseDate: "Choose a date", noChartData: "No data available for this chart.", sampleDataNote: "Sample data",
+        sampleSalary: "Salary", sampleAnnualBonus: "Annual Bonus",
+        exportExcel: "Export Excel", importExcel: "Import Excel", downloadSampleExcel: "Download Sample Excel",
+        excelExported: "Excel file created successfully.", excelSampleDownloaded: "Sample Excel created successfully.",
+        excelImportSuccess: "Excel imported successfully.", excelInvalid: "Invalid Excel file. Use Income and Expense sheets with the required format.",
+        excelLibraryMissing: "Excel support could not load. Make sure xlsx.full.min.js is in the same folder.",
+        excelReplaceConfirm: "Current shopping and income data will be replaced with the Excel file contents. Continue?",
+        importedIncomeSource: "Excel Income",
+        incomeUsageTitle: "Expenses vs Income",
+        incomeUsageText: "This month's expenses are {usage}% of the income.",
+        incomeUsageNoIncome: "Add income for this month to see the spending percentage.",
+        incomeUsageAria: "Expenses as a percentage of income",
+        expenseChartAria: "Interactive expense chart", priceChartAria: "Interactive item price chart",
+        chartLibraryMissing: "Interactive charts could not load. Make sure chart.umd.min.js is in the same folder."
+      }
+    };
+    const defaultCategories = [
+      "Bahan Makanan & Minuman",
+      "Sembako",
+      "Protein",
+      "Sayur & Buah",
+      "Dapur",
+      "Kebersihan",
+      "Kesehatan",
+      "Transportasi",
+      "Rumah Tangga",
+      "Lainnya"
+    ];
+    const rupiah = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 });
+    const numberFmt = new Intl.NumberFormat("id-ID", { maximumFractionDigits: 3 });
+    const systemThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+    const state = {
+      entries: [],
+      incomes: [],
+      settings: { theme: "system", language: "id" },
+      mode: "monthly",
+      view: "shopping",
+      editingEntryId: null,
+      suggestions: { items: [], categories: [], incomeSources: [] }
+    };
+    let mainChartInstance = null;
+    let priceChartInstance = null;
+    let chartLibraryWarningShown = false;
+
+    const $ = (id) => document.getElementById(id);
+
+    const controls = {
+      form: $("entryForm"),
+      date: $("dateInput"),
+      item: $("itemInput"),
+      category: $("categoryInput"),
+      qty: $("qtyInput"),
+      price: $("priceInput"),
+      note: $("noteInput"),
+      saveEntry: $("saveEntryBtn"),
+      cancelEdit: $("cancelEditBtn"),
+      incomeForm: $("incomeForm"),
+      incomeDate: $("incomeDateInput"),
+      incomeAmount: $("incomeAmountInput"),
+      incomeSource: $("incomeSourceInput"),
+      incomeNote: $("incomeNoteInput"),
+      theme: $("themeSelect"),
+      language: $("languageSelect"),
+      month: $("monthFilter"),
+      year: $("yearFilter"),
+      transactionSearch: $("transactionSearch"),
+      itemFilter: $("itemFilter")
+    };
+
+    function currentLanguage() {
+      return state.settings.language === "en" ? "en" : "id";
+    }
+
+    function t(key, variables = {}) {
+      const language = currentLanguage();
+      let text = translations[language][key] ?? translations.id[key] ?? key;
+      Object.entries(variables).forEach(([name, value]) => {
+        text = text.replaceAll(`{${name}}`, String(value));
+      });
+      return text;
+    }
+
+    function applyLanguage(language = state.settings.language) {
+      const safeLanguage = language === "en" ? "en" : "id";
+      state.settings.language = safeLanguage;
+      document.documentElement.lang = safeLanguage;
+      controls.language.value = safeLanguage;
+      document.querySelectorAll("[data-i18n]").forEach((element) => {
+        element.textContent = t(element.dataset.i18n);
+      });
+      document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => {
+        element.placeholder = t(element.dataset.i18nPlaceholder);
+      });
+      document.querySelectorAll("[data-i18n-aria]").forEach((element) => {
+        element.setAttribute("aria-label", t(element.dataset.i18nAria));
+      });
+    }
+
+    function localizedMonthNames() {
+      return currentLanguage() === "en" ? englishMonthNames : monthNames;
+    }
+
+    function todayISO() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function dateDisplayText(dateString) {
+      if (!dateString) return t("chooseDate");
+      return formatDate(dateString);
+    }
+
+    function updateDateDisplays() {
+      ["dateInput", "incomeDateInput"].forEach((id) => {
+        const input = $(id);
+        const display = $(`${id}Display`);
+        if (input && display) display.textContent = dateDisplayText(input.value);
+      });
+    }
+
+    function openNativeDatePicker(input) {
+      if (typeof input.showPicker === "function") {
+        input.showPicker();
+        return;
+      }
+      input.focus();
+      input.click();
+    }
+
+    function monthKey(dateString) {
+      return dateString.slice(0, 7);
+    }
+
+    function normalizeName(value) {
+      return value.trim().replace(/\s+/g, " ");
+    }
+
+    function parseCurrencyInput(value) {
+      return Number(String(value || "").replace(/[^\d]/g, ""));
+    }
+
+    function formatCurrencyInput(value) {
+      const digits = String(value || "").replace(/[^\d]/g, "");
+      if (!digits) return "";
+      return new Intl.NumberFormat("id-ID").format(Number(digits));
+    }
+
+    function formatCurrencyField(input) {
+      input.value = formatCurrencyInput(input.value);
+    }
+
+    function resolvedTheme(preference = state.settings.theme) {
+      if (preference === "dark" || preference === "light") return preference;
+      return systemThemeQuery.matches ? "dark" : "light";
+    }
+
+    function applyTheme(preference = state.settings.theme) {
+      const safePreference = ["system", "light", "dark"].includes(preference) ? preference : "system";
+      document.documentElement.dataset.themePreference = safePreference;
+      document.documentElement.dataset.resolvedTheme = resolvedTheme(safePreference);
+      if (controls.theme) controls.theme.value = safePreference;
+    }
+
+    function load() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        state.entries = Array.isArray(parsed.entries) ? parsed.entries : [];
+        state.incomes = Array.isArray(parsed.incomes) ? parsed.incomes : [];
+        const savedSettings = parsed.settings || {};
+        state.settings = {
+          theme: ["system", "light", "dark"].includes(savedSettings.theme) ? savedSettings.theme : "system",
+          language: savedSettings.language === "en" ? "en" : "id"
+        };
+      } catch (error) {
+        toast(t("localDataError"));
+      }
+    }
+
+    function persist() {
+      const payload = {
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        settings: state.settings,
+        entries: state.entries,
+        incomes: state.incomes
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      $("storageStatus").textContent = t("saved");
+      setTimeout(() => $("storageStatus").textContent = t("autoSave"), 1000);
+    }
+
+    function toast(message) {
+      const node = document.createElement("div");
+      node.className = "toast";
+      node.textContent = message;
+      $("toastStack").appendChild(node);
+      setTimeout(() => node.remove(), 3600);
+    }
+
+    function createSampleDataset(sampleYear = new Date().getFullYear()) {
+      const products = [
+        { day: "05", item: "Beras Ramos", category: "Sembako", qty: 5, basePrice: 14500, monthlyChange: 450 },
+        { day: "11", item: "Telur Ayam", category: "Protein", qty: 2, basePrice: 29500, monthlyChange: 700 },
+        { day: "18", item: "Minyak Goreng", category: "Sembako", qty: 2, basePrice: 18500, monthlyChange: 350 },
+        { day: "24", item: "Sayur Mingguan", category: "Sayur & Buah", qty: 1, basePrice: 145000, monthlyChange: 2500 }
+      ];
+      const seededEntries = Array.from({ length: 12 }, (_, monthIndex) => {
+        const month = String(monthIndex + 1).padStart(2, "0");
+        return products.map((product, productIndex) => {
+          const fluctuation = ((monthIndex + productIndex) % 4 === 0) ? -500 : 0;
+          const unitPrice = product.basePrice + (product.monthlyChange * monthIndex) + fluctuation;
+          return {
+            id: crypto.randomUUID(),
+            date: `${sampleYear}-${month}-${product.day}`,
+            item: product.item,
+            category: product.category,
+            qty: product.qty,
+            unitPrice,
+            total: Math.round(product.qty * unitPrice),
+            note: t("sampleDataNote")
+          };
+        });
+      }).flat();
+      const seededIncomes = Array.from({ length: 12 }, (_, monthIndex) => {
+        const month = String(monthIndex + 1).padStart(2, "0");
+        return {
+          id: crypto.randomUUID(),
+          date: `${sampleYear}-${month}-27`,
+          source: t("sampleSalary"),
+          amount: 6000000 + (monthIndex * 50000),
+          note: t("sampleDataNote")
+        };
+      });
+      seededIncomes.push({
+        id: crypto.randomUUID(),
+        date: `${sampleYear}-12-15`,
+        source: t("sampleAnnualBonus"),
+        amount: 3000000,
+        note: t("sampleDataNote")
+      });
+      return {
+        entries: seededEntries.sort((a, b) => b.date.localeCompare(a.date)),
+        incomes: seededIncomes.sort((a, b) => b.date.localeCompare(a.date))
+      };
+    }
+
+    function seedSample() {
+      if (!confirm(t("sampleReplaceConfirm"))) return false;
+      const sample = createSampleDataset();
+      state.entries = sample.entries;
+      state.incomes = sample.incomes;
+      exitEntryEditMode(true);
+      persist();
+      setupFilterOptions();
+      render();
+      toast(t("sampleAdded"));
+      return true;
+    }
+
+    function addEntry(event) {
+      event.preventDefault();
+      const qty = Number(controls.qty.value);
+      const unitPrice = parseCurrencyInput(controls.price.value);
+      if (!Number.isFinite(qty) || qty <= 0) {
+        toast(t("quantityPositive"));
+        controls.qty.focus();
+        return;
+      }
+      const editingIndex = state.entries.findIndex((item) => item.id === state.editingEntryId);
+      const entry = {
+        id: editingIndex >= 0 ? state.entries[editingIndex].id : crypto.randomUUID(),
+        date: controls.date.value,
+        item: normalizeName(controls.item.value),
+        category: normalizeName(controls.category.value) || "Lainnya",
+        qty,
+        unitPrice,
+        total: Math.round(qty * unitPrice),
+        note: controls.note.value.trim()
+      };
+      if (editingIndex >= 0) {
+        state.entries[editingIndex] = entry;
+      } else {
+        state.entries.unshift(entry);
+      }
+      state.entries.sort((a, b) => b.date.localeCompare(a.date));
+      controls.item.value = "";
+      controls.note.value = "";
+      controls.qty.value = "1";
+      controls.price.value = "";
+      const wasEditing = editingIndex >= 0;
+      exitEntryEditMode();
+      persist();
+      setupFilterOptions();
+      render();
+      toast(wasEditing ? t("changesSaved") : t("transactionSaved"));
+    }
+
+    function startEntryEdit(id) {
+      const entry = state.entries.find((item) => item.id === id);
+      if (!entry) return;
+      state.editingEntryId = id;
+      controls.date.value = entry.date;
+      controls.item.value = entry.item;
+      controls.category.value = entry.category;
+      controls.qty.value = String(entry.qty);
+      controls.price.value = formatCurrencyInput(entry.unitPrice);
+      controls.note.value = entry.note || "";
+      $("entryFormTitle").textContent = t("editTransaction");
+      controls.saveEntry.textContent = t("saveChanges");
+      controls.cancelEdit.hidden = false;
+      updateDateDisplays();
+      updateEstimate();
+      controls.form.closest(".entry-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+      controls.item.focus();
+    }
+
+    function exitEntryEditMode(resetForm = false) {
+      state.editingEntryId = null;
+      $("entryFormTitle").textContent = t("addShopping");
+      controls.saveEntry.textContent = t("saveTransaction");
+      controls.cancelEdit.hidden = true;
+      if (!resetForm) return;
+      controls.date.value = todayISO();
+      controls.item.value = "";
+      controls.category.value = "";
+      controls.qty.value = "1";
+      controls.price.value = "";
+      controls.note.value = "";
+      updateDateDisplays();
+      updateEstimate();
+    }
+
+    function addIncome(event) {
+      event.preventDefault();
+      const income = {
+        id: crypto.randomUUID(),
+        date: controls.incomeDate.value,
+        source: normalizeName(controls.incomeSource.value),
+        amount: parseCurrencyInput(controls.incomeAmount.value),
+        note: controls.incomeNote.value.trim()
+      };
+      state.incomes.unshift(income);
+      state.incomes.sort((a, b) => b.date.localeCompare(a.date));
+      controls.incomeAmount.value = "";
+      controls.incomeSource.value = "";
+      controls.incomeNote.value = "";
+      persist();
+      setupFilterOptions();
+      render();
+      toast(t("incomeSaved"));
+    }
+
+    function periodEntries() {
+      const year = controls.year.value;
+      const month = controls.month.value;
+      const item = controls.itemFilter.value;
+      const query = normalizeName(controls.transactionSearch.value).toLocaleLowerCase("id-ID");
+      let rows = state.entries;
+
+      if (state.mode === "yearly") {
+        rows = rows.filter((entry) => entry.date.startsWith(year));
+      } else {
+        rows = rows.filter((entry) => entry.date.startsWith(`${year}-${month}`));
+      }
+
+      if (item !== "all") {
+        rows = rows.filter((entry) => entry.item === item);
+      }
+      if (query) {
+        rows = rows.filter((entry) =>
+          [entry.item, entry.category, entry.note]
+            .some((value) => String(value || "").toLocaleLowerCase("id-ID").includes(query))
+        );
+      }
+      return rows;
+    }
+
+    function currentMonthEntries() {
+      const key = `${controls.year.value}-${controls.month.value}`;
+      return state.entries.filter((entry) => monthKey(entry.date) === key);
+    }
+
+    function sum(rows) {
+      return rows.reduce((total, entry) => total + Number(entry.total || 0), 0);
+    }
+
+    function monthKeyFromIndex(index) {
+      const year = Math.floor(index / 12);
+      const month = (index % 12) + 1;
+      return `${year}-${String(month).padStart(2, "0")}`;
+    }
+
+    function averagePriceChangeForRange(startDate, endDate) {
+      const grouped = state.entries.reduce((items, entry) => {
+        if (!entry.item || !Number(entry.unitPrice)) return items;
+        (items[entry.item] ||= []).push(entry);
+        return items;
+      }, {});
+      const changes = Object.values(grouped).map((entries) => {
+        const sorted = entries.slice().sort((a, b) => a.date.localeCompare(b.date));
+        const withinPeriod = sorted.filter((entry) => entry.date >= startDate && entry.date <= endDate);
+        if (!withinPeriod.length) return null;
+        const latest = withinPeriod[withinPeriod.length - 1];
+        const prior = sorted.filter((entry) => entry.date < startDate).pop();
+        const baseline = prior || (withinPeriod.length > 1 ? withinPeriod[0] : null);
+        if (!baseline || baseline === latest || !Number(baseline.unitPrice)) return null;
+        return ((Number(latest.unitPrice) - Number(baseline.unitPrice)) / Number(baseline.unitPrice)) * 100;
+      }).filter((value) => value !== null);
+      if (!changes.length) return null;
+      return changes.reduce((total, value) => total + value, 0) / changes.length;
+    }
+
+    function formatPriceChange(value) {
+      if (value === null) return { text: "—", tone: "neutral" };
+      const rounded = Math.round(value * 10) / 10;
+      const prefix = rounded > 0 ? "+" : "";
+      const tone = rounded > 0 ? "positive" : rounded < 0 ? "negative" : "neutral";
+      return { text: `${prefix}${numberFmt.format(rounded)}%`, tone };
+    }
+
+    function priceChangeMetric() {
+      const selectedYear = Number(controls.year.value);
+      const selectedMonth = Number(controls.month.value);
+      const endIndex = (selectedYear * 12) + selectedMonth - 1;
+      const activeMonth = monthKeyFromIndex(endIndex);
+      const sixMonthStart = monthKeyFromIndex(endIndex - 5);
+      const monthly = formatPriceChange(averagePriceChangeForRange(`${activeMonth}-01`, `${activeMonth}-31`));
+      const sixMonths = formatPriceChange(averagePriceChangeForRange(`${sixMonthStart}-01`, `${activeMonth}-31`));
+      const yearly = formatPriceChange(averagePriceChangeForRange(
+        `${controls.year.value}-01-01`,
+        `${controls.year.value}-12-31`
+      ));
+      const periods = [
+        [t("monthly"), monthly],
+        [t("sixMonths"), sixMonths],
+        [t("yearly"), yearly]
+      ];
+      return `
+        <article class="metric price-change-metric">
+          <span>${t("averageIncrease")}</span>
+          <div class="price-change-grid">
+            ${periods.map(([label, value]) => `
+              <div>
+                <small>${label}</small>
+                <b class="${value.tone}">${value.text}</b>
+              </div>
+            `).join("")}
+          </div>
+        </article>
+      `;
+    }
+
+    function groupBy(rows, keyFn, valueFn = (entry) => entry.total) {
+      return rows.reduce((acc, entry) => {
+        const key = keyFn(entry);
+        acc[key] = (acc[key] || 0) + valueFn(entry);
+        return acc;
+      }, {});
+    }
+
+    function uniqueRecentValues(rows, valueFn) {
+      const seen = new Set();
+      return rows
+        .slice()
+        .sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")))
+        .map(valueFn)
+        .map((value) => normalizeName(String(value || "")))
+        .filter((value) => {
+          if (!value || seen.has(value)) return false;
+          seen.add(value);
+          return true;
+        });
+    }
+
+    function matchingSuggestions(options, query) {
+      const q = normalizeName(query || "").toLowerCase();
+      const matches = q
+        ? options.filter((option) => option.toLowerCase().includes(q))
+        : options;
+      return matches.slice(0, 8);
+    }
+
+    function renderSuggestionBox(input, box, options) {
+      const matches = matchingSuggestions(options, input.value);
+      if (!matches.length) {
+        box.hidden = true;
+        box.innerHTML = "";
+        return;
+      }
+
+      box.innerHTML = matches.map((value) => (
+        `<button type="button" data-suggestion-value="${escapeHtml(value)}">${escapeHtml(value)}</button>`
+      )).join("");
+      box.hidden = false;
+    }
+
+    function hideSuggestionBoxes() {
+      ["itemSuggestions", "categorySuggestions", "incomeSourceSuggestions"].forEach((id) => {
+        const box = $(id);
+        if (box) box.hidden = true;
+      });
+    }
+
+    function setupAutocomplete(input, box, getOptions) {
+      const show = () => renderSuggestionBox(input, box, getOptions());
+      input.addEventListener("focus", show);
+      input.addEventListener("input", show);
+      box.addEventListener("mousedown", (event) => {
+        const button = event.target.closest("[data-suggestion-value]");
+        if (!button) return;
+        event.preventDefault();
+        input.value = button.dataset.suggestionValue;
+        box.hidden = true;
+        input.focus();
+      });
+    }
+
+    function setupFilterOptions() {
+      const now = new Date();
+      const previousYear = controls.year.value;
+      const previousMonth = controls.month.value;
+      const previousItem = controls.itemFilter.value;
+      const years = [...new Set([...state.entries.map((entry) => entry.date.slice(0, 4)), String(now.getFullYear())])].sort();
+      controls.year.innerHTML = years.map((year) => `<option value="${year}">${year}</option>`).join("");
+      controls.year.value = previousYear && years.includes(previousYear) ? previousYear : String(now.getFullYear());
+
+      controls.month.innerHTML = localizedMonthNames().map((name, index) => {
+        const value = String(index + 1).padStart(2, "0");
+        return `<option value="${value}">${name}</option>`;
+      }).join("");
+      controls.month.value = previousMonth || String(now.getMonth() + 1).padStart(2, "0");
+
+      const items = [...new Set(state.entries.map((entry) => entry.item).filter(Boolean))].sort((a, b) => a.localeCompare(b, "id"));
+      controls.itemFilter.innerHTML = `<option value="all">${t("allItems")}</option>` + items.map((item) => `<option value="${escapeHtml(item)}">${escapeHtml(item)}</option>`).join("");
+      controls.itemFilter.value = previousItem && (previousItem === "all" || items.includes(previousItem)) ? previousItem : "all";
+      state.suggestions.items = uniqueRecentValues(state.entries, (entry) => entry.item);
+
+      const recentCategories = uniqueRecentValues(state.entries, (entry) => entry.category);
+      const categories = [...new Set([...recentCategories, ...defaultCategories])];
+      state.suggestions.categories = categories;
+
+      const incomeSources = uniqueRecentValues(state.incomes, (income) => income.source);
+      state.suggestions.incomeSources = incomeSources;
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#039;"
+      }[char]));
+    }
+
+    function renderSummary(rows) {
+      const currentMonthTotal = sum(currentMonthEntries());
+      const activeMonth = `${controls.year.value}-${controls.month.value}`;
+      const currentMonthIncome = sumIncome(
+        state.incomes.filter((income) => income.date.startsWith(activeMonth))
+      );
+      const activePeriod = `${localizedMonthNames()[Number(controls.month.value) - 1]} ${controls.year.value}`;
+
+      $("summaryGrid").innerHTML = [
+        metric(t("incomeThisMonth"), rupiah.format(currentMonthIncome), t("calculatedPeriod", { period: activePeriod })),
+        metric(t("expenseThisMonth"), rupiah.format(currentMonthTotal), t("calculatedPeriod", { period: activePeriod })),
+        priceChangeMetric()
+      ].join("");
+    }
+
+    function metric(label, value, detail) {
+      return `<article class="metric"><span>${label}</span><strong>${value}</strong><small>${detail}</small></article>`;
+    }
+
+    function renderFilterSummary(rows) {
+      const countText = $("resultCountText");
+      const totalText = $("filteredTotalText");
+      if (countText) countText.textContent = t("showingTransactions", { count: rows.length });
+      if (totalText) totalText.textContent = rupiah.format(sum(rows));
+    }
+
+    function updateEstimate() {
+      const estimate = $("estimateTotal");
+      if (!estimate) return;
+      const qty = Number(controls.qty.value || 0);
+      const price = parseCurrencyInput(controls.price.value);
+      estimate.textContent = rupiah.format(Math.round(qty * price));
+    }
+
+    function renderIncomeUsage() {
+      const activeMonth = `${controls.year.value}-${controls.month.value}`;
+      const expenses = sum(currentMonthEntries());
+      const income = sumIncome(state.incomes.filter((entry) => entry.date.startsWith(activeMonth)));
+      const usage = income > 0 ? (expenses / income) * 100 : null;
+      const roundedUsage = usage === null ? null : Math.round(usage * 10) / 10;
+      const percentText = roundedUsage === null ? "—" : `${numberFmt.format(roundedUsage)}%`;
+      $("incomeUsagePercent").textContent = percentText;
+      $("incomeUsageText").textContent = roundedUsage === null
+        ? t("incomeUsageNoIncome")
+        : t("incomeUsageText", { usage: numberFmt.format(roundedUsage) });
+      const bar = $("incomeUsageBar");
+      bar.style.width = `${Math.min(usage || 0, 100)}%`;
+      bar.style.background = usage >= 100 ? "var(--danger)" : usage >= 75 ? "var(--warn)" : "var(--good)";
+    }
+
+    function renderTable(rows) {
+      if (!rows.length) {
+        $("tableMount").innerHTML = `<div class="empty">${t("noTransactions")}</div>`;
+        return;
+      }
+
+      $("tableMount").innerHTML = `
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>${t("date")}</th>
+                <th>${t("item")}</th>
+                <th>${t("category")}</th>
+                <th class="num">${t("quantity")}</th>
+                <th class="num">${t("unitPrice")}</th>
+                <th class="num">${t("total")}</th>
+                <th>${t("notes")}</th>
+                <th>${t("actions")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows.map((entry) => `
+                <tr>
+                  <td data-label="${t("date")}">${formatDate(entry.date)}</td>
+                  <td data-label="${t("item")}"><b>${escapeHtml(entry.item)}</b></td>
+                  <td data-label="${t("category")}">${escapeHtml(entry.category)}</td>
+                  <td class="num" data-label="${t("quantity")}">${numberFmt.format(entry.qty)}</td>
+                  <td class="num" data-label="${t("unitPrice")}">${rupiah.format(entry.unitPrice)}</td>
+                  <td class="num" data-label="${t("total")}"><b>${rupiah.format(entry.total)}</b></td>
+                  <td data-label="${t("notes")}">${escapeHtml(entry.note || "-")}</td>
+                  <td data-label="${t("actions")}">
+                    <div class="row-actions">
+                      <button type="button" class="ghost" data-edit="${entry.id}" title="${t("editTransaction")}">${t("edit")}</button>
+                      <button type="button" class="ghost" data-delete="${entry.id}" title="${t("delete")}">${t("delete")}</button>
+                    </div>
+                  </td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderIncomeTable() {
+      const activeMonth = `${controls.year.value}-${controls.month.value}`;
+      const monthIncomes = state.incomes.filter((income) => income.date.startsWith(activeMonth));
+      const allIncomeTotal = sumIncome(state.incomes);
+      const monthIncomeTotal = sumIncome(monthIncomes);
+
+      $("incomeMonthTotal").textContent = rupiah.format(monthIncomeTotal);
+      $("incomeCountText").textContent = t("showingIncome", { count: state.incomes.length });
+      $("incomeTotalText").textContent = rupiah.format(allIncomeTotal);
+
+      if (!state.incomes.length) {
+        $("incomeTableMount").innerHTML = `<div class="empty">${t("noIncome")}</div>`;
+        return;
+      }
+
+      $("incomeTableMount").innerHTML = `
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>${t("date")}</th>
+                <th>${t("source")}</th>
+                <th class="num">${t("amount")}</th>
+                <th>${t("notes")}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              ${state.incomes.map((income) => `
+                <tr>
+                  <td data-label="${t("date")}">${formatDate(income.date)}</td>
+                  <td data-label="${t("source")}"><b>${escapeHtml(income.source)}</b></td>
+                  <td class="num" data-label="${t("amount")}"><b>${rupiah.format(income.amount)}</b></td>
+                  <td data-label="${t("notes")}">${escapeHtml(income.note || "-")}</td>
+                  <td data-label="${t("actions")}"><button type="button" class="ghost" data-delete-income="${income.id}" title="${t("delete")}">${t("delete")}</button></td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function sumIncome(rows) {
+      return rows.reduce((total, income) => total + Number(income.amount || 0), 0);
+    }
+
+    function formatDate(dateString) {
+      const [year, month, day] = dateString.split("-");
+      const locale = currentLanguage() === "en" ? "en-GB" : "id-ID";
+      return new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", year: "numeric" })
+        .format(new Date(Number(year), Number(month) - 1, Number(day)));
+    }
+
+    function periodLabel() {
+      if (state.mode === "yearly") return t("yearPeriod", { year: controls.year.value });
+      return `${localizedMonthNames()[Number(controls.month.value) - 1]} ${controls.year.value}`;
+    }
+
+    function renderCharts(rows) {
+      $("periodLabel").textContent = periodLabel();
+      $("trendLabel").textContent = controls.itemFilter.value === "all" ? t("selectItem") : controls.itemFilter.value;
+      $("mainChartTitle").textContent = state.mode === "monthly" ? t("shoppingByCategory") : t("monthlyExpenseChart");
+      if ($("shoppingView").hidden) return;
+
+      const mainData = state.mode === "monthly"
+        ? Object.entries(groupBy(rows, (entry) => entry.category)).sort((a, b) => b[1] - a[1])
+        : monthlyTotals(rows);
+
+      const itemRows = controls.itemFilter.value === "all"
+        ? rows
+        : state.entries.filter((entry) => entry.item === controls.itemFilter.value);
+      const priceData = priceTrend(itemRows);
+      mainChartInstance = renderInteractiveChart(
+        mainChartInstance,
+        $("mainChart"),
+        "bar",
+        mainData,
+        $("mainChartTitle").textContent,
+        "accent"
+      );
+      priceChartInstance = renderInteractiveChart(
+        priceChartInstance,
+        $("priceChart"),
+        "line",
+        priceData,
+        t("priceOverTime"),
+        "accent2"
+      );
+    }
+
+    function monthlyTotals(rows) {
+      const grouped = groupBy(rows, (entry) => monthKey(entry.date));
+      return Object.entries(grouped).sort((a, b) => a[0].localeCompare(b[0])).map(([key, value]) => {
+        const [year, month] = key.split("-");
+        return [`${localizedMonthNames()[Number(month) - 1]} ${year}`, value];
+      });
+    }
+
+    function priceTrend(rows) {
+      const selected = controls.itemFilter.value;
+      const filtered = selected === "all"
+        ? rows.slice().sort((a, b) => b.date.localeCompare(a.date)).slice(0, 12).reverse()
+        : rows.slice().sort((a, b) => a.date.localeCompare(b.date));
+      return filtered.map((entry) => [`${formatDate(entry.date)}\n${entry.item}`, entry.unitPrice]);
+    }
+
+    function chartLibrary() {
+      if (globalThis.Chart) return globalThis.Chart;
+      if (!chartLibraryWarningShown) {
+        chartLibraryWarningShown = true;
+        toast(t("chartLibraryMissing"));
+      }
+      return null;
+    }
+
+    function chartTheme() {
+      const styles = getComputedStyle(document.documentElement);
+      return {
+        ink: styles.getPropertyValue("--ink").trim() || "#18181b",
+        muted: styles.getPropertyValue("--muted").trim() || "#8f8f9b",
+        line: styles.getPropertyValue("--line").trim() || "#e7e7ec",
+        accent: styles.getPropertyValue("--accent").trim() || "#009f6b",
+        accent2: styles.getPropertyValue("--accent-2").trim() || "#0ea5e9",
+        panel: styles.getPropertyValue("--panel").trim() || "#ffffff"
+      };
+    }
+
+    const emptyChartPlugin = {
+      id: "trackBelanjaEmptyState",
+      afterDraw(chart, args, options) {
+        const hasData = chart.data.datasets.some((dataset) => dataset.data.length);
+        if (hasData) return;
+        const { ctx, chartArea } = chart;
+        ctx.save();
+        ctx.fillStyle = options.color;
+        ctx.font = "600 14px system-ui";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(options.message, (chartArea.left + chartArea.right) / 2, (chartArea.top + chartArea.bottom) / 2);
+        ctx.restore();
+      }
+    };
+
+    function renderInteractiveChart(existingChart, canvas, type, pairs, datasetLabel, colorKey) {
+      const ChartLibrary = chartLibrary();
+      if (!ChartLibrary) return null;
+      if (existingChart) existingChart.destroy();
+      const colors = chartTheme();
+      const color = colors[colorKey];
+      const labels = pairs.map(([label]) => type === "line" ? String(label).split("\n") : label);
+      const values = pairs.map(([, value]) => Number(value || 0));
+      const isLine = type === "line";
+      return new ChartLibrary(canvas, {
+        type,
+        data: {
+          labels,
+          datasets: [{
+            label: datasetLabel,
+            data: values,
+            backgroundColor: isLine ? colors.panel : color,
+            borderColor: color,
+            borderWidth: isLine ? 3 : 0,
+            borderRadius: isLine ? 0 : 7,
+            borderSkipped: false,
+            tension: .3,
+            fill: false,
+            pointRadius: isLine ? 4 : 0,
+            pointHoverRadius: isLine ? 7 : 0,
+            pointBackgroundColor: colors.panel,
+            pointBorderColor: color,
+            pointBorderWidth: 3,
+            hoverBackgroundColor: color
+          }]
+        },
+        plugins: [emptyChartPlugin],
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
+          resizeDelay: 100,
+          animation: { duration: 320 },
+          interaction: { mode: "nearest", intersect: false, axis: "x" },
+          onHover(event, elements, chart) {
+            chart.canvas.style.cursor = elements.length ? "pointer" : "default";
+          },
+          layout: { padding: { top: 8, right: 6, bottom: 0, left: 2 } },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              enabled: true,
+              displayColors: false,
+              backgroundColor: "#18191f",
+              titleColor: "#ffffff",
+              bodyColor: "#ffffff",
+              padding: 12,
+              cornerRadius: 8,
+              callbacks: {
+                title(items) {
+                  const label = items[0]?.label || "";
+                  return Array.isArray(label) ? label.join(" · ") : label;
+                },
+                label(context) {
+                  return `${context.dataset.label}: ${rupiah.format(context.parsed.y || 0)}`;
+                }
+              }
+            },
+            trackBelanjaEmptyState: {
+              color: colors.muted,
+              message: t("noChartData")
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: {
+                color: colors.muted,
+                maxRotation: 0,
+                autoSkip: true,
+                maxTicksLimit: isLine ? 6 : 8,
+                font: { size: 11, weight: "600" }
+              },
+              border: { color: colors.line }
+            },
+            y: {
+              beginAtZero: !isLine,
+              grid: { color: colors.line },
+              border: { display: false },
+              ticks: {
+                color: colors.muted,
+                callback(value) {
+                  return shortMoney(value);
+                },
+                font: { size: 11, weight: "600" }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function shortMoney(value) {
+      if (currentLanguage() === "en") {
+        if (value >= 1000000) return `${Math.round(value / 100000) / 10}M`;
+        if (value >= 1000) return `${Math.round(value / 1000)}K`;
+      } else {
+        if (value >= 1000000) return `${Math.round(value / 100000) / 10} jt`;
+        if (value >= 1000) return `${Math.round(value / 1000)} rb`;
+      }
+      return String(Math.round(value));
+    }
+
+    function exportJson() {
+      const payload = {
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        settings: state.settings,
+        entries: state.entries,
+        incomes: state.incomes
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.href = url;
+      link.download = `trackbelanja-${todayISO()}.json`;
+      link.style.display = "none";
+      document.body.appendChild(link);
+      link.click();
+      toast(t("exportReady"));
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+        link.remove();
+      }, 1500);
+    }
+
+    function excelLibrary() {
+      if (globalThis.XLSX) return globalThis.XLSX;
+      toast(t("excelLibraryMissing"));
+      return null;
+    }
+
+    function createExcelWorkbook(dataset) {
+      const XLSX = excelLibrary();
+      if (!XLSX) return null;
+      const incomeHeaders = ["Date", "Source", "Income", "Notes"];
+      const expenseHeaders = ["Date", "Item", "Category", "Quantity", "Unit Price", "Expense", "Notes"];
+      const incomeRows = dataset.incomes
+        .slice()
+        .sort((a, b) => a.date.localeCompare(b.date))
+        .map((income) => ({
+          Date: income.date,
+          Source: income.source,
+          Income: Number(income.amount || 0),
+          Notes: income.note || ""
+        }));
+      const expenseRows = dataset.entries
+        .slice()
+        .sort((a, b) => a.date.localeCompare(b.date))
+        .map((entry) => ({
+          Date: entry.date,
+          Item: entry.item,
+          Category: entry.category,
+          Quantity: Number(entry.qty || 1),
+          "Unit Price": Number(entry.unitPrice || 0),
+          Expense: Number(entry.total || 0),
+          Notes: entry.note || ""
+        }));
+      const incomeSheet = XLSX.utils.json_to_sheet(incomeRows, { header: incomeHeaders });
+      const expenseSheet = XLSX.utils.json_to_sheet(expenseRows, { header: expenseHeaders });
+      incomeSheet["!cols"] = [{ wch: 13 }, { wch: 24 }, { wch: 16 }, { wch: 34 }];
+      expenseSheet["!cols"] = [
+        { wch: 13 }, { wch: 26 }, { wch: 22 }, { wch: 12 },
+        { wch: 16 }, { wch: 16 }, { wch: 34 }
+      ];
+      if (incomeSheet["!ref"]) incomeSheet["!autofilter"] = { ref: incomeSheet["!ref"] };
+      if (expenseSheet["!ref"]) expenseSheet["!autofilter"] = { ref: expenseSheet["!ref"] };
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, incomeSheet, "Income");
+      XLSX.utils.book_append_sheet(workbook, expenseSheet, "Expense");
+      return workbook;
+    }
+
+    function exportExcel() {
+      const XLSX = excelLibrary();
+      if (!XLSX) return false;
+      const workbook = createExcelWorkbook({ entries: state.entries, incomes: state.incomes });
+      if (!workbook) return false;
+      XLSX.writeFile(workbook, `trackbelanja-${todayISO()}.xlsx`, { compression: true });
+      toast(t("excelExported"));
+      return true;
+    }
+
+    function downloadSampleExcel() {
+      const XLSX = excelLibrary();
+      if (!XLSX) return false;
+      const sampleYear = new Date().getFullYear();
+      const workbook = createExcelWorkbook(createSampleDataset(sampleYear));
+      if (!workbook) return false;
+      XLSX.writeFile(workbook, `trackbelanja-sample-${sampleYear}.xlsx`, { compression: true });
+      toast(t("excelSampleDownloaded"));
+      return true;
+    }
+
+    function normalizeExcelHeader(value) {
+      return String(value || "").trim().toLowerCase().replace(/\s+/g, " ");
+    }
+
+    function normalizedExcelRow(row) {
+      return Object.entries(row).reduce((result, [key, value]) => {
+        result[normalizeExcelHeader(key)] = value;
+        return result;
+      }, {});
+    }
+
+    function excelValue(row, aliases) {
+      for (const alias of aliases) {
+        const value = row[normalizeExcelHeader(alias)];
+        if (value !== undefined && value !== null && value !== "") return value;
+      }
+      return "";
+    }
+
+    function normalizeExcelDate(value, XLSX) {
+      if (value instanceof Date && !Number.isNaN(value.getTime())) {
+        return `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, "0")}-${String(value.getDate()).padStart(2, "0")}`;
+      }
+      if (typeof value === "number" && XLSX.SSF) {
+        const parsed = XLSX.SSF.parse_date_code(value);
+        if (parsed) return `${parsed.y}-${String(parsed.m).padStart(2, "0")}-${String(parsed.d).padStart(2, "0")}`;
+      }
+      const text = String(value || "").trim();
+      const iso = text.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
+      if (iso) return `${iso[1]}-${iso[2].padStart(2, "0")}-${iso[3].padStart(2, "0")}`;
+      const local = text.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
+      if (local) return `${local[3]}-${local[2].padStart(2, "0")}-${local[1].padStart(2, "0")}`;
+      return "";
+    }
+
+    function excelAmount(value) {
+      if (typeof value === "number") return Number.isFinite(value) ? value : 0;
+      return parseCurrencyInput(value);
+    }
+
+    function excelQuantity(value) {
+      if (typeof value === "number") return Number.isFinite(value) && value > 0 ? value : 1;
+      const parsed = Number(String(value || "").trim().replace(",", "."));
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+    }
+
+    function findExcelSheet(workbook, name) {
+      const actualName = workbook.SheetNames.find((sheetName) => sheetName.toLowerCase() === name.toLowerCase());
+      return actualName ? workbook.Sheets[actualName] : null;
+    }
+
+    function validateExcelHeaders(XLSX, sheet, requiredGroups) {
+      const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, blankrows: false, defval: "" });
+      const headers = new Set((rows[0] || []).map(normalizeExcelHeader));
+      return requiredGroups.every((aliases) => aliases.some((alias) => headers.has(normalizeExcelHeader(alias))));
+    }
+
+    async function importExcel(file) {
+      const XLSX = excelLibrary();
+      if (!XLSX) return false;
+      try {
+        const workbook = XLSX.read(await file.arrayBuffer(), { type: "array", cellDates: true });
+        const incomeSheet = findExcelSheet(workbook, "Income");
+        const expenseSheet = findExcelSheet(workbook, "Expense");
+        if (!incomeSheet || !expenseSheet) throw new Error("required sheets missing");
+        if (!validateExcelHeaders(XLSX, incomeSheet, [["Date"], ["Income", "Amount"]])) {
+          throw new Error("income headers invalid");
+        }
+        if (!validateExcelHeaders(XLSX, expenseSheet, [["Date"], ["Item"], ["Expense", "Amount", "Total"]])) {
+          throw new Error("expense headers invalid");
+        }
+
+        const incomeRows = XLSX.utils.sheet_to_json(incomeSheet, { defval: "", raw: true }).map(normalizedExcelRow);
+        const expenseRows = XLSX.utils.sheet_to_json(expenseSheet, { defval: "", raw: true }).map(normalizedExcelRow);
+        const importedIncomes = incomeRows.map((row) => ({
+          id: crypto.randomUUID(),
+          date: normalizeExcelDate(excelValue(row, ["Date"]), XLSX),
+          source: normalizeName(String(excelValue(row, ["Source"]) || t("importedIncomeSource"))),
+          amount: excelAmount(excelValue(row, ["Income", "Amount"])),
+          note: String(excelValue(row, ["Notes", "Note"]) || "").trim()
+        })).filter((income) => income.date && income.amount > 0);
+        const importedEntries = expenseRows.map((row) => {
+          const qty = excelQuantity(excelValue(row, ["Quantity", "Qty"]));
+          const expense = excelAmount(excelValue(row, ["Expense", "Amount", "Total"]));
+          let unitPrice = excelAmount(excelValue(row, ["Unit Price", "Price"]));
+          if (!unitPrice && expense) unitPrice = expense / qty;
+          const total = expense || Math.round(qty * unitPrice);
+          return {
+            id: crypto.randomUUID(),
+            date: normalizeExcelDate(excelValue(row, ["Date"]), XLSX),
+            item: normalizeName(String(excelValue(row, ["Item", "Product"]) || "")),
+            category: normalizeName(String(excelValue(row, ["Category"]) || "Lainnya")),
+            qty,
+            unitPrice: Math.round(unitPrice),
+            total: Math.round(total),
+            note: String(excelValue(row, ["Notes", "Note"]) || "").trim()
+          };
+        }).filter((entry) => entry.date && entry.item && entry.total > 0);
+        if (!importedIncomes.length && !importedEntries.length) throw new Error("no valid rows");
+        if (!confirm(t("excelReplaceConfirm"))) return false;
+
+        state.incomes = importedIncomes.sort((a, b) => b.date.localeCompare(a.date));
+        state.entries = importedEntries.sort((a, b) => b.date.localeCompare(a.date));
+        exitEntryEditMode(true);
+        persist();
+        setupFilterOptions();
+        render();
+        toast(t("excelImportSuccess"));
+        return true;
+      } catch (error) {
+        console.error("Import Excel gagal:", error);
+        toast(t("excelInvalid"));
+        return false;
+      }
+    }
+
+    function normalizeImportedEntries(parsed) {
+      if (Array.isArray(parsed.entries)) {
+        return parsed.entries.map((entry) => ({
+          id: entry.id || crypto.randomUUID(),
+          date: entry.date,
+          item: normalizeName(entry.item || ""),
+          category: normalizeName(entry.category || "Lainnya"),
+          qty: Number(entry.qty || 1),
+          unit: normalizeName(entry.unit || "unit"),
+          unitPrice: Number(entry.unitPrice || 0),
+          total: Number(entry.total || Number(entry.qty || 1) * Number(entry.unitPrice || 0)),
+          note: entry.note || ""
+        }));
+      }
+
+      if (Array.isArray(parsed.transactions)) {
+        return parsed.transactions.map((entry) => {
+          const qty = Number(entry.jumlah || entry.qty || 1);
+          const unitPrice = Number(entry.hargaSatuan || entry.unitPrice || 0);
+          return {
+            id: entry.id || crypto.randomUUID(),
+            date: entry.tanggal || entry.date,
+            item: normalizeName(entry.namaBarang || entry.item || ""),
+            category: normalizeName(entry.kategori || entry.category || "Lainnya"),
+            qty,
+            unit: normalizeName(entry.satuan || entry.unit || "unit"),
+            unitPrice,
+            total: Number(entry.total || qty * unitPrice),
+            note: entry.catatan || entry.note || ""
+          };
+        });
+      }
+
+      return null;
+    }
+
+    function applyImportedSettings(parsed) {
+      const importedSettings = parsed.settings || {};
+      state.settings.theme = ["system", "light", "dark"].includes(importedSettings.theme)
+        ? importedSettings.theme
+        : state.settings.theme;
+      state.settings.language = ["id", "en"].includes(importedSettings.language)
+        ? importedSettings.language
+        : state.settings.language;
+    }
+
+    function normalizeImportedIncomes(parsed) {
+      if (!Array.isArray(parsed.incomes)) return [];
+      return parsed.incomes.map((income) => ({
+        id: income.id || crypto.randomUUID(),
+        date: income.date || income.tanggal,
+        source: normalizeName(income.source || income.sumber || ""),
+        amount: Number(income.amount || income.nominal || 0),
+        note: income.note || income.catatan || ""
+      })).filter((income) => income.date && income.source);
+    }
+
+    function importJson(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(reader.result);
+          const importedEntries = normalizeImportedEntries(parsed);
+          if (!importedEntries) throw new Error("entries missing");
+          state.entries = importedEntries.filter((entry) => entry.date && entry.item);
+          state.incomes = normalizeImportedIncomes(parsed);
+          if (!state.entries.length && !state.incomes.length) throw new Error("no valid records");
+          applyImportedSettings(parsed);
+          syncSettingsControls();
+          persist();
+          setupFilterOptions();
+          render();
+          toast(t("importSuccess"));
+        } catch (error) {
+          console.error("Import JSON gagal:", error);
+          toast(t("importInvalid"));
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function syncSettingsControls() {
+      controls.theme.value = state.settings.theme || "system";
+      applyTheme(controls.theme.value);
+      applyLanguage(state.settings.language || "id");
+    }
+
+    function disableBrowserAutofill() {
+      document.querySelectorAll("form").forEach((form) => form.setAttribute("autocomplete", "off"));
+      document.querySelectorAll("input:not([type='file']), textarea").forEach((field) => {
+        const strongOff = ["text", "number", "search", "email", "tel", "url", ""].includes(field.getAttribute("type") || "");
+        field.setAttribute("autocomplete", strongOff ? "new-password" : "off");
+        field.setAttribute("autocorrect", "off");
+        field.setAttribute("autocapitalize", "off");
+        field.setAttribute("spellcheck", "false");
+        field.setAttribute("data-lpignore", "true");
+        field.setAttribute("data-form-type", "other");
+      });
+    }
+
+    function render() {
+      const rows = periodEntries();
+      renderSummary(rows);
+      renderFilterSummary(rows);
+      renderCharts(rows);
+      renderTable(rows);
+      renderIncomeTable();
+      renderIncomeUsage();
+      updateEstimate();
+    }
+
+    function attachEvents() {
+      const settingsMenu = $("settingsMenu");
+      const closeSettingsMenu = () => settingsMenu.removeAttribute("open");
+
+      controls.form.addEventListener("submit", addEntry);
+      controls.cancelEdit.addEventListener("click", () => {
+        exitEntryEditMode(true);
+        toast(t("editCancelled"));
+      });
+      controls.incomeForm.addEventListener("submit", addIncome);
+      setupAutocomplete(controls.item, $("itemSuggestions"), () => state.suggestions.items);
+      setupAutocomplete(controls.category, $("categorySuggestions"), () => state.suggestions.categories);
+      setupAutocomplete(controls.incomeSource, $("incomeSourceSuggestions"), () => state.suggestions.incomeSources);
+      document.addEventListener("mousedown", (event) => {
+        if (!event.target.closest(".suggestion-box") && !event.target.closest("#itemInput") && !event.target.closest("#categoryInput") && !event.target.closest("#incomeSourceInput")) {
+          hideSuggestionBoxes();
+        }
+      });
+      ["month", "year", "itemFilter"].forEach((key) => controls[key].addEventListener("change", render));
+      controls.transactionSearch.addEventListener("input", render);
+      ["date", "incomeDate"].forEach((key) => controls[key].addEventListener("change", updateDateDisplays));
+      controls.qty.addEventListener("input", updateEstimate);
+      controls.price.addEventListener("input", () => {
+        formatCurrencyField(controls.price);
+        updateEstimate();
+      });
+      controls.incomeAmount.addEventListener("input", () => formatCurrencyField(controls.incomeAmount));
+      document.querySelectorAll("[data-date-target]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const input = $(button.dataset.dateTarget);
+          openNativeDatePicker(input);
+        });
+      });
+      controls.theme.addEventListener("change", () => {
+        state.settings.theme = controls.theme.value;
+        applyTheme(state.settings.theme);
+        renderCharts(periodEntries());
+        persist();
+        toast(t("themeActive", { theme: controls.theme.options[controls.theme.selectedIndex].text }));
+      });
+      controls.language.addEventListener("change", () => {
+        state.settings.language = controls.language.value;
+        applyLanguage(state.settings.language);
+        setupFilterOptions();
+        updateDateDisplays();
+        render();
+        if (state.editingEntryId) {
+          $("entryFormTitle").textContent = t("editTransaction");
+          controls.saveEntry.textContent = t("saveChanges");
+        }
+        persist();
+      });
+      const handleSystemThemeChange = () => {
+        if (state.settings.theme === "system") {
+          applyTheme("system");
+          renderCharts(periodEntries());
+        }
+      };
+      if (typeof systemThemeQuery.addEventListener === "function") {
+        systemThemeQuery.addEventListener("change", handleSystemThemeChange);
+      } else if (typeof systemThemeQuery.addListener === "function") {
+        systemThemeQuery.addListener(handleSystemThemeChange);
+      }
+
+      document.querySelectorAll(".tabs button").forEach((button) => {
+        button.addEventListener("click", () => {
+          state.view = button.dataset.view || "shopping";
+          if (button.dataset.mode) state.mode = button.dataset.mode;
+          document.querySelectorAll(".tabs button").forEach((tab) => tab.classList.toggle("active", tab === button));
+          $("incomeView").hidden = state.view !== "income";
+          $("shoppingView").hidden = state.view === "income";
+          render();
+        });
+      });
+
+      $("sampleBtn").addEventListener("click", () => {
+        if (seedSample()) closeSettingsMenu();
+      });
+      $("exportBtn").addEventListener("click", () => {
+        exportJson();
+        closeSettingsMenu();
+      });
+      $("importBtn").addEventListener("click", () => $("importFile").click());
+      $("importFile").addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        if (file) importJson(file);
+        event.target.value = "";
+        closeSettingsMenu();
+      });
+      $("exportExcelBtn").addEventListener("click", () => {
+        if (exportExcel()) closeSettingsMenu();
+      });
+      $("sampleExcelBtn").addEventListener("click", () => {
+        if (downloadSampleExcel()) closeSettingsMenu();
+      });
+      $("importExcelBtn").addEventListener("click", () => $("importExcelFile").click());
+      $("importExcelFile").addEventListener("change", async (event) => {
+        const file = event.target.files[0];
+        if (file) await importExcel(file);
+        event.target.value = "";
+        closeSettingsMenu();
+      });
+      document.addEventListener("click", (event) => {
+        if (settingsMenu.open && !settingsMenu.contains(event.target)) closeSettingsMenu();
+      });
+      $("clearBtn").addEventListener("click", () => {
+        if (!confirm(t("deleteConfirm"))) return;
+        state.entries = [];
+        exitEntryEditMode(true);
+        persist();
+        setupFilterOptions();
+        render();
+        toast(t("allDeleted"));
+      });
+      $("tableMount").addEventListener("click", (event) => {
+        const actionButton = event.target.closest("[data-edit], [data-delete]");
+        if (!actionButton) return;
+        const editId = actionButton.dataset.edit;
+        if (editId) {
+          startEntryEdit(editId);
+          return;
+        }
+        const deleteId = actionButton.dataset.delete;
+        if (!deleteId) return;
+        state.entries = state.entries.filter((entry) => entry.id !== deleteId);
+        if (state.editingEntryId === deleteId) exitEntryEditMode(true);
+        persist();
+        setupFilterOptions();
+        render();
+      });
+      $("incomeTableMount").addEventListener("click", (event) => {
+        const id = event.target.dataset.deleteIncome;
+        if (!id) return;
+        state.incomes = state.incomes.filter((income) => income.id !== id);
+        persist();
+        setupFilterOptions();
+        render();
+      });
+    }
+
+    function init() {
+      controls.date.value = todayISO();
+      controls.incomeDate.value = todayISO();
+      disableBrowserAutofill();
+      updateDateDisplays();
+      load();
+      syncSettingsControls();
+      setupFilterOptions();
+      attachEvents();
+      updateDateDisplays();
+      render();
+    }
+
+    init();
+  </script>
+</body>
+</html>
