@@ -98,11 +98,17 @@
     .date-native {
       position: absolute;
       inset: 0;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
       opacity: 0;
-      pointer-events: none;
+      cursor: pointer;
+      pointer-events: auto;
     }
 
     .date-display {
+      display: flex;
+      align-items: center;
       width: 100%;
       min-height: 40px;
       border: 1px solid var(--line);
@@ -112,6 +118,7 @@
       padding: 9px 40px 9px 10px;
       justify-content: flex-start;
       font-weight: 700;
+      pointer-events: none;
     }
 
     .date-display::after {
@@ -126,7 +133,7 @@
       mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M16 2v4'/%3E%3Crect width='18' height='18' x='3' y='4' rx='2'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E") center / contain no-repeat;
     }
 
-    .date-display:focus {
+    .date-field:focus-within .date-display {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px rgba(15, 118, 110, .12);
     }
@@ -1792,7 +1799,7 @@
           <form id="incomeForm" class="form-grid" autocomplete="off">
             <label><span data-i18n="incomeDate">Tanggal Pemasukan</span>
               <span class="date-field">
-                <button type="button" class="date-display" data-date-target="incomeDateInput" id="incomeDateInputDisplay"></button>
+                <span class="date-display" id="incomeDateInputDisplay" aria-hidden="true"></span>
                 <input class="date-native" id="incomeDateInput" type="date" autocomplete="off" required>
               </span>
             </label>
@@ -1841,7 +1848,7 @@
           <form id="entryForm" class="form-grid" autocomplete="off">
             <label><span data-i18n="shoppingDate">Tanggal Belanja</span>
               <span class="date-field">
-                <button type="button" class="date-display" data-date-target="dateInput" id="dateInputDisplay"></button>
+                <span class="date-display" id="dateInputDisplay" aria-hidden="true"></span>
                 <input class="date-native" id="dateInput" type="date" autocomplete="off" required>
               </span>
             </label>
@@ -2264,15 +2271,6 @@
         const display = $(`${id}Display`);
         if (input && display) display.textContent = dateDisplayText(input.value);
       });
-    }
-
-    function openNativeDatePicker(input) {
-      if (typeof input.showPicker === "function") {
-        input.showPicker();
-        return;
-      }
-      input.focus();
-      input.click();
     }
 
     function monthKey(dateString) {
@@ -3395,12 +3393,6 @@
         updateEstimate();
       });
       controls.incomeAmount.addEventListener("input", () => formatCurrencyField(controls.incomeAmount));
-      document.querySelectorAll("[data-date-target]").forEach((button) => {
-        button.addEventListener("click", () => {
-          const input = $(button.dataset.dateTarget);
-          openNativeDatePicker(input);
-        });
-      });
       controls.theme.addEventListener("change", () => {
         state.settings.theme = controls.theme.value;
         applyTheme(state.settings.theme);
