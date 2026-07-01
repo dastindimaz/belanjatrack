@@ -1729,14 +1729,16 @@
               </select>
             </label>
             <div class="settings-divider"></div>
-            <button type="button" id="installAppBtn">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path>
-              </svg>
-              <span data-i18n="installApp">Install sebagai aplikasi</span>
-            </button>
-            <p class="install-hint" id="installAppHint" data-i18n="installNeedsHosting">Fitur instalasi aktif setelah aplikasi dipublikasikan melalui HTTPS atau localhost.</p>
-            <div class="settings-divider"></div>
+            <div id="installAppSection">
+              <button type="button" id="installAppBtn">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path>
+                </svg>
+                <span data-i18n="installApp">Install sebagai aplikasi</span>
+              </button>
+              <p class="install-hint" id="installAppHint" data-i18n="installNeedsHosting">Fitur instalasi aktif setelah aplikasi dipublikasikan melalui HTTPS atau localhost.</p>
+              <div class="settings-divider"></div>
+            </div>
             <button type="button" id="sampleBtn">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
               <span data-i18n="fillSample">Isi data contoh</span>
@@ -2176,18 +2178,18 @@
     }
 
     function updateInstallControl() {
+      const section = $("installAppSection");
       const button = $("installAppBtn");
       const label = button?.querySelector("span");
       const hint = $("installAppHint");
-      if (!button || !label || !hint) return;
+      if (!section || !button || !label || !hint) return;
 
       if (isInstalledApp()) {
-        button.disabled = true;
-        label.textContent = t("appInstalled");
-        hint.textContent = t("appInstalledHint");
+        section.hidden = true;
         return;
       }
 
+      section.hidden = false;
       button.disabled = false;
       label.textContent = t("installApp");
       if (deferredInstallPrompt) {
