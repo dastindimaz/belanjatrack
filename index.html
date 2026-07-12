@@ -9938,7 +9938,7 @@
         method,
         headers: {
           apikey: SUPABASE_CONFIG.publishableKey,
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          Authorization: `Bearer ${token || SUPABASE_CONFIG.publishableKey}`,
           ...(body ? { "Content-Type": "application/json" } : {}),
           ...headers
         },
