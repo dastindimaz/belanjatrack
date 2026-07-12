@@ -7965,6 +7965,8 @@
         cloudSynced: "Tersinkron ke cloud", cloudQueued: "Menunggu sync cloud",
         cloudUnavailable: "Cloud belum siap, data tetap tersimpan lokal.",
         cloudRegisterRequired: "Daftar akun membutuhkan cloud. Coba lagi saat internet stabil.",
+        cloudRegisterNeedsHostedUrl: "Daftar akun harus dari URL live atau localhost, bukan file lokal. Buka versi GitHub Pages lalu coba lagi.",
+        cloudRegisterFailed: "Daftar akun gagal: {message}",
         cloudPullFailed: "Data cloud belum bisa dimuat, memakai data lokal dulu.",
         cryptoUnavailable: "Enkripsi aman tidak tersedia pada browser ini.", confirmBackupPassword: "Konfirmasi password",
         exportPasswordHint: "Masukkan password akun untuk membuat backup JSON terenkripsi.",
@@ -8261,6 +8263,8 @@
         cloudSynced: "Synced to cloud", cloudQueued: "Waiting for cloud sync",
         cloudUnavailable: "Cloud is not ready yet, data is still saved locally.",
         cloudRegisterRequired: "Account registration needs cloud access. Try again with a stable connection.",
+        cloudRegisterNeedsHostedUrl: "Account registration must use a live URL or localhost, not a local file. Open the GitHub Pages version and try again.",
+        cloudRegisterFailed: "Account registration failed: {message}",
         cloudPullFailed: "Cloud data could not be loaded, using local data for now.",
         cryptoUnavailable: "Secure encryption is not available in this browser.", confirmBackupPassword: "Confirm password",
         exportPasswordHint: "Enter your account password to create an encrypted JSON backup.",
@@ -9919,6 +9923,10 @@
       return new URL("./", window.location.href).href;
     }
 
+    function cloudAuthRequiresHostedUrl() {
+      return window.location.protocol === "file:" && !SUPABASE_CONFIG.authRedirectUrl;
+    }
+
     function supabaseEmailForUsername(username) {
       const identifier = normalizeEmail(username);
       return validEmail(identifier) ? identifier : `${normalizeUsername(username)}@belanjatrack.local`;
@@ -10026,6 +10034,7 @@
 
     async function registerCloudAccount({ username, displayName, password }) {
       if (!supabaseConfigured()) throw new Error("cloud disabled");
+      if (cloudAuthRequiresHostedUrl()) throw new Error("hosted url required");
       const usernameKey = normalizeUsername(username);
       if (loadAccounts().some((account) => account.usernameKey === usernameKey)) {
         throw new Error("username taken");
@@ -14841,10 +14850,12 @@
           const message = String(error?.message || "").toLowerCase();
           const key = error.message === "username taken" || message.includes("already registered") || message.includes("already been registered")
             ? "usernameTaken"
+            : message.includes("hosted url required")
+              ? "cloudRegisterNeedsHostedUrl"
             : !supabaseConfigured()
               ? "cloudRegisterRequired"
-              : "cloudUnavailable";
-          setAuthMessage(t(key));
+              : "";
+          setAuthMessage(key ? t(key) : t("cloudRegisterFailed", { message: error.message || "unknown error" }));
         }
       });
       if ($("restoreAccountBtn")) {
