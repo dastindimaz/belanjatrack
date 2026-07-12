@@ -1052,6 +1052,17 @@
       font-size: 12px;
     }
 
+    .auth-brand small {
+      display: inline-flex;
+      margin-top: 8px;
+      padding: 4px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
     .auth-tabs {
       --auth-tab-position: 0%;
       position: relative;
@@ -6590,6 +6601,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
+          <small id="appVersionBadge">v195</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -6623,7 +6635,7 @@
         <label><span data-i18n="confirmPassword">Ulangi password</span>
           <input id="registerPasswordConfirm" type="password" autocomplete="new-password" minlength="6" required>
         </label>
-        <button type="submit" data-i18n="createAccount">Buat akun</button>
+        <button type="submit" id="registerSubmitBtn" data-i18n="createAccount">Buat akun</button>
       </form>
       <p class="auth-message" id="authMessage" aria-live="polite"></p>
       <div class="auth-restore">
@@ -7967,6 +7979,7 @@
         cloudRegisterRequired: "Daftar akun membutuhkan cloud. Coba lagi saat internet stabil.",
         cloudRegisterNeedsHostedUrl: "Daftar akun harus dari URL live atau localhost, bukan file lokal. Buka versi GitHub Pages lalu coba lagi.",
         cloudRegisterFailed: "Daftar akun gagal: {message}",
+        cloudRegisterSending: "Mengirim pendaftaran ke cloud...",
         cloudPullFailed: "Data cloud belum bisa dimuat, memakai data lokal dulu.",
         cryptoUnavailable: "Enkripsi aman tidak tersedia pada browser ini.", confirmBackupPassword: "Konfirmasi password",
         exportPasswordHint: "Masukkan password akun untuk membuat backup JSON terenkripsi.",
@@ -8265,6 +8278,7 @@
         cloudRegisterRequired: "Account registration needs cloud access. Try again with a stable connection.",
         cloudRegisterNeedsHostedUrl: "Account registration must use a live URL or localhost, not a local file. Open the GitHub Pages version and try again.",
         cloudRegisterFailed: "Account registration failed: {message}",
+        cloudRegisterSending: "Sending registration to cloud...",
         cloudPullFailed: "Cloud data could not be loaded, using local data for now.",
         cryptoUnavailable: "Secure encryption is not available in this browser.", confirmBackupPassword: "Confirm password",
         exportPasswordHint: "Enter your account password to create an encrypted JSON backup.",
@@ -14837,6 +14851,9 @@
           setAuthMessage(t("passwordMismatch"));
           return;
         }
+        const registerSubmit = $("registerSubmitBtn");
+        registerSubmit.disabled = true;
+        setAuthMessage(t("cloudRegisterSending"));
         try {
           await registerCloudAccount({ username, displayName, password });
           $("registerForm").reset();
@@ -14853,6 +14870,8 @@
               ? "cloudRegisterRequired"
               : "";
           setAuthMessage(key ? t(key) : t("cloudRegisterFailed", { message: error.message || "unknown error" }));
+        } finally {
+          registerSubmit.disabled = false;
         }
       });
       if ($("restoreAccountBtn")) {

@@ -1,4 +1,4 @@
-const CACHE_NAME = "belanjatrack-pwa-v194";
+const CACHE_NAME = "belanjatrack-pwa-v195";
 const APP_SHELL = [
   "./",
   "./xlsx.full.min.js",
@@ -31,7 +31,7 @@ self.addEventListener("fetch", (event) => {
 
   if (event.request.mode === "navigate") {
     event.respondWith(
-      fetch(event.request)
+      fetch(event.request, { cache: "no-store" })
         .then((response) => {
           if (response.ok) {
             const copy = response.clone();
