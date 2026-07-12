@@ -10036,9 +10036,6 @@
       if (!supabaseConfigured()) throw new Error("cloud disabled");
       if (cloudAuthRequiresHostedUrl()) throw new Error("hosted url required");
       const usernameKey = normalizeUsername(username);
-      if (loadAccounts().some((account) => account.usernameKey === usernameKey)) {
-        throw new Error("username taken");
-      }
       await signUpCloud({
         username: String(username).trim(),
         usernameKey,
