@@ -1,4 +1,4 @@
-const CACHE_NAME = "belanjatrack-pwa-v190";
+const CACHE_NAME = "belanjatrack-pwa-v191";
 const APP_SHELL = [
   "./",
   "./xlsx.full.min.js",

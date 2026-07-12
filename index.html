@@ -8384,7 +8384,8 @@
     const SUPABASE_CONFIG = {
       enabled: true,
       url: "https://hkvufbpvbsiaxrjfygfh.supabase.co",
-      publishableKey: "sb_publishable_bp-LZp6jCgS7WYrIdKizYw_QCpNglJN"
+      publishableKey: "sb_publishable_bp-LZp6jCgS7WYrIdKizYw_QCpNglJN",
+      authRedirectUrl: ""
     };
     const PLAN_CONFIG = {
       defaultPlan: "free",
@@ -9912,6 +9913,12 @@
       return `${SUPABASE_CONFIG.url.replace(/\/+$/, "")}${path}`;
     }
 
+    function cloudAuthRedirectUrl() {
+      if (SUPABASE_CONFIG.authRedirectUrl) return SUPABASE_CONFIG.authRedirectUrl;
+      if (window.location.protocol === "file:") return "";
+      return new URL("./", window.location.href).href;
+    }
+
     function supabaseEmailForUsername(username) {
       const identifier = normalizeEmail(username);
       return validEmail(identifier) ? identifier : `${normalizeUsername(username)}@belanjatrack.local`;
@@ -10002,7 +10009,9 @@
     }
 
     async function signUpCloud(account, password) {
-      return supabaseRequest("/auth/v1/signup", {
+      const redirectUrl = cloudAuthRedirectUrl();
+      const signupPath = `/auth/v1/signup${redirectUrl ? `?redirect_to=${encodeURIComponent(redirectUrl)}` : ""}`;
+      return supabaseRequest(signupPath, {
         method: "POST",
         body: {
           email: supabaseEmailForUsername(account.usernameKey || account.username),
