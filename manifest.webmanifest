@@ -1,0 +1,27 @@
+{
+  "id": "./",
+  "name": "BelanjaTrack Pro",
+  "short_name": "BelanjaTrack",
+  "description": "Aplikasi pencatatan pemasukan, belanja, dan perubahan harga barang.",
+  "lang": "id",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#eef3f8",
+  "theme_color": "#0f766e",
+  "icons": [
+    {
+      "src": "./pwa-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./pwa-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
