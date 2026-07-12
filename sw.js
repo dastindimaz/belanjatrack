@@ -1,4 +1,4 @@
-const CACHE_NAME = "belanjatrack-pwa-v5";
+const CACHE_NAME = "belanjatrack-pwa-v190";
 const APP_SHELL = [
   "./",
   "./xlsx.full.min.js",
@@ -10,9 +10,9 @@ const APP_SHELL = [
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(async (cache) => {
-      await Promise.allSettled(APP_SHELL.map((asset) => cache.add(asset)));
-    })
+    caches.open(CACHE_NAME).then((cache) =>
+      Promise.all(APP_SHELL.map((asset) => cache.add(asset).catch(() => null)))
+    )
   );
   self.skipWaiting();
 });
@@ -28,6 +28,24 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
+
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put("./", copy));
+          }
+          return response;
+        })
+        .catch(async () => (
+          await caches.match(event.request) ||
+          await caches.match("./")
+        ))
+    );
+    return;
+  }
 
   event.respondWith(
     caches.match(event.request).then((cached) => {
