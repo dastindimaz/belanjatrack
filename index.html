@@ -1004,6 +1004,12 @@
       overflow: hidden;
     }
 
+    body:not(.app-ready) #quickAdd,
+    body.auth-locked #quickAdd,
+    .auth-screen:not([hidden]) ~ #quickAdd {
+      display: none !important;
+    }
+
     .auth-screen {
       position: fixed;
       z-index: 900;
@@ -6601,7 +6607,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-          <small id="appVersionBadge">v195</small>
+          <small id="appVersionBadge">v198</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -8751,9 +8757,16 @@
       });
       if ("serviceWorker" in navigator && window.location.protocol !== "file:") {
         window.addEventListener("load", () => {
-          navigator.serviceWorker.register("./sw.js").catch((error) => {
-            console.error("Service worker gagal didaftarkan:", error);
-          });
+          navigator.serviceWorker.register("./sw.js")
+            .then((registration) => registration.update().catch(() => null))
+            .catch((error) => {
+              console.error("Service worker gagal didaftarkan:", error);
+            });
+        });
+        navigator.serviceWorker.addEventListener("controllerchange", () => {
+          if (sessionStorage.getItem("belanjatrack:sw-reloaded") === "1") return;
+          sessionStorage.setItem("belanjatrack:sw-reloaded", "1");
+          window.location.reload();
         });
       }
       updateInstallControl();
@@ -10123,7 +10136,7 @@
     async function pullCloudIfNewer(account) {
       try {
         const cloudPayload = await loadCloudPayload(account);
-        if (!cloudPayload) return false;
+        if (!cloudPayload) return "missing";
         let localPayload = null;
         try {
           localPayload = JSON.parse(localStorage.getItem(userDataKey(account.id)) || "null");
@@ -10132,12 +10145,12 @@
         }
         if (!localPayload || payloadTimestamp(cloudPayload) > payloadTimestamp(localPayload)) {
           localStorage.setItem(userDataKey(account.id), JSON.stringify(cloudPayload));
-          return true;
+          return "updated";
         }
       } catch (error) {
         toast(t("cloudPullFailed"));
       }
-      return false;
+      return "unchanged";
     }
 
     async function createLocalAccountFromCloud(username, password, authData) {
@@ -10185,7 +10198,10 @@
         const authData = await signInCloud(username, password);
         account = await createLocalAccountFromCloud(username, password, authData);
         await upsertCloudProfile(account);
-        await pullCloudIfNewer(account);
+        const cloudPullStatus = await pullCloudIfNewer(account);
+        if (cloudPullStatus === "missing") {
+          account = saveUpdatedAccount({ ...account, needsOnboarding: true });
+        }
         return account;
       } catch (error) {
         lastCloudAuthError = String(error?.message || "");
@@ -10484,7 +10500,10 @@
 
     function sessionAccount() {
       const sessionId = localStorage.getItem(SESSION_KEY);
-      return loadAccounts().find((account) => account.id === sessionId) || null;
+      if (!sessionId) return null;
+      const account = loadAccounts().find((item) => item.id === sessionId) || null;
+      if (!account) localStorage.removeItem(SESSION_KEY);
+      return account;
     }
 
     function updateAccountUi() {
@@ -11043,6 +11062,9 @@
       });
       applyLanguage(language);
       applyTheme(theme);
+      if (currentUser?.needsOnboarding) {
+        currentUser = saveUpdatedAccount({ ...currentUser, needsOnboarding: false });
+      }
       persist();
       setupFilterOptions();
       render();
@@ -11080,9 +11102,12 @@
       $("syncFooter").hidden = true;
       updateHeaderNotificationButton();
       document.body.classList.add("auth-locked");
+      document.body.classList.remove("app-ready");
       setMainLocked(true);
       $("settingsMenu").removeAttribute("open");
       $("quickAdd").hidden = true;
+      $("quickAdd").classList.remove("open");
+      document.querySelector(".bottom-nav")?.classList.add("no-active");
       closeQuickAddMenu();
       closeEntryDialog("income");
       closeEntryDialog("expense", { resetEdit: true });
@@ -11101,6 +11126,9 @@
       state.settings.language = selectedLanguage;
       const migrated = migrateLegacy && migrateLegacyData(account);
       load();
+      if (account.needsOnboarding) {
+        state.settings.onboardingComplete = false;
+      }
       syncSettingsControls();
       setupFilterOptions();
       updateDateDisplays();
@@ -11127,6 +11155,7 @@
       $("syncFooter").hidden = false;
       setSyncStatus(currentUser.cloudSyncedAt ? "synced" : "local");
       document.body.classList.remove("auth-locked");
+      document.body.classList.add("app-ready");
       setMainLocked(false);
       updateHeaderNotificationButton();
       render();
@@ -14713,28 +14742,36 @@
     }
 
     function render() {
-      applyRecurringIncomes();
-      syncMonthNavigator();
-      syncAllCustomSelects();
+      const safeRender = (label, task) => {
+        try {
+          return task();
+        } catch (error) {
+          console.error(`Render gagal: ${label}`, error);
+          return null;
+        }
+      };
+      safeRender("recurring incomes", applyRecurringIncomes);
+      safeRender("month navigator", syncMonthNavigator);
+      safeRender("custom selects", syncAllCustomSelects);
       const rows = periodEntries();
-      renderSummary(rows);
-      renderInsightSummary();
-      renderRecentActivity();
-      renderFilterSummary(rows);
-      renderCharts(rows);
-      renderTable(rows);
-      renderIncomeTable();
-      renderIncomeUsage();
-      renderBudgetGoals();
-      renderObligations();
-      renderDebts();
-      renderReceivables();
-      renderHomeObligationSummary();
-      renderGrowthAnalytics();
-      renderHomeAnalyticsCharts();
-      renderWalletManager();
-      renderRecurringIncomeManager();
-      updateEstimate();
+      safeRender("summary", () => renderSummary(rows));
+      safeRender("insight summary", renderInsightSummary);
+      safeRender("recent activity", renderRecentActivity);
+      safeRender("filter summary", () => renderFilterSummary(rows));
+      safeRender("charts", () => renderCharts(rows));
+      safeRender("shopping table", () => renderTable(rows));
+      safeRender("income table", renderIncomeTable);
+      safeRender("income usage", renderIncomeUsage);
+      safeRender("budget goals", renderBudgetGoals);
+      safeRender("obligations", renderObligations);
+      safeRender("debts", renderDebts);
+      safeRender("receivables", renderReceivables);
+      safeRender("home obligations", renderHomeObligationSummary);
+      safeRender("growth analytics", renderGrowthAnalytics);
+      safeRender("home analytics", renderHomeAnalyticsCharts);
+      safeRender("wallet manager", renderWalletManager);
+      safeRender("recurring income manager", renderRecurringIncomeManager);
+      safeRender("estimate", updateEstimate);
     }
 
     function attachEvents() {
@@ -15881,6 +15918,9 @@
         const main = $("appMain");
         if (auth) auth.hidden = false;
         document.body.classList.add("auth-locked");
+        document.body.classList.remove("app-ready");
+        if ($("quickAdd")) $("quickAdd").hidden = true;
+        if ($("syncFooter")) $("syncFooter").hidden = true;
         if (main) {
           main.setAttribute("aria-hidden", "true");
           main.setAttribute("inert", "");
