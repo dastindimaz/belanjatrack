@@ -6625,7 +6625,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-          <small id="appVersionBadge">v208</small>
+          <small id="appVersionBadge">v209</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -10880,7 +10880,6 @@
         if (tabMarker?.id) account = accounts.find((item) => item.id === tabMarker.id) || null;
         if (!account && tabMarker?.id) account = upsertAccountCache(tabMarker);
       }
-      if (!account && accounts.length === 1) account = accounts[0];
       if (!account) {
         const snapshot = readActiveAccountSnapshot();
         if (snapshot) account = upsertAccountCache(snapshot);
