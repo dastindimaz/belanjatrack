@@ -6563,7 +6563,14 @@
   </div>
   <script>
     (function () {
+      var startupSettled = false;
+
       function releaseSplash() {
+        startupSettled = true;
+        if (window.__belanjaTrackSplashFallback) {
+          window.clearTimeout(window.__belanjaTrackSplashFallback);
+          window.__belanjaTrackSplashFallback = null;
+        }
         var splash = document.getElementById("appSplash");
         if (!splash) return;
         splash.className += " is-hiding";
@@ -6574,14 +6581,23 @@
       }
 
       function showStartupFallback() {
+        if (startupSettled || (document.body && document.body.className.indexOf("app-ready") >= 0)) return;
         if (!document.getElementById("appSplash")) return;
         releaseSplash();
         var auth = document.getElementById("authScreen");
         var main = document.getElementById("appMain");
+        var quickAdd = document.getElementById("quickAdd");
+        var syncFooter = document.getElementById("syncFooter");
         if (auth) auth.hidden = false;
+        if (quickAdd) quickAdd.hidden = true;
+        if (syncFooter) syncFooter.hidden = true;
+        if (document.body) {
+          document.body.className = document.body.className.replace(/\bapp-ready\b/g, "");
+          if (document.body.className.indexOf("auth-locked") < 0) document.body.className += " auth-locked";
+        }
         if (main) {
-          main.removeAttribute("aria-hidden");
-          main.removeAttribute("inert");
+          main.setAttribute("aria-hidden", "true");
+          main.setAttribute("inert", "");
         }
       }
 
@@ -6589,9 +6605,11 @@
       window.__belanjaTrackShowStartupFallback = showStartupFallback;
       window.__belanjaTrackSplashFallback = window.setTimeout(showStartupFallback, 7000);
       window.addEventListener("error", function () {
+        if (startupSettled || (document.body && document.body.className.indexOf("app-ready") >= 0)) return;
         window.setTimeout(showStartupFallback, 1200);
       });
       window.addEventListener("unhandledrejection", function () {
+        if (startupSettled || (document.body && document.body.className.indexOf("app-ready") >= 0)) return;
         window.setTimeout(showStartupFallback, 1200);
       });
     }());
@@ -6607,7 +6625,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-          <small id="appVersionBadge">v198</small>
+          <small id="appVersionBadge">v207</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -7715,6 +7733,10 @@
     const LEGACY_STORAGE_KEY = "trackbelanja:v1";
     const ACCOUNTS_KEY = "trackbelanja:accounts:v1";
     const SESSION_KEY = "trackbelanja:session:v1";
+    const LAST_ACCOUNT_KEY = "trackbelanja:last-account:v1";
+    const ACTIVE_ACCOUNT_SNAPSHOT_KEY = "trackbelanja:active-account-snapshot:v1";
+    const CLOUD_AUTH_KEY = "trackbelanja:cloud-auth:v1";
+    const WINDOW_SESSION_KEY = "__belanjaTrackSession";
     const LEGACY_MIGRATION_KEY = "trackbelanja:legacy-migrated:v1";
     const BACKUP_FORMAT = "belanjatrack-encrypted-backup";
     const PASSWORD_ITERATIONS = 180000;
@@ -8800,8 +8822,31 @@
       return currentLanguage() === "en" ? englishShortMonthNames : shortMonthNames;
     }
 
+    function ensurePeriodControls() {
+      if (!controls.month || !controls.year) return;
+      const now = new Date();
+      const fallbackMonth = String(now.getMonth() + 1).padStart(2, "0");
+      const fallbackYear = String(now.getFullYear());
+      if (!controls.month.options.length) {
+        controls.month.innerHTML = localizedMonthNames().map((name, index) => {
+          const value = String(index + 1).padStart(2, "0");
+          return `<option value="${value}">${escapeHtml(name)}</option>`;
+        }).join("");
+      }
+      if (!controls.year.options.length) {
+        controls.year.innerHTML = `<option value="${fallbackYear}">${fallbackYear}</option>`;
+      }
+      if (!controls.month.value || Number(controls.month.value) < 1 || Number(controls.month.value) > 12) {
+        controls.month.value = fallbackMonth;
+      }
+      if (!controls.year.value) {
+        controls.year.value = fallbackYear;
+      }
+    }
+
     function syncMonthNavigator() {
       if (!controls.activeMonthPicker) return;
+      ensurePeriodControls();
       const year = controls.year.value;
       const month = controls.month.value;
       const selectedKey = `${year}-${month}`;
@@ -9342,6 +9387,12 @@
       }
       localStorage.removeItem(userDataKey(account.id));
       localStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(LAST_ACCOUNT_KEY);
+      localStorage.removeItem(ACTIVE_ACCOUNT_SNAPSHOT_KEY);
+      sessionStorage.removeItem(SESSION_KEY);
+      sessionStorage.removeItem(LAST_ACCOUNT_KEY);
+      sessionStorage.removeItem(ACTIVE_ACCOUNT_SNAPSHOT_KEY);
+      clearWindowSessionMarker();
       saveAccounts(loadAccounts().filter((item) => item.id !== account.id));
       currentUser = null;
       cloudDirty = false;
@@ -9759,6 +9810,110 @@
       localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts));
     }
 
+    function saveActiveAccountSnapshot(account) {
+      if (!account?.id) return;
+      try {
+        const {
+          cloudAccessToken,
+          cloudRefreshToken,
+          passwordHash,
+          salt,
+          ...safeAccount
+        } = account;
+        const snapshot = JSON.stringify({
+          ...safeAccount,
+          cloudAccessToken: cloudAccessToken || "",
+          cloudRefreshToken: cloudRefreshToken || "",
+          passwordHash: passwordHash || "",
+          salt: salt || ""
+        });
+        localStorage.setItem(ACTIVE_ACCOUNT_SNAPSHOT_KEY, snapshot);
+        sessionStorage.setItem(ACTIVE_ACCOUNT_SNAPSHOT_KEY, snapshot);
+      } catch (error) {
+        console.warn("Snapshot akun tidak bisa disimpan:", error);
+      }
+    }
+
+    function readActiveAccountSnapshot() {
+      try {
+        const rawSnapshot = localStorage.getItem(ACTIVE_ACCOUNT_SNAPSHOT_KEY) || sessionStorage.getItem(ACTIVE_ACCOUNT_SNAPSHOT_KEY);
+        const account = JSON.parse(rawSnapshot || "null");
+        return account && account.id ? account : null;
+      } catch (error) {
+        localStorage.removeItem(ACTIVE_ACCOUNT_SNAPSHOT_KEY);
+        sessionStorage.removeItem(ACTIVE_ACCOUNT_SNAPSHOT_KEY);
+        return null;
+      }
+    }
+
+    function writeWindowSessionMarker(account) {
+      if (!account?.id) return;
+      try {
+        window.name = JSON.stringify({
+          [WINDOW_SESSION_KEY]: {
+            id: account.id,
+            username: account.username || "",
+            usernameKey: account.usernameKey || "",
+            displayName: account.displayName || account.username || ""
+          }
+        });
+      } catch (error) {}
+    }
+
+    function readWindowSessionMarker() {
+      try {
+        const marker = JSON.parse(window.name || "{}")?.[WINDOW_SESSION_KEY];
+        return marker && marker.id ? marker : null;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function clearWindowSessionMarker() {
+      try {
+        const parsed = JSON.parse(window.name || "{}");
+        if (parsed && typeof parsed === "object" && WINDOW_SESSION_KEY in parsed) {
+          delete parsed[WINDOW_SESSION_KEY];
+          window.name = Object.keys(parsed).length ? JSON.stringify(parsed) : "";
+        }
+      } catch (error) {
+        window.name = "";
+      }
+    }
+
+    function rememberAccountSession(account) {
+      if (!account?.id) return account;
+      upsertAccountCache(account);
+      saveActiveAccountSnapshot(account);
+      writeWindowSessionMarker(account);
+      try {
+        localStorage.setItem(SESSION_KEY, account.id);
+        localStorage.setItem(LAST_ACCOUNT_KEY, account.id);
+      } catch (error) {
+        console.warn("Session lokal tidak bisa disimpan:", error);
+      }
+      try {
+        sessionStorage.setItem(SESSION_KEY, account.id);
+        sessionStorage.setItem(LAST_ACCOUNT_KEY, account.id);
+      } catch (error) {
+        console.warn("Session tab tidak bisa disimpan:", error);
+      }
+      return account;
+    }
+
+    function upsertAccountCache(account) {
+      if (!account?.id) return account;
+      const accounts = loadAccounts();
+      const index = accounts.findIndex((item) => item.id === account.id || item.usernameKey === account.usernameKey || (account.cloudUserId && item.cloudUserId === account.cloudUserId));
+      if (index >= 0) {
+        accounts[index] = { ...accounts[index], ...account };
+      } else {
+        accounts.push(account);
+      }
+      saveAccounts(accounts);
+      return account;
+    }
+
     function normalizeUsername(value) {
       return String(value || "").trim().toLowerCase();
     }
@@ -9889,6 +10044,7 @@
       if (!secureCryptoAvailable()) return null;
       const account = loadAccounts().find((item) => item.usernameKey === normalizeUsername(username));
       if (!account) return null;
+      if (!account.salt || !account.passwordHash) return null;
       const hash = await derivePasswordHash(
         password,
         base64ToBytes(account.salt),
@@ -9903,6 +10059,7 @@
       );
       saveAccounts(accounts);
       if (currentUser && currentUser.id === updatedAccount.id) currentUser = updatedAccount;
+      if (!currentUser || currentUser.id === updatedAccount.id) saveActiveAccountSnapshot(updatedAccount);
       return updatedAccount;
     }
 
@@ -9959,6 +10116,68 @@
       return validEmail(identifier) ? identifier : `${normalizeUsername(username)}@belanjatrack.local`;
     }
 
+    function persistCloudAuthSession(authData) {
+      if (!authData?.access_token) return;
+      const expiresIn = Number(authData.expires_in || 3600);
+      try {
+        const cloudAuth = JSON.stringify({
+          access_token: authData.access_token,
+          refresh_token: authData.refresh_token || "",
+          expires_at: Date.now() + Math.max(60, expiresIn - 30) * 1000,
+          user: authData.user || null
+        });
+        localStorage.setItem(CLOUD_AUTH_KEY, cloudAuth);
+        sessionStorage.setItem(CLOUD_AUTH_KEY, cloudAuth);
+      } catch (error) {
+        console.warn("Sesi cloud tidak bisa disimpan:", error);
+      }
+    }
+
+    function readCloudAuthSession() {
+      try {
+        const session = JSON.parse(localStorage.getItem(CLOUD_AUTH_KEY) || sessionStorage.getItem(CLOUD_AUTH_KEY) || "null");
+        return session && session.access_token ? session : null;
+      } catch (error) {
+        localStorage.removeItem(CLOUD_AUTH_KEY);
+        sessionStorage.removeItem(CLOUD_AUTH_KEY);
+        return null;
+      }
+    }
+
+    function clearCloudAuthSession() {
+      localStorage.removeItem(CLOUD_AUTH_KEY);
+      sessionStorage.removeItem(CLOUD_AUTH_KEY);
+    }
+
+    function displayNameFromCloudUser(user, fallback = "") {
+      const metadata = user?.user_metadata || {};
+      const email = normalizeEmail(user?.email || fallback);
+      const localPart = email ? email.split("@")[0] : "";
+      return normalizeName(
+        metadata.display_name ||
+        metadata.full_name ||
+        metadata.name ||
+        metadata.username ||
+        localPart ||
+        fallback
+      );
+    }
+
+    function friendlyDisplayName(value, fallback = "") {
+      const candidate = normalizeName(value);
+      if (validEmail(candidate)) return normalizeName(candidate.split("@")[0]);
+      return candidate || displayNameFromCloudUser(null, fallback) || normalizeName(fallback);
+    }
+
+    function normalizeAccountDisplayName(account) {
+      if (!account) return account;
+      const displayName = friendlyDisplayName(account.displayName, account.username);
+      if (displayName && displayName !== account.displayName) {
+        return saveUpdatedAccount({ ...account, displayName });
+      }
+      return account;
+    }
+
     async function supabaseRequest(path, { method = "GET", token = "", body = null, headers = {} } = {}) {
       if (!supabaseConfigured()) throw new Error("cloud disabled");
       const response = await fetch(supabaseUrl(path), {
@@ -9984,6 +10203,7 @@
       const session = authData || {};
       const user = session.user || {};
       const expiresIn = Number(session.expires_in || 3600);
+      persistCloudAuthSession(session);
       return saveUpdatedAccount({
         ...account,
         cloudEnabled: true,
@@ -10012,6 +10232,22 @@
         body: { refresh_token: account.cloudRefreshToken }
       });
       return applyCloudSession(account, data);
+    }
+
+    async function refreshStoredCloudSession(session) {
+      if (!supabaseConfigured() || !session?.refresh_token) return session;
+      if (Number(session.expires_at || 0) > Date.now() + 60 * 1000) return session;
+      const refreshed = await supabaseRequest("/auth/v1/token?grant_type=refresh_token", {
+        method: "POST",
+        body: { refresh_token: session.refresh_token }
+      });
+      persistCloudAuthSession(refreshed);
+      return {
+        access_token: refreshed.access_token,
+        refresh_token: refreshed.refresh_token || session.refresh_token,
+        expires_at: Date.now() + Math.max(60, Number(refreshed.expires_in || 3600) - 30) * 1000,
+        user: refreshed.user || session.user || null
+      };
     }
 
     async function upsertCloudProfile(account) {
@@ -10155,7 +10391,7 @@
 
     async function createLocalAccountFromCloud(username, password, authData) {
       const usernameKey = normalizeUsername(username);
-      let displayName = String(username).trim();
+      let displayName = displayNameFromCloudUser(authData?.user, username) || String(username).trim();
       let cloudProfile = null;
       try {
         const profileRows = await supabaseRequest(
@@ -10164,7 +10400,7 @@
         );
         const profile = Array.isArray(profileRows) ? profileRows[0] : null;
         cloudProfile = profile;
-        displayName = profile?.display_name || profile?.username || displayName;
+        displayName = friendlyDisplayName(profile?.display_name || profile?.username, displayName);
       } catch (error) {
         displayName = displayName || usernameKey;
       }
@@ -10179,10 +10415,115 @@
       const existingAccount = loadAccounts().find((account) => account.usernameKey === usernameKey);
       if (existingAccount) {
         const refreshedAccount = await updateAccountPassword({ ...existingAccount, displayName, ...planFields }, password);
-        return applyCloudSession(refreshedAccount, authData);
+        const syncedAccount = applyCloudSession(refreshedAccount, authData);
+        return rememberAccountSession(syncedAccount);
       }
       const account = await createLocalAccount({ username, displayName, password });
-      return applyCloudSession(saveUpdatedAccount({ ...account, ...planFields }), authData);
+      const syncedAccount = applyCloudSession(saveUpdatedAccount({ ...account, ...planFields }), authData);
+      return rememberAccountSession(syncedAccount);
+    }
+
+    async function createLocalAccountFromCloudSession(authData) {
+      const user = authData?.user || {};
+      const username = normalizeEmail(user.email) || user.id || "cloud-user";
+      const usernameKey = normalizeUsername(username);
+      let displayName = displayNameFromCloudUser(user, username) || username;
+      let cloudProfile = null;
+      try {
+        const rows = await supabaseRequest(
+          `/rest/v1/profiles?id=eq.${encodeURIComponent(user.id)}&select=username,display_name,plan,plan_source,plan_expires_at,feature_overrides&limit=1`,
+          { token: authData.access_token }
+        );
+        cloudProfile = Array.isArray(rows) ? rows[0] : null;
+        displayName = friendlyDisplayName(cloudProfile?.display_name || cloudProfile?.username, displayName);
+      } catch (error) {}
+      const planFields = {
+        plan: normalizePlan(cloudProfile?.plan || ownerPlanForAccount({ username, usernameKey })),
+        planSource: cloudProfile?.plan_source || (ownerPlanForAccount({ username, usernameKey }) ? "owner" : "cloud"),
+        planExpiresAt: cloudProfile?.plan_expires_at || null,
+        featureOverrides: cloudProfile?.feature_overrides && typeof cloudProfile.feature_overrides === "object"
+          ? cloudProfile.feature_overrides
+          : {}
+      };
+      const existingAccount = loadAccounts().find((account) =>
+        account.cloudUserId === user.id || account.usernameKey === usernameKey
+      );
+      if (existingAccount) {
+        const account = applyCloudSession(saveUpdatedAccount({
+          ...existingAccount,
+          username,
+          usernameKey,
+          displayName,
+          ...planFields
+        }), authData);
+        return rememberAccountSession(account);
+      }
+      const account = {
+        id: createId(),
+        username,
+        usernameKey,
+        displayName,
+        cloudOnly: true,
+        plan: planFields.plan,
+        planSource: planFields.planSource,
+        planExpiresAt: planFields.planExpiresAt,
+        featureOverrides: planFields.featureOverrides,
+        createdAt: new Date().toISOString()
+      };
+      saveAccounts([...loadAccounts(), account]);
+      const syncedAccount = applyCloudSession(account, authData);
+      return rememberAccountSession(syncedAccount);
+    }
+
+    async function restoreCloudAccountFromStoredSession() {
+      let session = readCloudAuthSession();
+      if (!session) return null;
+      try {
+        session = await refreshStoredCloudSession(session);
+        let user = session.user;
+        if (!user?.id) {
+          user = await supabaseRequest("/auth/v1/user", { token: session.access_token });
+        }
+        if (!user?.id) return null;
+        return createLocalAccountFromCloudSession({
+          access_token: session.access_token,
+          refresh_token: session.refresh_token,
+          expires_in: Math.max(60, Math.floor((Number(session.expires_at || 0) - Date.now()) / 1000)),
+          user
+        });
+      } catch (error) {
+        return null;
+      }
+    }
+
+    async function consumeCloudAuthCallback() {
+      if (!supabaseConfigured() || !window.location.hash.includes("access_token=")) return null;
+      const params = new URLSearchParams(window.location.hash.slice(1));
+      const accessToken = params.get("access_token");
+      if (!accessToken) return null;
+      const refreshToken = params.get("refresh_token") || "";
+      const expiresIn = Number(params.get("expires_in") || 3600);
+      try {
+        const user = await supabaseRequest("/auth/v1/user", { token: accessToken });
+        const authData = {
+          access_token: accessToken,
+          refresh_token: refreshToken,
+          expires_in: expiresIn,
+          user
+        };
+        persistCloudAuthSession(authData);
+        if (window.history?.replaceState) {
+          window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+        }
+        let account = await createLocalAccountFromCloudSession(authData);
+        const cloudPullStatus = await pullCloudIfNewer(account);
+        if (cloudPullStatus === "missing") {
+          account = saveUpdatedAccount({ ...account, needsOnboarding: true });
+        }
+        return account;
+      } catch (error) {
+        return null;
+      }
     }
 
     async function authenticateAccount(username, password) {
@@ -10499,11 +10840,33 @@
     }
 
     function sessionAccount() {
-      const sessionId = localStorage.getItem(SESSION_KEY);
-      if (!sessionId) return null;
-      const account = loadAccounts().find((item) => item.id === sessionId) || null;
-      if (!account) localStorage.removeItem(SESSION_KEY);
-      return account;
+      const accounts = loadAccounts();
+      let sessionId = "";
+      let lastAccountId = "";
+      try {
+        sessionId = localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY) || "";
+        lastAccountId = localStorage.getItem(LAST_ACCOUNT_KEY) || sessionStorage.getItem(LAST_ACCOUNT_KEY) || "";
+      } catch (error) {
+        console.warn("Session tidak bisa dibaca:", error);
+      }
+      let account = sessionId ? accounts.find((item) => item.id === sessionId) || null : null;
+      if (!account && lastAccountId) account = accounts.find((item) => item.id === lastAccountId) || null;
+      if (!account) {
+        const tabMarker = readWindowSessionMarker();
+        if (tabMarker?.id) account = accounts.find((item) => item.id === tabMarker.id) || null;
+        if (!account && tabMarker?.id) account = upsertAccountCache(tabMarker);
+      }
+      if (!account && accounts.length === 1) account = accounts[0];
+      if (!account) {
+        const snapshot = readActiveAccountSnapshot();
+        if (snapshot) account = upsertAccountCache(snapshot);
+      }
+      if (!account) {
+        localStorage.removeItem(SESSION_KEY);
+        sessionStorage.removeItem(SESSION_KEY);
+        return null;
+      }
+      return normalizeAccountDisplayName(rememberAccountSession(account));
     }
 
     function updateAccountUi() {
@@ -11119,21 +11482,30 @@
     }
 
     function enterAccount(account, { message = "", migrateLegacy = false } = {}) {
+      account = normalizeAccountDisplayName(account);
       const selectedLanguage = state.settings.language;
       currentUser = account;
-      localStorage.setItem(SESSION_KEY, account.id);
+      rememberAccountSession(account);
+      const safeAccountStep = (label, task) => {
+        try {
+          return task();
+        } catch (error) {
+          console.error(`Account startup step gagal: ${label}`, error);
+          return null;
+        }
+      };
       resetUserState();
       state.settings.language = selectedLanguage;
       const migrated = migrateLegacy && migrateLegacyData(account);
-      load();
+      safeAccountStep("load user data", load);
       if (account.needsOnboarding) {
         state.settings.onboardingComplete = false;
       }
-      syncSettingsControls();
-      setupFilterOptions();
-      updateDateDisplays();
-      updateAccountUi();
-      $("quickAdd").hidden = false;
+      safeAccountStep("settings controls", syncSettingsControls);
+      safeAccountStep("filter options", setupFilterOptions);
+      safeAccountStep("date displays", updateDateDisplays);
+      safeAccountStep("account ui", updateAccountUi);
+      if ($("quickAdd")) $("quickAdd").hidden = false;
       document.querySelectorAll(".app-view").forEach((view) => {
         view.hidden = view.id !== "homeView";
       });
@@ -11148,20 +11520,20 @@
       });
       document.querySelector(".bottom-nav")?.classList.remove("no-active");
       state.view = "home";
-      syncMonthNavigatorVisibility();
-      window.requestAnimationFrame(syncBottomNavIndicator);
-      startGreetingClock();
-      $("authScreen").hidden = true;
-      $("syncFooter").hidden = false;
+      safeAccountStep("month visibility", syncMonthNavigatorVisibility);
+      window.requestAnimationFrame(() => safeAccountStep("bottom nav indicator", syncBottomNavIndicator));
+      safeAccountStep("greeting clock", startGreetingClock);
+      if ($("authScreen")) $("authScreen").hidden = true;
+      if ($("syncFooter")) $("syncFooter").hidden = false;
       setSyncStatus(currentUser.cloudSyncedAt ? "synced" : "local");
       document.body.classList.remove("auth-locked");
       document.body.classList.add("app-ready");
       setMainLocked(false);
-      updateHeaderNotificationButton();
-      render();
-      window.setTimeout(checkObligationReminders, 300);
-      requestStartupNotifications();
-      if (shouldShowOnboarding()) window.setTimeout(openOnboardingDialog, 120);
+      safeAccountStep("header notification", updateHeaderNotificationButton);
+      safeAccountStep("render", render);
+      window.setTimeout(() => safeAccountStep("obligation reminders", checkObligationReminders), 300);
+      safeAccountStep("startup notifications", requestStartupNotifications);
+      if (shouldShowOnboarding()) window.setTimeout(() => safeAccountStep("onboarding", openOnboardingDialog), 120);
       if (migrated) toast(t("legacyDataMigrated"));
       if (message) toast(message);
     }
@@ -11170,6 +11542,13 @@
       persist();
       await syncCloudNow({ force: true });
       localStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(LAST_ACCOUNT_KEY);
+      localStorage.removeItem(ACTIVE_ACCOUNT_SNAPSHOT_KEY);
+      sessionStorage.removeItem(SESSION_KEY);
+      sessionStorage.removeItem(LAST_ACCOUNT_KEY);
+      sessionStorage.removeItem(ACTIVE_ACCOUNT_SNAPSHOT_KEY);
+      clearWindowSessionMarker();
+      clearCloudAuthSession();
       currentUser = null;
       cloudDirty = false;
       window.clearTimeout(cloudSyncTimer);
@@ -12441,10 +12820,12 @@
       if (!button) return;
       button.hidden = !shouldShowNotificationReminder();
       button.disabled = !("Notification" in window);
+      const label = button.querySelector("span");
+      if (!label) return;
       if ("Notification" in window && Notification.permission === "denied") {
-        button.querySelector("span").textContent = t("notificationsBlockedShort");
+        label.textContent = t("notificationsBlockedShort");
       } else {
-        button.querySelector("span").textContent = t("enableNotifications");
+        label.textContent = t("enableNotifications");
       }
     }
 
@@ -14750,6 +15131,7 @@
           return null;
         }
       };
+      ensurePeriodControls();
       safeRender("recurring incomes", applyRecurringIncomes);
       safeRender("month navigator", syncMonthNavigator);
       safeRender("custom selects", syncAllCustomSelects);
@@ -15867,8 +16249,18 @@
       });
     }
 
-    function init() {
+    async function init() {
+      let bootAccount = null;
+      const safeBootStep = (label, task) => {
+        try {
+          return task();
+        } catch (error) {
+          console.error(`Startup step gagal: ${label}`, error);
+          return null;
+        }
+      };
       try {
+        bootAccount = sessionAccount() || await consumeCloudAuthCallback() || await restoreCloudAccountFromStoredSession();
         const insightView = $("insightView");
         const historyView = $("historyView");
         const billsView = $("billsView");
@@ -15884,23 +16276,21 @@
         controls.incomeDate.value = todayISO();
         controls.transferDate.value = todayISO();
         controls.obligationDate.value = todayISO();
-        setupZoomLock();
-        syncMonthNavigatorPlacement();
-        syncMonthNavigatorVisibility();
-        disableBrowserAutofill();
-        updateDateDisplays();
-        populateCurrencyOptions();
-        syncSettingsControls();
-        setupPwa();
-        setupFilterOptions();
-        setupCustomSelects();
-        attachEvents();
-        updateDateDisplays();
-        const activeAccount = sessionAccount();
-        if (activeAccount) {
-          enterAccount(activeAccount);
+        safeBootStep("zoom lock", setupZoomLock);
+        safeBootStep("month placement", syncMonthNavigatorPlacement);
+        safeBootStep("month visibility", syncMonthNavigatorVisibility);
+        safeBootStep("autofill", disableBrowserAutofill);
+        safeBootStep("date displays", updateDateDisplays);
+        safeBootStep("currency options", populateCurrencyOptions);
+        safeBootStep("settings controls", syncSettingsControls);
+        safeBootStep("pwa", setupPwa);
+        safeBootStep("filter options", setupFilterOptions);
+        safeBootStep("custom selects", setupCustomSelects);
+        safeBootStep("events", attachEvents);
+        safeBootStep("date displays final", updateDateDisplays);
+        if (bootAccount) {
+          enterAccount(bootAccount);
         } else {
-          render();
           showAuth();
         }
         window.setTimeout(checkObligationReminders, 500);
@@ -15909,11 +16299,26 @@
           if (cloudDirty) syncCloudNow({ force: true });
         }, CLOUD_SYNC_INTERVAL_MS);
         window.addEventListener("online", () => scheduleCloudSync(1000));
+        window.addEventListener("beforeunload", () => {
+          if (currentUser) rememberAccountSession(currentUser);
+        });
         document.addEventListener("visibilitychange", () => {
-          if (document.visibilityState === "hidden") syncCloudNow({ force: true });
+          if (document.visibilityState === "hidden") {
+            if (currentUser) rememberAccountSession(currentUser);
+            syncCloudNow({ force: true });
+          }
         });
       } catch (error) {
         console.error("Aplikasi gagal dimulai:", error);
+        bootAccount = bootAccount || sessionAccount();
+        if (bootAccount) {
+          try {
+            enterAccount(bootAccount);
+            return;
+          } catch (recoverError) {
+            console.error("Pemulihan session gagal:", recoverError);
+          }
+        }
         const auth = $("authScreen");
         const main = $("appMain");
         if (auth) auth.hidden = false;
