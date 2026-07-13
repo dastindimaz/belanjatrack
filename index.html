@@ -6625,7 +6625,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-          <small id="appVersionBadge">v207</small>
+          <small id="appVersionBadge">v208</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -10389,6 +10389,30 @@
       return "unchanged";
     }
 
+    async function refreshCurrentUserFromCloud({ quiet = true } = {}) {
+      if (!currentUser?.cloudAccessToken || !currentUser?.cloudUserId || cloudDirty) return "skipped";
+      try {
+        setSyncStatus("syncing");
+        currentUser = await refreshCloudSession(currentUser);
+        rememberAccountSession(currentUser);
+        const pullStatus = await pullCloudIfNewer(currentUser);
+        if (pullStatus === "updated") {
+          load();
+          setupFilterOptions();
+          updateDateDisplays();
+          render();
+          setSyncStatus("synced");
+          if (!quiet) toast(t("cloudSynced"));
+          return "updated";
+        }
+        setSyncStatus(currentUser.cloudSyncedAt ? "synced" : "local");
+        return pullStatus;
+      } catch (error) {
+        setSyncStatus("error");
+        return "error";
+      }
+    }
+
     async function createLocalAccountFromCloud(username, password, authData) {
       const usernameKey = normalizeUsername(username);
       let displayName = displayNameFromCloudUser(authData?.user, username) || String(username).trim();
@@ -11531,6 +11555,11 @@
       setMainLocked(false);
       safeAccountStep("header notification", updateHeaderNotificationButton);
       safeAccountStep("render", render);
+      if (currentUser?.cloudAccessToken) {
+        window.setTimeout(() => {
+          refreshCurrentUserFromCloud({ quiet: true });
+        }, 450);
+      }
       window.setTimeout(() => safeAccountStep("obligation reminders", checkObligationReminders), 300);
       safeAccountStep("startup notifications", requestStartupNotifications);
       if (shouldShowOnboarding()) window.setTimeout(() => safeAccountStep("onboarding", openOnboardingDialog), 120);
@@ -16298,7 +16327,13 @@
         window.setInterval(() => {
           if (cloudDirty) syncCloudNow({ force: true });
         }, CLOUD_SYNC_INTERVAL_MS);
-        window.addEventListener("online", () => scheduleCloudSync(1000));
+        window.addEventListener("online", () => {
+          if (cloudDirty) {
+            scheduleCloudSync(1000);
+          } else {
+            refreshCurrentUserFromCloud({ quiet: true });
+          }
+        });
         window.addEventListener("beforeunload", () => {
           if (currentUser) rememberAccountSession(currentUser);
         });
