@@ -2849,6 +2849,16 @@
       animation: app-view-in 260ms ease both;
     }
 
+    #goalsView {
+      display: grid;
+      gap: 24px;
+    }
+
+    #goalsFuturePlansSection,
+    #goalsSpendingBudgetSection {
+      scroll-margin-top: 24px;
+    }
+
     @keyframes app-view-in {
       from {
         opacity: 0;
@@ -2909,6 +2919,14 @@
       grid-template-columns: minmax(210px, .85fr) minmax(220px, 1.15fr);
       gap: 20px;
       align-items: center;
+    }
+
+    .home-chart-layout.is-empty {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .home-chart-layout.is-empty .home-chart-canvas {
+      width: 100%;
     }
 
     .home-chart-canvas {
@@ -3055,6 +3073,56 @@
       grid-column: 1 / -1;
     }
 
+    .home-plans-budget-row {
+      display: grid;
+      grid-column: 1 / -1;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .home-plans-budget-row .budget-goals-panel {
+      grid-column: auto;
+      min-width: 0;
+    }
+
+    .home-plans-budget-row > .budget-goals-panel:nth-child(2) > .panel-header > button {
+      display: none !important;
+    }
+
+    @media (min-width: 901px) {
+      .home-plans-budget-row .budget-goals-panel {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .home-plans-budget-row .panel-body {
+        display: flex;
+        flex: 1;
+      }
+
+      .home-plans-budget-row .budget-goal-list,
+      .home-plans-budget-row .goal-empty-state {
+        height: 100%;
+      }
+
+      .home-plans-budget-row .budget-goal-list {
+        flex: 1;
+        width: 100%;
+      }
+
+      .home-plans-budget-row .goal-empty-state {
+        box-sizing: border-box;
+        place-items: stretch center;
+      }
+
+      .home-plans-budget-row .goal-empty-content {
+        grid-template-rows: auto auto minmax(0, 1fr) auto;
+        width: 100%;
+        height: 100%;
+      }
+    }
+
     .budget-goal-list {
       display: grid;
       gap: 12px;
@@ -3199,6 +3267,10 @@
       height: 100%;
       border-radius: inherit;
       background: linear-gradient(90deg, var(--good), #22d3ee);
+    }
+
+    .budget-goal-card.is-over-budget .budget-goal-progress i {
+      background: linear-gradient(90deg, #ef4444, #f97316);
     }
 
     .budget-goal-stats {
@@ -3979,6 +4051,25 @@
 
     .recent-activity-item.expense .recent-activity-amount {
       color: var(--danger);
+    }
+
+    .transaction-currency-amount {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+      max-width: 100%;
+      white-space: nowrap;
+    }
+
+    .transaction-currency-amount small {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .recent-activity-amount .transaction-currency-amount {
+      color: inherit;
     }
 
     .summary-grid.insight-summary {
@@ -5107,6 +5198,10 @@
         grid-template-columns: 1fr;
       }
 
+      .home-plans-budget-row {
+        grid-template-columns: 1fr;
+      }
+
       .growth-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -5121,6 +5216,10 @@
     }
 
     @media (max-width: 760px) {
+      #goalsView {
+        gap: 16px;
+      }
+
       .app-shell {
         padding: 16px;
       }
@@ -5991,14 +6090,31 @@
       text-transform: uppercase;
     }
 
-    .wallet-add-row {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 8px;
+    .wallet-manager-head {
+      display: flex;
       align-items: center;
+      justify-content: space-between;
+      gap: 12px;
     }
 
-    .wallet-add-row input {
+    .settings-view .settings-popover .wallet-add-trigger {
+      width: auto;
+      min-height: 38px;
+      padding: 8px 12px;
+      color: var(--accent);
+    }
+
+    .wallet-add-form {
+      display: grid;
+      gap: 12px;
+      padding: 12px;
+      border: 1px solid rgba(15, 118, 110, .16);
+      border-radius: 14px;
+      background: rgba(240, 253, 250, .48);
+    }
+
+    .wallet-add-form input,
+    .wallet-add-form select {
       min-height: 46px;
       border-radius: 14px;
       background: rgba(255, 255, 255, .66);
@@ -6006,11 +6122,72 @@
       font-weight: 800;
     }
 
-    .settings-view .settings-popover .wallet-add-row button {
-      width: 46px;
-      min-width: 46px;
+    .wallet-add-form select {
+      width: 100%;
+      padding-inline: 12px 28px;
+    }
+
+    .wallet-currency-toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: 48px;
+      padding: 9px 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 850;
+    }
+
+    .wallet-currency-field {
+      display: grid;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .wallet-add-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .settings-view .settings-popover .wallet-add-actions button {
+      width: auto;
+      min-width: 112px;
       justify-content: center;
-      padding-inline: 0;
+    }
+
+    .settings-view .settings-popover .wallet-add-actions .primary {
+      border-color: transparent;
+      background: var(--accent);
+      color: #fff;
+    }
+
+    @media (max-width: 520px) {
+      .wallet-manager-head {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .settings-view .settings-popover .wallet-add-trigger {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .wallet-add-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .settings-view .settings-popover .wallet-add-actions button {
+        width: 100%;
+        min-width: 0;
+      }
     }
 
     .wallet-list {
@@ -6183,7 +6360,14 @@
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, .07);
     }
 
-    html[data-resolved-theme="dark"] .wallet-add-row input {
+    html[data-resolved-theme="dark"] .wallet-add-form {
+      border-color: rgba(52, 211, 153, .16);
+      background: rgba(15, 118, 110, .08);
+    }
+
+    html[data-resolved-theme="dark"] .wallet-add-form input,
+    html[data-resolved-theme="dark"] .wallet-add-form select,
+    html[data-resolved-theme="dark"] .wallet-currency-toggle-row {
       border-color: rgba(255, 255, 255, .13);
       background: rgba(24, 26, 32, .78);
       color: #f5f5f7;
@@ -6625,7 +6809,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-          <small id="appVersionBadge">v209</small>
+          <small id="appVersionBadge">v231</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -6725,12 +6909,30 @@
               </select>
             </label>
             <section class="wallet-manager" aria-labelledby="walletManagerTitle">
-              <p class="wallet-manager-title" id="walletManagerTitle" data-i18n="wallets">Wallet</p>
-              <div class="wallet-add-row">
-                <input id="walletNameInput" type="text" placeholder="Contoh: Cash, BCA, GoPay" data-i18n-placeholder="walletPlaceholder" autocomplete="new-password" autocapitalize="words" autocorrect="off" spellcheck="false">
-                <button type="button" id="addWalletBtn" aria-label="Tambah wallet" data-i18n-aria="addWallet">
-                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+              <div class="wallet-manager-head">
+                <p class="wallet-manager-title" id="walletManagerTitle" data-i18n="wallets">Wallet</p>
+                <button type="button" class="wallet-add-trigger" id="openWalletFormBtn">
+                  <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+                  <span data-i18n="addNewWallet">Tambah wallet baru</span>
                 </button>
+              </div>
+              <div class="wallet-add-form" id="walletAddForm" hidden>
+                <input id="walletNameInput" type="text" placeholder="Contoh: Cash, BCA, GoPay" data-i18n-placeholder="walletPlaceholder" autocomplete="new-password" autocapitalize="words" autocorrect="off" spellcheck="false">
+                <label class="wallet-currency-toggle-row">
+                  <span data-i18n="differentWalletCurrency">Gunakan mata uang berbeda</span>
+                  <span class="mini-toggle">
+                    <input id="walletDifferentCurrencyToggle" type="checkbox">
+                    <span aria-hidden="true"></span>
+                  </span>
+                </label>
+                <label class="wallet-currency-field" id="walletCurrencyField" hidden>
+                  <span data-i18n="walletCurrency">Mata uang wallet</span>
+                  <select id="walletCurrencySelect" aria-label="Pilih mata uang wallet" data-i18n-aria="chooseCurrency"></select>
+                </label>
+                <div class="wallet-add-actions">
+                  <button type="button" id="cancelWalletFormBtn" data-i18n="cancel">Batal</button>
+                  <button type="button" class="primary" id="addWalletBtn" data-i18n="addWallet">Tambah wallet</button>
+                </div>
               </div>
               <div class="wallet-list" id="walletList"></div>
             </section>
@@ -6870,7 +7072,7 @@
               <h2 data-i18n="categoryAnalysis">Analisis Kategori</h2>
             </div>
             <div class="panel-body">
-              <div class="home-chart-layout">
+              <div class="home-chart-layout" id="homeCategoryChartLayout">
                 <div class="home-chart-canvas">
                   <canvas id="homeCategoryChart" role="img" aria-label="Grafik kategori pengeluaran interaktif" data-i18n-aria="categoryChartAria"></canvas>
                   <div class="donut-center">
@@ -6892,14 +7094,25 @@
             </div>
           </section>
 
-          <section class="panel budget-goals-panel">
-            <div class="panel-header">
-              <h2 data-i18n="budgetGoalsTitle">Target Budget</h2>
-            </div>
-            <div class="panel-body">
-              <div class="budget-goal-list" id="budgetGoalList"></div>
-            </div>
-          </section>
+          <div class="home-plans-budget-row">
+            <section class="panel budget-goals-panel">
+              <div class="panel-header">
+                <h2 data-i18n="budgetGoalsTitle">Target Budget</h2>
+              </div>
+              <div class="panel-body">
+                <div class="budget-goal-list" id="budgetGoalList"></div>
+              </div>
+            </section>
+
+            <section class="panel budget-goals-panel">
+              <div class="panel-header">
+                <h2 data-i18n="spendingBudgetTitle">Budget Pengeluaran</h2>
+              </div>
+              <div class="panel-body">
+                <div class="budget-goal-list" id="spendingBudgetList"></div>
+              </div>
+            </section>
+          </div>
 
           <section class="home-obligation-summary" id="homeObligationSummary" aria-label="Ringkasan hutang piutang dan tagihan"></section>
 
@@ -6978,6 +7191,17 @@
         </div>
       </section>
     </section>
+
+    <section class="income-grid" id="transferHistoryView">
+      <section class="panel income-history-panel">
+        <div class="panel-header">
+          <h2 data-i18n="transferHistory">Riwayat Transfer</h2>
+        </div>
+        <div class="panel-body">
+          <div id="transferTableMount"></div>
+        </div>
+      </section>
+    </section>
     </section>
 
     <section class="app-view" id="insightView" hidden>
@@ -7043,12 +7267,20 @@
     </section>
 
     <section class="app-view" id="goalsView" hidden>
-      <section class="panel budget-goals-panel">
+      <section class="panel budget-goals-panel" id="goalsFuturePlansSection">
         <div class="panel-header">
           <h2 data-i18n="budgetGoalsTitle">Your Future Plans</h2>
         </div>
         <div class="panel-body">
           <div class="budget-goal-list" id="goalsBudgetGoalList"></div>
+        </div>
+      </section>
+      <section class="panel budget-goals-panel" id="goalsSpendingBudgetSection">
+        <div class="panel-header">
+          <h2 data-i18n="spendingBudgetTitle">Budget Pengeluaran</h2>
+        </div>
+        <div class="panel-body">
+          <div class="budget-goal-list" id="goalsSpendingBudgetList"></div>
         </div>
       </section>
     </section>
@@ -7227,8 +7459,8 @@
                 <input class="date-native" id="incomeDateInput" type="date" autocomplete="off" required>
               </span>
             </label>
-            <label><span data-i18n="amountRp">Nominal (Rp)</span>
-              <input id="incomeAmountInput" type="text" inputmode="numeric" placeholder="Contoh: 5.000.000" data-i18n-placeholder="amountPlaceholder" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" required>
+            <label><span id="incomeAmountCurrencyLabel" data-i18n="amountRp">Nominal (Rp)</span>
+              <input id="incomeAmountInput" type="text" inputmode="decimal" placeholder="Contoh: 5.000.000" data-i18n-placeholder="amountPlaceholder" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" required>
             </label>
             <label><span data-i18n="incomeSource">Sumber Pemasukan</span>
               <input id="incomeSourceInput" type="text" placeholder="Contoh: Gaji, Freelance, Bonus" data-i18n-placeholder="incomeSourcePlaceholder" autocomplete="new-password" autocapitalize="words" autocorrect="off" spellcheck="false" required>
@@ -7311,7 +7543,7 @@
               <input id="itemInput" type="text" placeholder="Contoh: Beras Rojo Lele, Minyak Goreng Bimoli" data-i18n-placeholder="itemPlaceholder" autocomplete="new-password" autocapitalize="words" autocorrect="off" spellcheck="false" required>
               <div class="suggestion-box" id="itemSuggestions" hidden></div>
             </label>
-            <label><span data-i18n="unitPriceRp">Harga Satuan (Rp)</span>
+            <label><span id="expensePriceCurrencyLabel" data-i18n="unitPriceRp">Harga Satuan (Rp)</span>
               <input id="priceInput" type="text" inputmode="numeric" placeholder="Contoh: 15.000" data-i18n-placeholder="pricePlaceholder" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" required>
             </label>
             <label><span data-i18n="quantity">Jumlah Barang</span>
@@ -7353,9 +7585,9 @@
                 <input class="date-native" id="transferDateInput" type="date" autocomplete="off" required>
               </span>
             </label>
-            <label><span data-i18n="amountRp">Nominal (Rp)</span>
+            <label><span id="transferAmountCurrencyLabel" data-i18n="amountRp">Nominal (Rp)</span>
               <span class="transfer-amount-field">
-                <input id="transferAmountInput" type="text" inputmode="numeric" placeholder="Contoh: 500.000" data-i18n-placeholder="transferAmountPlaceholder" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" required>
+                <input id="transferAmountInput" type="text" inputmode="decimal" placeholder="Contoh: 500.000" data-i18n-placeholder="transferAmountPlaceholder" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" required>
                 <button type="button" id="transferMaxBtn" data-i18n="max">Max</button>
               </span>
             </label>
@@ -7367,6 +7599,10 @@
             </label>
             <label><span data-i18n="toWallet">Ke Wallet</span>
               <select id="transferToWalletSelect" aria-label="Pilih wallet tujuan" data-i18n-aria="chooseTargetWallet"></select>
+            </label>
+            <label class="span-2" id="transferReceivedField" hidden><span id="transferReceivedCurrencyLabel" data-i18n="transferReceivedAmount">Nominal yang benar-benar diterima</span>
+              <input id="transferReceivedAmountInput" type="text" inputmode="decimal" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+              <small class="field-help" id="transferEffectiveRateText"></small>
             </label>
             <label class="span-2"><span data-i18n="notesOptional">Catatan (Opsional)</span>
               <textarea id="transferNoteInput" rows="2" placeholder="Contoh: Pindah saldo ke e-wallet" data-i18n-placeholder="transferNotePlaceholder" autocomplete="off" autocapitalize="sentences" autocorrect="off" spellcheck="false"></textarea>
@@ -7419,6 +7655,55 @@
               </div>
               <div class="form-actions">
                 <button type="submit" data-i18n="saveBudgetGoal">Simpan Target</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </aside>
+    </section>
+  </div>
+
+  <div class="secure-dialog entry-dialog" id="spendingBudgetDialog" hidden>
+    <section class="secure-dialog-panel entry-dialog-panel" role="dialog" aria-modal="true" aria-labelledby="spendingBudgetDialogTitle">
+      <button class="dialog-close" type="button" id="closeSpendingBudgetDialog" aria-label="Tutup" data-i18n-aria="close">&times;</button>
+      <aside class="panel">
+        <div class="panel-header">
+          <h2 id="spendingBudgetDialogTitle" data-i18n="addSpendingBudget">Tambah Budget</h2>
+          <span class="pill" data-i18n="spendingBudgetPill">Limit</span>
+        </div>
+        <div class="panel-body">
+          <form id="spendingBudgetForm" class="form-grid" autocomplete="off">
+            <label class="span-2"><span data-i18n="spendingBudgetName">Budget untuk apa?</span>
+              <input id="spendingBudgetNameInput" type="text" placeholder="Contoh: Makan saat liburan" data-i18n-placeholder="spendingBudgetNamePlaceholder" autocomplete="new-password" autocapitalize="words" autocorrect="off" spellcheck="false" required>
+            </label>
+            <label><span data-i18n="spendingBudgetAmount">Batas pengeluaran (Rp)</span>
+              <input id="spendingBudgetAmountInput" type="text" inputmode="numeric" placeholder="Contoh: 250.000" data-i18n-placeholder="spendingBudgetAmountPlaceholder" autocomplete="off" required>
+            </label>
+            <label><span data-i18n="spendingBudgetPeriod">Periode budget</span>
+              <select id="spendingBudgetPeriodSelect">
+                <option value="daily" data-i18n="daily">Harian</option>
+                <option value="weekly" data-i18n="weekly">Mingguan</option>
+                <option value="monthly" data-i18n="monthly">Bulanan</option>
+              </select>
+            </label>
+            <label><span data-i18n="spendingBudgetCategory">Kategori yang dibatasi</span>
+              <input id="spendingBudgetCategoryInput" type="text" placeholder="Kosongkan untuk semua kategori" data-i18n-placeholder="spendingBudgetCategoryPlaceholder" autocomplete="new-password" autocapitalize="words" autocorrect="off" spellcheck="false">
+              <div class="suggestion-box" id="spendingBudgetCategorySuggestions" hidden></div>
+            </label>
+            <label><span data-i18n="spendingBudgetWallet">Wallet</span>
+              <select id="spendingBudgetWalletSelect" aria-label="Pilih wallet budget" data-i18n-aria="chooseWallet"></select>
+            </label>
+            <div class="goal-wallet-note span-2">
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5"></path><path d="M4 19h16"></path><path d="M8 15l3-3 2 2 5-6"></path></svg>
+              <span data-i18n="spendingBudgetAutoNote">Setiap pengeluaran yang cocok akan otomatis mengurangi sisa budget periode ini.</span>
+            </div>
+            <div class="form-footer">
+              <div class="estimate">
+                <span data-i18n="spendingBudgetPreview">Budget aktif</span>
+                <strong id="spendingBudgetPreviewText">—</strong>
+              </div>
+              <div class="form-actions">
+                <button type="submit" data-i18n="saveSpendingBudget">Simpan Budget</button>
               </div>
             </div>
           </form>
@@ -7742,15 +8027,17 @@
     const PASSWORD_ITERATIONS = 180000;
     const BACKUP_ITERATIONS = 220000;
     const RECOVERY_ITERATIONS = 180000;
+    const ADD_WALLET_OPTION_VALUE = "__add_wallet__";
     const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
     const englishMonthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const shortMonthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
     const englishShortMonthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const translations = {
       id: {
-        settings: "Pengaturan", goalsNav: "Goals", appSettings: "Pengaturan aplikasi", language: "Bahasa",
+        settings: "Pengaturan", goalsNav: "Goals", openGoals: "Lihat di Goals", appSettings: "Pengaturan aplikasi", language: "Bahasa",
         chooseLanguage: "Pilih bahasa", chooseTheme: "Pilih tema", openSettings: "Buka menu pengaturan", theme: "Tema",
         wallets: "Wallet", wallet: "Wallet", chooseWallet: "Pilih wallet", addWallet: "Tambah wallet",
+        addNewWallet: "Tambah wallet baru", differentWalletCurrency: "Gunakan mata uang berbeda", walletCurrency: "Mata uang wallet",
         walletPlaceholder: "Contoh: Cash, BCA, GoPay", defaultWallet: "Cash",
         primaryWalletLabel: "Wallet utama (default)",
         walletAdded: "Wallet berhasil ditambahkan.", walletExists: "Wallet sudah ada.",
@@ -7758,7 +8045,7 @@
         walletDeleted: "Wallet dihapus. Sisa saldo dan riwayat dipindahkan.",
         deleteWalletTitle: "Hapus Wallet", moveBalanceTo: "Pindahkan saldo ke",
         chooseTargetWallet: "Pilih wallet tujuan",
-        walletDeleteMessage: "Wallet {wallet} punya saldo {balance} dan {count} transaksi. Pilih wallet tujuan untuk memindahkan saldo dan riwayatnya.",
+        walletDeleteMessage: "Wallet {wallet} punya saldo {balance} dan {count} catatan terkait. Pilih wallet tujuan untuk memindahkan saldo dan riwayatnya.",
         walletDeleteNoTarget: "Tambahkan wallet lain dulu sebelum menghapus wallet ini.",
         walletRequired: "Minimal isi satu nama wallet.", saveWallet: "Simpan", saveWalletFirst: "Simpan atau batalkan wallet custom terlebih dahulu.",
         walletDefaultProtected: "Wallet default tidak bisa dihapus.",
@@ -7773,6 +8060,7 @@
         transferDate: "Tanggal Transfer", fromWallet: "Dari Wallet", toWallet: "Ke Wallet",
         chooseFromWallet: "Pilih wallet asal", transferAmountPlaceholder: "Contoh: 500.000",
         transferNotePlaceholder: "Contoh: Pindah saldo ke e-wallet", transferPreview: "Transfer internal",
+        transferReceivedAmount: "Nominal yang benar-benar diterima", transferEffectiveRate: "Kurs efektif: {rate}",
         saveTransfer: "Simpan Transfer", transferSaved: "Transfer wallet tersimpan.",
         transferWalletSame: "Wallet asal dan tujuan tidak boleh sama.",
         transferAmountPositive: "Nominal transfer harus lebih dari 0.",
@@ -7872,6 +8160,20 @@
         goalNameRequired: "Nama target wajib diisi.", goalTargetPositive: "Target nominal harus lebih dari 0.",
         goalSaved: "Target budget tersimpan.", goalDeleted: "Target budget dihapus.",
         deleteGoalConfirm: "Hapus target budget ini?", editGoal: "Edit Target",
+        spendingBudgetTitle: "Budget Pengeluaran", addSpendingBudget: "Tambah Budget", spendingBudgetPill: "Limit",
+        spendingBudgetName: "Budget untuk apa?", spendingBudgetNamePlaceholder: "Contoh: Makan saat liburan",
+        spendingBudgetAmount: "Batas pengeluaran (Rp)", spendingBudgetAmountPlaceholder: "Contoh: 250.000",
+        spendingBudgetPeriod: "Periode budget", spendingBudgetCategory: "Kategori yang dibatasi",
+        spendingBudgetCategoryPlaceholder: "Kosongkan untuk semua kategori", spendingBudgetWallet: "Wallet",
+        spendingBudgetAutoNote: "Setiap pengeluaran yang cocok akan otomatis mengurangi sisa budget periode ini.",
+        spendingBudgetPreview: "Budget aktif", saveSpendingBudget: "Simpan Budget",
+        emptySpendingBudgetTitle: "Belum ada budget pengeluaran",
+        emptySpendingBudgetCopy: "Buat batas makan harian, liburan mingguan, atau kategori bulanan agar pengeluaran tetap terkendali.",
+        newSpendingBudgetCta: "Budget Baru", allCategories: "Semua kategori", allWallets: "Semua wallet",
+        budgetUsed: "Terpakai", budgetLimit: "Batas", budgetRemaining: "Sisa budget", budgetOver: "Over budget",
+        transactions: "Transaksi", spendingBudgetNameRequired: "Nama budget wajib diisi.",
+        spendingBudgetAmountPositive: "Batas budget harus lebih dari 0.", spendingBudgetSaved: "Budget pengeluaran tersimpan.",
+        spendingBudgetDeleted: "Budget pengeluaran dihapus.", deleteSpendingBudgetConfirm: "Hapus budget pengeluaran ini?",
         incomeDate: "Tanggal Pemasukan", amountRp: "Nominal (Rp)", amountPlaceholder: "Contoh: 5.000.000",
         incomeSource: "Sumber Pemasukan", incomeSourcePlaceholder: "Contoh: Gaji, Freelance, Bonus",
         notesOptional: "Catatan (Opsional)", incomeNotePlaceholder: "Contoh: Gaji bulan ini",
@@ -7887,7 +8189,8 @@
         dateLabel: "Tanggal",
         monday: "Senin", tuesday: "Selasa", wednesday: "Rabu", thursday: "Kamis", friday: "Jumat", saturday: "Sabtu", sunday: "Minggu",
         discardDraft: "Buang Draft", draftDiscarded: "Draft berhasil dibuang.",
-        incomeHistory: "Riwayat Pemasukan", addShopping: "Tambah Belanjaan Baru",
+        incomeHistory: "Riwayat Pemasukan", transferHistory: "Riwayat Transfer", addShopping: "Tambah Belanjaan Baru",
+        amountSent: "Nominal dikirim", amountReceived: "Nominal diterima", effectiveRate: "Kurs efektif", noTransfers: "Belum ada transfer antar-wallet.",
         shoppingDate: "Tanggal Belanja", category: "Kategori", itemName: "Nama Barang",
         itemPlaceholder: "Contoh: Beras Rojo Lele, Minyak Goreng Bimoli", unitPriceRp: "Harga Satuan (Rp)",
         pricePlaceholder: "Contoh: 15.000", quantity: "Jumlah Barang",
@@ -8047,9 +8350,10 @@
         accountDeleteFailed: "Data cloud belum bisa dihapus. Coba lagi saat koneksi stabil."
       },
       en: {
-        settings: "Settings", goalsNav: "Goals", appSettings: "App settings", language: "Language",
+        settings: "Settings", goalsNav: "Goals", openGoals: "View in Goals", appSettings: "App settings", language: "Language",
         chooseLanguage: "Choose language", chooseTheme: "Choose theme", openSettings: "Open settings menu", theme: "Theme",
         wallets: "Wallets", wallet: "Wallet", chooseWallet: "Choose wallet", addWallet: "Add wallet",
+        addNewWallet: "Add new wallet", differentWalletCurrency: "Use a different currency", walletCurrency: "Wallet currency",
         walletPlaceholder: "Example: Cash, BCA, GoPay", defaultWallet: "Cash",
         primaryWalletLabel: "Primary wallet (default)",
         walletAdded: "Wallet added.", walletExists: "Wallet already exists.",
@@ -8057,7 +8361,7 @@
         walletDeleted: "Wallet deleted. Remaining balance and history were moved.",
         deleteWalletTitle: "Delete Wallet", moveBalanceTo: "Move balance to",
         chooseTargetWallet: "Choose target wallet",
-        walletDeleteMessage: "{wallet} has a {balance} balance and {count} transactions. Choose a target wallet to move its balance and history.",
+        walletDeleteMessage: "{wallet} has a {balance} balance and {count} linked records. Choose a target wallet to move its balance and history.",
         walletDeleteNoTarget: "Add another wallet before deleting this wallet.",
         walletRequired: "Enter at least one wallet name.", saveWallet: "Save", saveWalletFirst: "Save or cancel the custom wallet first.",
         walletDefaultProtected: "The default wallet cannot be deleted.",
@@ -8072,6 +8376,7 @@
         transferDate: "Transfer Date", fromWallet: "From Wallet", toWallet: "To Wallet",
         chooseFromWallet: "Choose source wallet", transferAmountPlaceholder: "Example: 500,000",
         transferNotePlaceholder: "Example: Move balance to e-wallet", transferPreview: "Internal transfer",
+        transferReceivedAmount: "Amount actually received", transferEffectiveRate: "Effective rate: {rate}",
         saveTransfer: "Save Transfer", transferSaved: "Wallet transfer saved.",
         transferWalletSame: "Source and target wallets cannot be the same.",
         transferAmountPositive: "Transfer amount must be greater than 0.",
@@ -8171,6 +8476,20 @@
         goalNameRequired: "Goal name is required.", goalTargetPositive: "Target amount must be greater than 0.",
         goalSaved: "Budget goal saved.", goalDeleted: "Budget goal deleted.",
         deleteGoalConfirm: "Delete this budget goal?", editGoal: "Edit Goal",
+        spendingBudgetTitle: "Spending Budget", addSpendingBudget: "Add Budget", spendingBudgetPill: "Limit",
+        spendingBudgetName: "What is this budget for?", spendingBudgetNamePlaceholder: "Example: Vacation meals",
+        spendingBudgetAmount: "Spending limit (Rp)", spendingBudgetAmountPlaceholder: "Example: 250,000",
+        spendingBudgetPeriod: "Budget period", spendingBudgetCategory: "Limited category",
+        spendingBudgetCategoryPlaceholder: "Leave empty for all categories", spendingBudgetWallet: "Wallet",
+        spendingBudgetAutoNote: "Matching expenses automatically reduce this period's remaining budget.",
+        spendingBudgetPreview: "Active budget", saveSpendingBudget: "Save Budget",
+        emptySpendingBudgetTitle: "No spending budget yet",
+        emptySpendingBudgetCopy: "Create daily meal limits, weekly trip budgets, or monthly category limits to stay in control.",
+        newSpendingBudgetCta: "New Budget", allCategories: "All categories", allWallets: "All wallets",
+        budgetUsed: "Used", budgetLimit: "Limit", budgetRemaining: "Remaining", budgetOver: "Over budget",
+        transactions: "Transactions", spendingBudgetNameRequired: "Budget name is required.",
+        spendingBudgetAmountPositive: "Budget limit must be greater than 0.", spendingBudgetSaved: "Spending budget saved.",
+        spendingBudgetDeleted: "Spending budget deleted.", deleteSpendingBudgetConfirm: "Delete this spending budget?",
         incomeDate: "Income Date", amountRp: "Amount (Rp)", amountPlaceholder: "Example: 5,000,000",
         incomeSource: "Income Source", incomeSourcePlaceholder: "Example: Salary, Freelance, Bonus",
         notesOptional: "Notes (Optional)", incomeNotePlaceholder: "Example: This month's salary",
@@ -8186,7 +8505,8 @@
         dateLabel: "Date",
         monday: "Monday", tuesday: "Tuesday", wednesday: "Wednesday", thursday: "Thursday", friday: "Friday", saturday: "Saturday", sunday: "Sunday",
         discardDraft: "Discard Draft", draftDiscarded: "Draft discarded.",
-        incomeHistory: "Income History", addShopping: "Add New Purchase",
+        incomeHistory: "Income History", transferHistory: "Transfer History", addShopping: "Add New Purchase",
+        amountSent: "Amount sent", amountReceived: "Amount received", effectiveRate: "Effective rate", noTransfers: "No wallet transfers yet.",
         shoppingDate: "Purchase Date", category: "Category", itemName: "Item Name",
         itemPlaceholder: "Example: Rice, Cooking Oil", unitPriceRp: "Unit Price (Rp)",
         pricePlaceholder: "Example: 15,000", quantity: "Quantity",
@@ -8405,6 +8725,10 @@
       return ["IDR", "JPY", "KRW", "VND"].includes(currency) ? 0 : 2;
     }
 
+    function todayRateKey() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
     const countryCurrencyMap = {
       ID: "IDR", US: "USD", SG: "SGD", MY: "MYR", AU: "AUD", GB: "GBP",
       JP: "JPY", DE: "EUR", FR: "EUR", ES: "EUR", IT: "EUR", NL: "EUR",
@@ -8419,6 +8743,7 @@
       recurringIncomes: [],
       transfers: [],
       budgetGoals: [],
+      spendingBudgets: [],
       obligations: [],
       wallets: [],
       settings: { theme: "system", language: defaultLanguage(), currency: defaultCurrency(), defaultWallet: "Cash", onboardingComplete: false },
@@ -8496,7 +8821,9 @@
     let monthPickerYear = new Date().getFullYear();
     let editingWalletName = "";
     let editingBudgetGoalId = null;
+    let editingSpendingBudgetId = null;
     let pendingWalletDelete = null;
+    let transferReceivedManuallyEdited = false;
     let pendingObligationPaymentId = null;
     let pendingOnboardingRecoveryCode = "";
     let onboardingStep = 0;
@@ -8541,15 +8868,24 @@
       transferForm: $("transferForm"),
       transferDate: $("transferDateInput"),
       transferAmount: $("transferAmountInput"),
+      transferReceivedAmount: $("transferReceivedAmountInput"),
       transferFromWallet: $("transferFromWalletSelect"),
       transferToWallet: $("transferToWalletSelect"),
       transferNote: $("transferNoteInput"),
       transferMax: $("transferMaxBtn"),
+      walletCurrency: $("walletCurrencySelect"),
+      walletDifferentCurrency: $("walletDifferentCurrencyToggle"),
       budgetGoalForm: $("budgetGoalForm"),
       budgetGoalName: $("budgetGoalNameInput"),
       budgetGoalTarget: $("budgetGoalTargetInput"),
       budgetGoalWallet: $("budgetGoalWalletSelect"),
       budgetGoalCurrent: $("budgetGoalCurrentInput"),
+      spendingBudgetForm: $("spendingBudgetForm"),
+      spendingBudgetName: $("spendingBudgetNameInput"),
+      spendingBudgetAmount: $("spendingBudgetAmountInput"),
+      spendingBudgetPeriod: $("spendingBudgetPeriodSelect"),
+      spendingBudgetCategory: $("spendingBudgetCategoryInput"),
+      spendingBudgetWallet: $("spendingBudgetWalletSelect"),
       obligationForm: $("obligationForm"),
       obligationType: $("obligationTypeSelect"),
       obligationDate: $("obligationDateInput"),
@@ -8627,6 +8963,143 @@
       return supportedCurrencies.includes(state.settings.currency) ? state.settings.currency : defaultCurrency();
     }
 
+    function ensureWalletCurrencies() {
+      if (!state.settings || typeof state.settings !== "object") state.settings = {};
+      if (!state.settings.walletCurrencies || typeof state.settings.walletCurrencies !== "object" || Array.isArray(state.settings.walletCurrencies)) {
+        state.settings.walletCurrencies = {};
+      }
+      const fallback = currentCurrency();
+      ensureWallets();
+      state.wallets.forEach((wallet) => {
+        const key = walletKey(wallet);
+        const saved = String(state.settings.walletCurrencies[key] || "").toUpperCase();
+        state.settings.walletCurrencies[key] = supportedCurrencies.includes(saved) ? saved : fallback;
+      });
+    }
+
+    function walletCurrency(wallet) {
+      ensureWalletCurrencies();
+      const saved = String(state.settings.walletCurrencies[walletKey(wallet)] || "").toUpperCase();
+      return supportedCurrencies.includes(saved) ? saved : currentCurrency();
+    }
+
+    function setWalletCurrency(wallet, currency) {
+      ensureWalletCurrencies();
+      const normalizedCurrency = supportedCurrencies.includes(currency) ? currency : currentCurrency();
+      state.settings.walletCurrencies[walletKey(wallet)] = normalizedCurrency;
+    }
+
+    function walletRateKey(from, to) {
+      return `${String(from || "").toUpperCase()}_${String(to || "").toUpperCase()}_${todayRateKey()}`;
+    }
+
+    function cachedWalletRate(from, to) {
+      const base = String(from || "").toUpperCase();
+      const quote = String(to || "").toUpperCase();
+      if (!base || !quote || base === quote) return 1;
+      const rates = state.settings.exchangeRates || {};
+      const rate = Number(rates[walletRateKey(base, quote)]);
+      if (Number.isFinite(rate) && rate > 0) return rate;
+      const reverseRate = Number(rates[walletRateKey(quote, base)]);
+      return Number.isFinite(reverseRate) && reverseRate > 0 ? 1 / reverseRate : null;
+    }
+
+    function convertedCurrencyAmount(amount, from, to) {
+      const rate = cachedWalletRate(from, to);
+      return rate ? Number(amount || 0) * rate : null;
+    }
+
+    function walletEquivalentText(wallet, amount) {
+      const from = walletCurrency(wallet);
+      const to = currentCurrency();
+      if (from === to) return "";
+      const converted = convertedCurrencyAmount(amount, from, to);
+      return converted === null ? "" : `≈ ${formatCurrencyAmount(converted, to)}`;
+    }
+
+    function amountInCurrentCurrency(amount, fromCurrency) {
+      const from = String(fromCurrency || currentCurrency()).toUpperCase();
+      const to = currentCurrency();
+      if (from === to) return Number(amount || 0);
+      const converted = convertedCurrencyAmount(amount, from, to);
+      return converted === null ? Number(amount || 0) : converted;
+    }
+
+    function transactionCurrencyMeta(wallet, nativeAmount) {
+      const currency = walletCurrency(wallet);
+      const baseCurrency = currentCurrency();
+      const numericAmount = Number(nativeAmount || 0);
+      const converted = convertedCurrencyAmount(numericAmount, currency, baseCurrency);
+      return {
+        currency,
+        baseCurrency,
+        exchangeRate: converted !== null && numericAmount > 0 ? converted / numericAmount : null,
+        baseAmount: converted
+      };
+    }
+
+    function transactionNativeCurrency(record, walletField = "wallet") {
+      const saved = String(record && (record.currency || record.fromCurrency) || "").toUpperCase();
+      if (supportedCurrencies.includes(saved)) return saved;
+      return walletCurrency(record && record[walletField] || defaultWalletName());
+    }
+
+    function transactionNativeAmount(record, type) {
+      if (type === "expense") return Number(record.total || 0);
+      return Number(record.amount || 0);
+    }
+
+    function transactionBaseAmount(record, type) {
+      const nativeAmount = transactionNativeAmount(record, type);
+      const savedBaseAmount = Number(record.baseAmount);
+      if (record.baseAmount !== null && record.baseAmount !== undefined && Number.isFinite(savedBaseAmount) && record.baseCurrency === currentCurrency()) return savedBaseAmount;
+      const currency = transactionNativeCurrency(record);
+      return amountInCurrentCurrency(nativeAmount, currency);
+    }
+
+    function transactionAmountMarkup(record, type, options = {}) {
+      const nativeAmount = transactionNativeAmount(record, type);
+      const currency = transactionNativeCurrency(record);
+      const baseCurrency = currentCurrency();
+      const prefix = options.prefix || "";
+      const primary = `${prefix}${formatCurrencyAmount(nativeAmount, currency)}`;
+      if (currency === baseCurrency) return `<b>${escapeHtml(primary)}</b>`;
+      const baseAmount = transactionBaseAmount(record, type);
+      return `<span class="transaction-currency-amount"><b>${escapeHtml(primary)}</b><small>≈ ${escapeHtml(formatCurrencyAmount(baseAmount, baseCurrency))}</small></span>`;
+    }
+
+    async function refreshWalletExchangeRates() {
+      if (!currentUser) return;
+      ensureWalletCurrencies();
+      const baseCurrency = currentCurrency();
+      const walletCurrencies = [...new Set(state.wallets.map(walletCurrency).filter((currency) => currency && currency !== baseCurrency))];
+      if (!walletCurrencies.length) return;
+      state.settings.exchangeRates = state.settings.exchangeRates && typeof state.settings.exchangeRates === "object"
+        ? state.settings.exchangeRates
+        : {};
+      let changed = false;
+      await Promise.all(walletCurrencies.map(async (currency) => {
+        const key = walletRateKey(currency, baseCurrency);
+        if (state.settings.exchangeRates[key]) return;
+        try {
+          const response = await fetch(`https://api.frankfurter.dev/v2/rate/${encodeURIComponent(currency)}/${encodeURIComponent(baseCurrency)}`, { cache: "no-store" });
+          if (!response.ok) return;
+          const data = await response.json();
+          const rate = Number(data.rate);
+          if (Number.isFinite(rate) && rate > 0) {
+            state.settings.exchangeRates[key] = rate;
+            changed = true;
+          }
+        } catch (error) {
+          console.warn("Gagal update kurs wallet:", error);
+        }
+      }));
+      if (changed) {
+        persist();
+        render();
+      }
+    }
+
     function currencyDisplayName(code) {
       try {
         if (typeof Intl.DisplayNames === "function") {
@@ -8652,23 +9125,31 @@
       const select = $("onboardingCurrencySelect");
       if (!select) return;
       const selected = currentCurrency();
-      select.innerHTML = supportedCurrencies.map((code) => (
+      const options = supportedCurrencies.map((code) => (
         `<option value="${escapeHtml(code)}">${escapeHtml(`${code === "IDR" ? "Rp" : code} - ${currencyDisplayName(code)}`)}</option>`
       )).join("");
+      select.innerHTML = options;
       select.value = supportedCurrencies.includes(selected) ? selected : defaultCurrency();
+      if (controls.walletCurrency) {
+        controls.walletCurrency.innerHTML = options;
+        controls.walletCurrency.value = currentCurrency();
+      }
     }
 
     const rupiah = {
       format(value) {
-        const currency = currentCurrency();
+        return formatCurrencyAmount(value, currentCurrency());
+      }
+    };
+
+    function formatCurrencyAmount(value, currency = currentCurrency()) {
         const locale = currency === "IDR" ? "id-ID" : currentLanguage() === "id" ? "id-ID" : "en-US";
         return new Intl.NumberFormat(locale, {
           style: "currency",
           currency,
           maximumFractionDigits: currencyFractionDigits(currency)
         }).format(Number(value || 0));
-      }
-    };
+    }
 
     function currentLanguage() {
       return state.settings.language === "en" ? "en" : "id";
@@ -8958,6 +9439,20 @@
       return new Date().toISOString().slice(0, 10);
     }
 
+    function toISODate(date) {
+      return [
+        date.getFullYear(),
+        String(date.getMonth() + 1).padStart(2, "0"),
+        String(date.getDate()).padStart(2, "0")
+      ].join("-");
+    }
+
+    function monthLabel(monthKeyValue) {
+      const [year, month] = String(monthKeyValue || "").split("-").map(Number);
+      if (!year || !month) return periodLabel();
+      return `${localizedMonthNames()[month - 1]} ${year}`;
+    }
+
     function dateDisplayText(dateString) {
       if (!dateString) return t("chooseDate");
       return formatDate(dateString);
@@ -9101,15 +9596,25 @@
       const options = state.wallets.map((wallet) => (
         `<option value="${escapeHtml(wallet)}">${escapeHtml(wallet)}</option>`
       )).join("");
-      [controls.incomeWallet, controls.expenseWallet, controls.transferFromWallet, controls.transferToWallet, controls.budgetGoalWallet, controls.obligationWallet, controls.obligationPaymentWallet].forEach((select) => {
+      const addWalletOption = `<option value="${ADD_WALLET_OPTION_VALUE}">+ ${escapeHtml(t("addWallet"))}</option>`;
+      [controls.incomeWallet, controls.expenseWallet, controls.transferFromWallet, controls.transferToWallet, controls.budgetGoalWallet, controls.spendingBudgetWallet, controls.obligationWallet, controls.obligationPaymentWallet].forEach((select) => {
         if (!select) return;
-        const previous = select.value || defaultWalletName();
-        select.innerHTML = options;
+        const previous = select.value && select.value !== ADD_WALLET_OPTION_VALUE ? select.value : defaultWalletName();
+        select.innerHTML = options + addWalletOption;
         select.value = state.wallets.includes(previous) ? previous : defaultWalletName();
       });
       renderWalletManager();
       renderRecurringIncomeManager();
+      updateTransactionCurrencyLabels();
       syncAllCustomSelects();
+    }
+
+    function updateTransactionCurrencyLabels() {
+      const incomeLabel = $("incomeAmountCurrencyLabel");
+      const expenseLabel = $("expensePriceCurrencyLabel");
+      if (incomeLabel) incomeLabel.textContent = `${t("amount")} (${walletCurrency(controls.incomeWallet.value || defaultWalletName())})`;
+      if (expenseLabel) expenseLabel.textContent = `${t("unitPrice")} (${walletCurrency(controls.expenseWallet.value || defaultWalletName())})`;
+      updateEstimate();
     }
 
     function walletTransactionCount(wallet) {
@@ -9124,10 +9629,18 @@
 
     function walletBalance(wallet) {
       const key = walletKey(wallet);
-      const incomeTotal = sumIncome(state.incomes.filter((income) => walletKey(income.wallet) === key));
-      const expenseTotal = sum(state.entries.filter((entry) => walletKey(entry.wallet) === key));
-      const transferIn = sumTransfers(state.transfers.filter((transfer) => walletKey(transfer.toWallet) === key));
-      const transferOut = sumTransfers(state.transfers.filter((transfer) => walletKey(transfer.fromWallet) === key));
+      const incomeTotal = state.incomes
+        .filter((income) => walletKey(income.wallet) === key)
+        .reduce((total, income) => total + Number(income.amount || 0), 0);
+      const expenseTotal = state.entries
+        .filter((entry) => walletKey(entry.wallet) === key)
+        .reduce((total, entry) => total + Number(entry.total || 0), 0);
+      const transferIn = state.transfers
+        .filter((transfer) => walletKey(transfer.toWallet) === key)
+        .reduce((total, transfer) => total + Number(transfer.toAmount ?? transfer.amount ?? 0), 0);
+      const transferOut = state.transfers
+        .filter((transfer) => walletKey(transfer.fromWallet) === key)
+        .reduce((total, transfer) => total + Number(transfer.amount || 0), 0);
       return incomeTotal - expenseTotal + transferIn - transferOut;
     }
 
@@ -9139,6 +9652,8 @@
         const usedCount = walletTransactionCount(wallet);
         const protectedWallet = walletKey(wallet) === walletKey(defaultWalletName());
         const balance = walletBalance(wallet);
+        const currency = walletCurrency(wallet);
+        const equivalent = walletEquivalentText(wallet, balance);
         const meta = protectedWallet
           ? ""
           : `<button type="button" data-delete-wallet="${escapeHtml(wallet)}">${t("delete")}</button>`;
@@ -9148,7 +9663,7 @@
             <span class="wallet-row-label">
               <span>${escapeHtml(wallet)}</span>
               ${badge}
-              ${usedCount ? `<small>${rupiah.format(balance)} · ${numberFmt.format(usedCount)}</small>` : ""}
+              <small>${escapeHtml(currency)}${usedCount ? ` · ${formatCurrencyAmount(balance, currency)} · ${numberFmt.format(usedCount)}` : ""}${equivalent ? ` · ${escapeHtml(equivalent)}` : ""}</small>
             </span>
             <span class="wallet-row-actions">
               <button type="button" data-edit-wallet="${escapeHtml(wallet)}">${t("editWallet")}</button>
@@ -9215,20 +9730,68 @@
     function syncWalletEditMode() {
       const button = $("addWalletBtn");
       if (!button) return;
-      button.setAttribute("aria-label", t(editingWalletName ? "saveChanges" : "addWallet"));
-      button.innerHTML = editingWalletName
-        ? `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>`
-        : `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>`;
+      const key = editingWalletName ? "saveChanges" : "addWallet";
+      button.dataset.i18n = key;
+      button.setAttribute("aria-label", t(key));
+      button.textContent = t(key);
+    }
+
+    function syncWalletCurrencyForm() {
+      const toggle = controls.walletDifferentCurrency;
+      const field = $("walletCurrencyField");
+      if (!toggle || !field || !controls.walletCurrency) return;
+      const usesDifferentCurrency = toggle.checked;
+      field.hidden = !usesDifferentCurrency;
+      controls.walletCurrency.disabled = !usesDifferentCurrency;
+      if (!usesDifferentCurrency) controls.walletCurrency.value = currentCurrency();
+      syncCustomSelect(controls.walletCurrency);
+    }
+
+    function openWalletForm(wallet = "") {
+      const form = $("walletAddForm");
+      const trigger = $("openWalletFormBtn");
+      const input = $("walletNameInput");
+      if (!form || !input) return;
+      editingWalletName = wallet ? normalizeWalletName(wallet) : "";
+      const selectedCurrency = editingWalletName ? walletCurrency(editingWalletName) : currentCurrency();
+      input.value = editingWalletName;
+      if (controls.walletCurrency) controls.walletCurrency.value = selectedCurrency;
+      if (controls.walletDifferentCurrency) {
+        controls.walletDifferentCurrency.checked = selectedCurrency !== currentCurrency();
+      }
+      form.hidden = false;
+      if (trigger) trigger.hidden = true;
+      syncWalletCurrencyForm();
+      syncWalletEditMode();
+      window.requestAnimationFrame(() => {
+        form.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        input.focus();
+        if (editingWalletName) input.select();
+      });
+    }
+
+    function closeWalletForm() {
+      const form = $("walletAddForm");
+      const trigger = $("openWalletFormBtn");
+      editingWalletName = "";
+      if ($("walletNameInput")) $("walletNameInput").value = "";
+      if (controls.walletDifferentCurrency) controls.walletDifferentCurrency.checked = false;
+      if (controls.walletCurrency) controls.walletCurrency.value = currentCurrency();
+      syncWalletCurrencyForm();
+      syncWalletEditMode();
+      if (form) form.hidden = true;
+      if (trigger) trigger.hidden = false;
+    }
+
+    function selectedWalletCurrency() {
+      if (!controls.walletDifferentCurrency?.checked) return currentCurrency();
+      return supportedCurrencies.includes(controls.walletCurrency?.value)
+        ? controls.walletCurrency.value
+        : currentCurrency();
     }
 
     function startWalletEdit(wallet) {
-      const input = $("walletNameInput");
-      if (!input) return;
-      editingWalletName = normalizeWalletName(wallet);
-      input.value = editingWalletName;
-      syncWalletEditMode();
-      input.focus();
-      input.select();
+      openWalletForm(wallet);
     }
 
     function finishWalletEdit() {
@@ -9236,11 +9799,19 @@
       const input = $("walletNameInput");
       if (!input) return;
       const previousName = normalizeWalletName(editingWalletName);
-      const nextName = normalizeWalletName(input.value);
-      if (!nextName || walletKey(previousName) === walletKey(nextName)) {
-        editingWalletName = "";
-        input.value = "";
-        syncWalletEditMode();
+      const rawNextName = normalizeName(input.value);
+      if (!rawNextName) {
+        input.focus();
+        return;
+      }
+      const nextName = normalizeWalletName(rawNextName);
+      const nextCurrency = selectedWalletCurrency();
+      if (walletKey(previousName) === walletKey(nextName)) {
+        setWalletCurrency(previousName, nextCurrency);
+        closeWalletForm();
+        persist();
+        render();
+        refreshWalletExchangeRates();
         return;
       }
       ensureWallets();
@@ -9271,14 +9842,16 @@
       if (walletKey(defaultWalletName()) === walletKey(previousName)) {
         state.settings.defaultWallet = nextName;
       }
+      delete state.settings.walletCurrencies[walletKey(previousName)];
+      setWalletCurrency(nextName, nextCurrency);
       if (walletKey(controls.expenseWallet.value) === walletKey(previousName)) controls.expenseWallet.value = nextName;
       if (walletKey(controls.incomeWallet.value) === walletKey(previousName)) controls.incomeWallet.value = nextName;
       if (walletKey(controls.budgetGoalWallet.value) === walletKey(previousName)) controls.budgetGoalWallet.value = nextName;
-      editingWalletName = "";
-      input.value = "";
+      closeWalletForm();
       setWalletOptions();
       persist();
       render();
+      refreshWalletExchangeRates();
       syncWalletEditMode();
       toast(t("walletUpdated"));
     }
@@ -9290,8 +9863,13 @@
         finishWalletEdit();
         return;
       }
-      const wallet = normalizeWalletName(input.value);
-      if (!wallet || walletKey(wallet) === walletKey(defaultWalletName())) {
+      const rawWalletName = normalizeName(input.value);
+      if (!rawWalletName) {
+        input.focus();
+        return;
+      }
+      const wallet = normalizeWalletName(rawWalletName);
+      if (walletKey(wallet) === walletKey(defaultWalletName())) {
         input.value = "";
         return;
       }
@@ -9301,10 +9879,12 @@
         return;
       }
       state.wallets.push(wallet);
-      input.value = "";
+      setWalletCurrency(wallet, selectedWalletCurrency());
+      closeWalletForm();
       setWalletOptions();
       syncWalletEditMode();
       persist();
+      refreshWalletExchangeRates();
       toast(t("walletAdded"));
     }
 
@@ -9328,9 +9908,9 @@
       }
       state.wallets = state.wallets.filter((item) => walletKey(item) !== key);
       if (walletKey(editingWalletName) === key) {
-        editingWalletName = "";
-        $("walletNameInput").value = "";
+        closeWalletForm();
       }
+      delete state.settings.walletCurrencies[key];
       setWalletOptions();
       syncWalletEditMode();
       persist();
@@ -9341,12 +9921,13 @@
       pendingWalletDelete = normalizeWalletName(wallet);
       const select = $("walletDeleteTarget");
       select.innerHTML = targetWallets.map((target) => (
-        `<option value="${escapeHtml(target)}">${escapeHtml(target)}</option>`
+        `<option value="${escapeHtml(target)}">${escapeHtml(`${target} · ${walletCurrency(target)}`)}</option>`
       )).join("");
       select.value = targetWallets[0] || "";
+      const currency = walletCurrency(pendingWalletDelete);
       $("walletDeleteMessage").textContent = t("walletDeleteMessage", {
         wallet: pendingWalletDelete,
-        balance: rupiah.format(balance),
+        balance: formatCurrencyAmount(balance, currency),
         count: numberFmt.format(usedCount)
       });
       syncCustomSelect(select);
@@ -9435,9 +10016,9 @@
       if (walletKey(controls.incomeWallet.value) === sourceKey) controls.incomeWallet.value = targetWallet;
       if (walletKey(controls.budgetGoalWallet.value) === sourceKey) controls.budgetGoalWallet.value = targetWallet;
       if (walletKey(editingWalletName) === sourceKey) {
-        editingWalletName = "";
-        $("walletNameInput").value = "";
+        closeWalletForm();
       }
+      delete state.settings.walletCurrencies[sourceKey];
       closeWalletDeleteDialog();
       setWalletOptions();
       syncWalletEditMode();
@@ -9458,6 +10039,41 @@
 
     function formatCurrencyField(input) {
       input.value = formatCurrencyInput(input.value);
+    }
+
+    function transferCurrency() {
+      return walletCurrency(normalizeWalletName(controls.transferFromWallet.value || defaultWalletName()));
+    }
+
+    function parseTransferAmount(value, currency = transferCurrency()) {
+      const fractionDigits = currencyFractionDigits(currency);
+      let normalized = String(value || "").trim().replace(/\s/g, "");
+      if (!normalized) return 0;
+      if (fractionDigits > 0) {
+        const lastComma = normalized.lastIndexOf(",");
+        const decimalPart = lastComma >= 0 ? normalized.slice(lastComma + 1).replace(/\D/g, "").slice(0, fractionDigits) : "";
+        const integerPart = (lastComma >= 0 ? normalized.slice(0, lastComma) : normalized).replace(/\D/g, "");
+        return Number(`${integerPart || "0"}${lastComma >= 0 ? `.${decimalPart || "0"}` : ""}`);
+      }
+      return Number(normalized.replace(/\D/g, ""));
+    }
+
+    function formatTransferAmount(value, currency = transferCurrency()) {
+      const amount = typeof value === "number" ? value : parseTransferAmount(value, currency);
+      if (!Number.isFinite(amount)) return "";
+      return new Intl.NumberFormat("id-ID", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: currencyFractionDigits(currency)
+      }).format(amount);
+    }
+
+    function formatTransferAmountField() {
+      const raw = controls.transferAmount.value;
+      if (!String(raw || "").replace(/\D/g, "")) {
+        controls.transferAmount.value = "";
+        return;
+      }
+      controls.transferAmount.value = formatTransferAmount(raw);
     }
 
     function resolvedTheme(preference = state.settings.theme) {
@@ -9777,6 +10393,7 @@
         recurringIncomes: state.recurringIncomes,
         transfers: state.transfers,
         budgetGoals: state.budgetGoals,
+        spendingBudgets: state.spendingBudgets,
         obligations: state.obligations
       };
     }
@@ -9787,9 +10404,10 @@
       state.recurringIncomes = [];
       state.transfers = [];
       state.budgetGoals = [];
+      state.spendingBudgets = [];
       state.obligations = [];
       state.wallets = [];
-      state.settings = { theme: "system", language: defaultLanguage(), currency: defaultCurrency(), defaultWallet: "Cash", onboardingComplete: false };
+      state.settings = { theme: "system", language: defaultLanguage(), currency: defaultCurrency(), defaultWallet: "Cash", onboardingComplete: false, walletCurrencies: {}, exchangeRates: {} };
       state.mode = "monthly";
       state.view = "home";
       state.editingEntryId = null;
@@ -11435,6 +12053,8 @@
       };
       state.wallets = uniqueRecentValues(walletRows.map((wallet) => wallet.name).concat(state.wallets || []), (name) => name);
       ensureWallets();
+      ensureWalletCurrencies();
+      walletRows.forEach((wallet) => setWalletCurrency(wallet.name, currency));
       walletRows.forEach((wallet) => {
         if (wallet.balance <= 0) return;
         state.incomes.unshift({
@@ -11442,6 +12062,7 @@
           date: todayISO(),
           amount: wallet.balance,
           wallet: wallet.name,
+          ...transactionCurrencyMeta(wallet.name, wallet.balance),
           source: t("initialBalanceSource"),
           note: t("initialBalanceSource")
         });
@@ -11499,6 +12120,7 @@
       closeEntryDialog("expense", { resetEdit: true });
       closeTransferDialog();
       closeBudgetGoalDialog();
+      closeSpendingBudgetDialog();
       closeObligationDialog();
       setAuthView("login");
       $("loginPassword").value = "";
@@ -11554,6 +12176,7 @@
       setMainLocked(false);
       safeAccountStep("header notification", updateHeaderNotificationButton);
       safeAccountStep("render", render);
+      window.setTimeout(() => safeAccountStep("wallet exchange rates", refreshWalletExchangeRates), 800);
       if (currentUser?.cloudAccessToken) {
         window.setTimeout(() => {
           refreshCurrentUserFromCloud({ quiet: true });
@@ -11620,6 +12243,7 @@
         state.recurringIncomes = Array.isArray(parsed.recurringIncomes) ? parsed.recurringIncomes.map(normalizeImportedRecurringIncome) : [];
         state.transfers = Array.isArray(parsed.transfers) ? parsed.transfers.map(normalizeImportedTransfer) : [];
         state.budgetGoals = Array.isArray(parsed.budgetGoals) ? parsed.budgetGoals.map(normalizeImportedBudgetGoal) : [];
+        state.spendingBudgets = Array.isArray(parsed.spendingBudgets) ? parsed.spendingBudgets.map(normalizeImportedSpendingBudget) : [];
         state.obligations = Array.isArray(parsed.obligations) ? parsed.obligations.map(normalizeImportedObligation) : [];
         const savedSettings = parsed.settings || {};
         state.settings = {
@@ -11627,10 +12251,13 @@
           language: ["id", "en"].includes(savedSettings.language) ? savedSettings.language : defaultLanguage(),
           currency: supportedCurrencies.includes(savedSettings.currency) ? savedSettings.currency : defaultCurrency(),
           defaultWallet: normalizeName(String(savedSettings.defaultWallet || "")) || "Cash",
-          onboardingComplete: savedSettings.onboardingComplete === true
+          onboardingComplete: savedSettings.onboardingComplete === true,
+          walletCurrencies: savedSettings.walletCurrencies && typeof savedSettings.walletCurrencies === "object" && !Array.isArray(savedSettings.walletCurrencies) ? savedSettings.walletCurrencies : {},
+          exchangeRates: savedSettings.exchangeRates && typeof savedSettings.exchangeRates === "object" && !Array.isArray(savedSettings.exchangeRates) ? savedSettings.exchangeRates : {}
         };
         state.wallets = Array.isArray(parsed.wallets) ? parsed.wallets.map(normalizeWalletName) : [];
         ensureWallets();
+        ensureWalletCurrencies();
       } catch (error) {
         toast(t("localDataError"));
       }
@@ -11720,7 +12347,8 @@
       const expenseDialog = $("expenseEntryDialog");
       const transferDialog = $("transferEntryDialog");
       const budgetDialog = $("budgetGoalDialog");
-      if (incomeDialog && incomeDialog.hidden && expenseDialog && expenseDialog.hidden && transferDialog && transferDialog.hidden && budgetDialog && budgetDialog.hidden) {
+      const spendingBudgetDialog = $("spendingBudgetDialog");
+      if (incomeDialog && incomeDialog.hidden && expenseDialog && expenseDialog.hidden && transferDialog && transferDialog.hidden && budgetDialog && budgetDialog.hidden && spendingBudgetDialog && spendingBudgetDialog.hidden) {
         document.body.classList.remove("entry-dialog-open");
       }
       const quickAddButton = $("quickAddButton");
@@ -11730,7 +12358,38 @@
     function updateTransferPreview() {
       const preview = $("transferPreviewText");
       if (!preview) return;
-      preview.textContent = rupiah.format(parseCurrencyInput(controls.transferAmount.value));
+      const fromWallet = normalizeWalletName(controls.transferFromWallet.value || defaultWalletName());
+      const toWallet = normalizeWalletName(controls.transferToWallet.value || defaultWalletName());
+      const fromCurrency = walletCurrency(fromWallet);
+      const toCurrency = walletCurrency(toWallet);
+      const amount = parseTransferAmount(controls.transferAmount.value, fromCurrency);
+      const marketConverted = convertedCurrencyAmount(amount, fromCurrency, toCurrency);
+      const receivedField = $("transferReceivedField");
+      const receivedLabel = $("transferReceivedCurrencyLabel");
+      const effectiveRateText = $("transferEffectiveRateText");
+      const crossCurrency = fromCurrency !== toCurrency;
+      if (receivedField) receivedField.hidden = !crossCurrency;
+      if (receivedLabel) receivedLabel.textContent = `${t("transferReceivedAmount")} (${toCurrency})`;
+      if (crossCurrency && !transferReceivedManuallyEdited) {
+        controls.transferReceivedAmount.value = marketConverted === null ? "" : formatTransferAmount(marketConverted, toCurrency);
+      }
+      const receivedAmount = crossCurrency
+        ? parseTransferAmount(controls.transferReceivedAmount.value, toCurrency)
+        : amount;
+      if (effectiveRateText) {
+        const hasEffectiveRate = amount > 0 && receivedAmount > 0;
+        const rateText = fromCurrency === currentCurrency()
+          ? `1 ${toCurrency} = ${formatCurrencyAmount(amount / receivedAmount, fromCurrency)}`
+          : `1 ${fromCurrency} = ${formatCurrencyAmount(receivedAmount / amount, toCurrency)}`;
+        effectiveRateText.textContent = crossCurrency && hasEffectiveRate
+          ? t("transferEffectiveRate", {
+            rate: rateText
+          })
+          : "";
+      }
+      preview.textContent = fromCurrency === toCurrency
+        ? formatCurrencyAmount(amount, fromCurrency)
+        : `${formatCurrencyAmount(amount, fromCurrency)} → ${formatCurrencyAmount(receivedAmount, toCurrency)}`;
       updateTransferSourceBalance();
     }
 
@@ -11743,13 +12402,18 @@
       if (!balanceText) return;
       const fromWallet = normalizeWalletName(controls.transferFromWallet.value || defaultWalletName());
       const balance = transferSourceBalance();
-      balanceText.textContent = t("transferSourceBalance", { amount: rupiah.format(balance) });
+      const currency = walletCurrency(fromWallet);
+      balanceText.textContent = t("transferSourceBalance", { amount: formatCurrencyAmount(balance, currency) });
+      const amountLabel = $("transferAmountCurrencyLabel");
+      if (amountLabel) amountLabel.textContent = `${t("amount")} (${currency})`;
       if (controls.transferMax) controls.transferMax.disabled = balance <= 0;
     }
 
     function resetTransferForm() {
+      transferReceivedManuallyEdited = false;
       controls.transferDate.value = todayISO();
       controls.transferAmount.value = "";
+      controls.transferReceivedAmount.value = "";
       controls.transferNote.value = "";
       setWalletOptions();
       if (state.wallets.length > 1) {
@@ -11773,7 +12437,7 @@
     function closeTransferDialog() {
       $("transferEntryDialog").hidden = true;
       hideSuggestionBoxes();
-      if ($("incomeEntryDialog").hidden && $("expenseEntryDialog").hidden && $("budgetGoalDialog").hidden && $("obligationDialog").hidden) {
+      if ($("incomeEntryDialog").hidden && $("expenseEntryDialog").hidden && $("budgetGoalDialog").hidden && $("spendingBudgetDialog").hidden && $("obligationDialog").hidden) {
         document.body.classList.remove("entry-dialog-open");
       }
       const quickAddButton = $("quickAddButton");
@@ -11834,7 +12498,7 @@
       if (!dialog) return;
       dialog.hidden = true;
       editingBudgetGoalId = null;
-      if ($("incomeEntryDialog").hidden && $("expenseEntryDialog").hidden && $("transferEntryDialog").hidden && $("obligationDialog").hidden) {
+      if ($("incomeEntryDialog").hidden && $("expenseEntryDialog").hidden && $("transferEntryDialog").hidden && $("spendingBudgetDialog").hidden && $("obligationDialog").hidden) {
         document.body.classList.remove("entry-dialog-open");
       }
       const quickAddButton = $("quickAddButton");
@@ -12158,7 +12822,7 @@
 
     function closeObligationDialog() {
       $("obligationDialog").hidden = true;
-      if ($("incomeEntryDialog").hidden && $("expenseEntryDialog").hidden && $("transferEntryDialog").hidden && $("budgetGoalDialog").hidden) {
+      if ($("incomeEntryDialog").hidden && $("expenseEntryDialog").hidden && $("transferEntryDialog").hidden && $("budgetGoalDialog").hidden && $("spendingBudgetDialog").hidden) {
         document.body.classList.remove("entry-dialog-open");
       }
       const quickAddButton = $("quickAddButton");
@@ -12254,6 +12918,28 @@
           updatedAt: new Date().toISOString()
         }
       ];
+      const seededSpendingBudgets = [
+        {
+          id: createId(),
+          name: "Makan Harian Liburan",
+          amount: 250000,
+          period: "daily",
+          category: "Protein",
+          wallet: "",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          id: createId(),
+          name: "Belanja Sembako Bulanan",
+          amount: 900000,
+          period: "monthly",
+          category: "Sembako",
+          wallet: "BCA",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      ];
       const seededObligations = [
         { id: createId(), type: "bill", dueDate: `${sampleYear}-07-10`, name: "Tagihan Listrik", party: "PLN", amount: 450000, frequency: "monthly", paymentDay: 10, endDate: "", interest: 0, note: t("sampleDataNote"), status: "unpaid", createdAt: new Date().toISOString() },
         { id: createId(), type: "debt", dueDate: `${sampleYear}-08-01`, name: "Hutang Kartu Kredit", party: "BCA", amount: 1250000, frequency: "monthly", paymentDay: 1, endDate: `${sampleYear}-12-01`, interest: 2.5, note: t("sampleDataNote"), status: "unpaid", createdAt: new Date().toISOString() },
@@ -12266,6 +12952,7 @@
         recurringIncomes: [],
         transfers: seededTransfers.sort((a, b) => b.date.localeCompare(a.date)),
         budgetGoals: seededBudgetGoals,
+        spendingBudgets: seededSpendingBudgets,
         obligations: seededObligations
       };
     }
@@ -12278,6 +12965,7 @@
       state.recurringIncomes = sample.recurringIncomes;
       state.transfers = sample.transfers;
       state.budgetGoals = sample.budgetGoals;
+      state.spendingBudgets = sample.spendingBudgets;
       state.obligations = sample.obligations;
       state.wallets = sample.wallets;
       state.settings.defaultWallet = "Cash";
@@ -12300,15 +12988,18 @@
         return;
       }
       const editingIndex = state.entries.findIndex((item) => item.id === state.editingEntryId);
+      const wallet = normalizeWalletName(controls.expenseWallet.value);
+      const currencyMeta = transactionCurrencyMeta(wallet, Math.round(qty * unitPrice));
       const entry = {
         id: editingIndex >= 0 ? state.entries[editingIndex].id : createId(),
         date: controls.date.value,
         item: normalizeName(capitalizeText(controls.item.value)),
         category: normalizeName(capitalizeText(controls.category.value)) || "Lainnya",
-        wallet: normalizeWalletName(controls.expenseWallet.value),
+        wallet,
         qty,
         unitPrice,
         total: Math.round(qty * unitPrice),
+        ...currencyMeta,
         note: capitalizeText(controls.note.value.trim())
       };
       if (editingIndex >= 0) {
@@ -12424,12 +13115,15 @@
           )
         );
         if (!exists) {
+          const wallet = normalizeWalletName(rule.wallet || defaultWalletName());
+          const amount = Number(rule.amount || 0);
           state.incomes.unshift({
             id: createId(),
             date: incomeDate,
             source: rule.source,
-            wallet: normalizeWalletName(rule.wallet || defaultWalletName()),
-            amount: Number(rule.amount || 0),
+            wallet,
+            amount,
+            ...transactionCurrencyMeta(wallet, amount),
             note: rule.note || t("automaticIncome"),
             recurringIncomeId: rule.id
           });
@@ -12447,12 +13141,15 @@
     function addIncome(event) {
       event.preventDefault();
       const recurringRuleId = controls.incomeAuto.checked ? createId() : "";
+      const wallet = normalizeWalletName(controls.incomeWallet.value);
+      const amount = parseTransferAmount(controls.incomeAmount.value, walletCurrency(wallet));
       const income = {
         id: createId(),
         date: controls.incomeDate.value,
         source: normalizeName(capitalizeText(controls.incomeSource.value)),
-        wallet: normalizeWalletName(controls.incomeWallet.value),
-        amount: parseCurrencyInput(controls.incomeAmount.value),
+        wallet,
+        amount,
+        ...transactionCurrencyMeta(wallet, amount),
         note: capitalizeText(controls.incomeNote.value.trim())
       };
       if (recurringRuleId) income.recurringIncomeId = recurringRuleId;
@@ -12466,6 +13163,10 @@
           source: income.source,
           wallet: income.wallet,
           amount: income.amount,
+          currency: income.currency,
+          baseCurrency: income.baseCurrency,
+          exchangeRate: income.exchangeRate,
+          baseAmount: income.baseAmount,
           note: income.note,
           frequency,
           day,
@@ -12496,7 +13197,7 @@
       event.preventDefault();
       const fromWallet = normalizeWalletName(controls.transferFromWallet.value);
       const toWallet = normalizeWalletName(controls.transferToWallet.value);
-      const amount = parseCurrencyInput(controls.transferAmount.value);
+      const amount = parseTransferAmount(controls.transferAmount.value, walletCurrency(fromWallet));
       if (walletKey(fromWallet) === walletKey(toWallet)) {
         toast(t("transferWalletSame"));
         return;
@@ -12512,12 +13213,42 @@
         controls.transferAmount.focus();
         return;
       }
+      const fromCurrency = walletCurrency(fromWallet);
+      const toCurrency = walletCurrency(toWallet);
+      const baseCurrency = currentCurrency();
+      const marketToAmount = convertedCurrencyAmount(amount, fromCurrency, toCurrency);
+      const toAmount = fromCurrency === toCurrency
+        ? amount
+        : parseTransferAmount(controls.transferReceivedAmount.value, toCurrency);
+      if (!toAmount || toAmount <= 0) {
+        toast(currentLanguage() === "en" ? "Enter the amount actually received." : "Isi nominal yang benar-benar diterima.");
+        controls.transferReceivedAmount.focus();
+        return;
+      }
+      const baseAmount = fromCurrency === baseCurrency
+        ? amount
+        : toCurrency === baseCurrency
+          ? toAmount
+          : convertedCurrencyAmount(amount, fromCurrency, baseCurrency);
+      if (baseAmount === null) {
+        toast(currentLanguage() === "en" ? "The latest exchange rate is not ready yet. Try again in a moment." : "Kurs terbaru belum siap. Coba lagi sebentar.");
+        refreshWalletExchangeRates();
+        return;
+      }
       state.transfers.unshift({
         id: createId(),
         date: controls.transferDate.value,
         fromWallet,
         toWallet,
         amount,
+        toAmount,
+        fromCurrency,
+        toCurrency,
+        baseCurrency,
+        exchangeRate: amount > 0 ? baseAmount / amount : 1,
+        conversionRate: amount > 0 ? toAmount / amount : 1,
+        marketToAmount,
+        baseAmount,
         note: capitalizeText(controls.transferNote.value.trim())
       });
       state.transfers.sort((a, b) => b.date.localeCompare(a.date));
@@ -12578,6 +13309,128 @@
       persist();
       render();
       toast(t("goalDeleted"));
+    }
+
+    function populateSpendingBudgetWalletOptions(selectedValue = "") {
+      const select = controls.spendingBudgetWallet;
+      if (!select) return;
+      select.innerHTML = `<option value="">${escapeHtml(t("allWallets"))}</option>`;
+      state.wallets.forEach((wallet) => {
+        const option = document.createElement("option");
+        option.value = wallet;
+        option.textContent = wallet;
+        select.appendChild(option);
+      });
+      const addOption = document.createElement("option");
+      addOption.value = ADD_WALLET_OPTION_VALUE;
+      addOption.textContent = `+ ${t("addWallet")}`;
+      select.appendChild(addOption);
+      select.value = selectedValue && state.wallets.includes(selectedValue) ? selectedValue : "";
+      syncCustomSelect(select);
+    }
+
+    function updateSpendingBudgetPreview() {
+      const preview = $("spendingBudgetPreviewText");
+      if (!preview) return;
+      const amount = parseCurrencyInput(controls.spendingBudgetAmount.value);
+      const period = controls.spendingBudgetPeriod.value || "monthly";
+      const category = normalizeName(controls.spendingBudgetCategory.value);
+      const wallet = normalizeWalletName(controls.spendingBudgetWallet.value || "");
+      const label = [
+        amount > 0 ? rupiah.format(amount) : rupiah.format(0),
+        t(period === "daily" ? "daily" : period === "weekly" ? "weekly" : "monthly"),
+        category || t("allCategories"),
+        controls.spendingBudgetWallet.value ? wallet : t("allWallets")
+      ].join(" · ");
+      preview.textContent = label;
+    }
+
+    function resetSpendingBudgetForm(budget = null) {
+      editingSpendingBudgetId = budget ? budget.id : null;
+      $("spendingBudgetDialogTitle").textContent = budget ? t("edit") : t("addSpendingBudget");
+      controls.spendingBudgetName.value = budget ? budget.name || "" : "";
+      controls.spendingBudgetAmount.value = budget ? formatCurrencyInput(budget.amount || 0) : "";
+      controls.spendingBudgetPeriod.value = budget && ["daily", "weekly", "monthly"].includes(budget.period) ? budget.period : "daily";
+      controls.spendingBudgetCategory.value = budget ? budget.category || "" : "";
+      populateSpendingBudgetWalletOptions(budget ? budget.wallet || "" : "");
+      syncCustomSelect(controls.spendingBudgetPeriod);
+      updateSpendingBudgetPreview();
+    }
+
+    function openSpendingBudgetDialog(id = null) {
+      closeQuickAddMenu();
+      const budget = id ? state.spendingBudgets.find((item) => item.id === id) : null;
+      resetSpendingBudgetForm(budget);
+      $("spendingBudgetDialog").hidden = false;
+      document.body.classList.add("entry-dialog-open");
+      window.setTimeout(() => controls.spendingBudgetName.focus(), 0);
+    }
+
+    function closeSpendingBudgetDialog() {
+      const dialog = $("spendingBudgetDialog");
+      if (!dialog) return;
+      dialog.hidden = true;
+      editingSpendingBudgetId = null;
+      if ($("incomeEntryDialog").hidden && $("expenseEntryDialog").hidden && $("transferEntryDialog").hidden && $("budgetGoalDialog").hidden && $("obligationDialog").hidden) {
+        document.body.classList.remove("entry-dialog-open");
+      }
+      const quickAddButton = $("quickAddButton");
+      if (quickAddButton) quickAddButton.focus();
+    }
+
+    function saveSpendingBudget(event) {
+      event.preventDefault();
+      const name = normalizeName(capitalizeText(controls.spendingBudgetName.value));
+      const amount = parseCurrencyInput(controls.spendingBudgetAmount.value);
+      if (!name) {
+        toast(t("spendingBudgetNameRequired"));
+        controls.spendingBudgetName.focus();
+        return;
+      }
+      if (amount <= 0) {
+        toast(t("spendingBudgetAmountPositive"));
+        controls.spendingBudgetAmount.focus();
+        return;
+      }
+      const period = ["daily", "weekly", "monthly"].includes(controls.spendingBudgetPeriod.value)
+        ? controls.spendingBudgetPeriod.value
+        : "monthly";
+      const budget = {
+        id: editingSpendingBudgetId || createId(),
+        name,
+        amount,
+        period,
+        category: normalizeName(capitalizeText(controls.spendingBudgetCategory.value)),
+        wallet: controls.spendingBudgetWallet.value ? normalizeWalletName(controls.spendingBudgetWallet.value) : "",
+        updatedAt: new Date().toISOString()
+      };
+      if (editingSpendingBudgetId) {
+        state.spendingBudgets = state.spendingBudgets.map((item) => item.id === editingSpendingBudgetId ? {
+          ...item,
+          ...budget,
+          createdAt: item.createdAt || budget.updatedAt
+        } : item);
+      } else {
+        state.spendingBudgets.unshift({
+          ...budget,
+          createdAt: budget.updatedAt
+        });
+      }
+      persist();
+      setupFilterOptions();
+      render();
+      closeSpendingBudgetDialog();
+      toast(t("spendingBudgetSaved"));
+    }
+
+    function deleteSpendingBudget(id) {
+      const budget = state.spendingBudgets.find((item) => item.id === id);
+      if (!budget) return;
+      if (!confirm(t("deleteSpendingBudgetConfirm"))) return;
+      state.spendingBudgets = state.spendingBudgets.filter((item) => item.id !== id);
+      persist();
+      render();
+      toast(t("spendingBudgetDeleted"));
     }
 
     function saveObligation(event) {
@@ -12760,6 +13613,7 @@
           date: paymentDate,
           amount,
           wallet,
+          ...transactionCurrencyMeta(wallet, amount),
           source: normalizeName(item.name || t("receivable")),
           category: normalizeName(item.category || "") || t("receivableCategoryDefault"),
           note: item.party ? `Pembayaran piutang · ${item.party}` : "Pembayaran piutang",
@@ -12786,6 +13640,7 @@
         qty: 1,
         unitPrice: amount,
         total: amount,
+        ...transactionCurrencyMeta(wallet, amount),
         note: item.type === "debt" ? `Pembayaran cicilan · ${item.name}` : `Pembayaran tagihan · ${item.category || t("billCategoryDefault")}`,
         obligationId: item.id
       });
@@ -12966,7 +13821,7 @@
     }
 
     function sum(rows) {
-      return rows.reduce((total, entry) => total + Number(entry.total || 0), 0);
+      return rows.reduce((total, entry) => total + transactionBaseAmount(entry, "expense"), 0);
     }
 
     function monthKeyFromIndex(index) {
@@ -13085,7 +13940,7 @@
     }
 
     function hideSuggestionBoxes() {
-      ["itemSuggestions", "categorySuggestions", "incomeSourceSuggestions", "trendItemSuggestions"].forEach((id) => {
+      ["itemSuggestions", "categorySuggestions", "incomeSourceSuggestions", "trendItemSuggestions", "spendingBudgetCategorySuggestions"].forEach((id) => {
         const box = $(id);
         if (box) box.hidden = true;
       });
@@ -13110,7 +13965,7 @@
       ui.trigger.disabled = select.disabled;
       ui.trigger.setAttribute("aria-label", select.getAttribute("aria-label") || (selected ? selected.textContent : ""));
       ui.menu.innerHTML = "";
-      const isCurrencySearch = select.id === "onboardingCurrencySelect";
+      const isCurrencySearch = select.id === "onboardingCurrencySelect" || select.id === "walletCurrencySelect";
       const isDownPaymentSearch = select.id === "obligationDownPaymentEntrySelect";
       const searchable = isCurrencySearch || isDownPaymentSearch;
       const normalizedQuery = normalizeName(query).toLowerCase();
@@ -13207,7 +14062,7 @@
           void menu.offsetWidth;
           menu.classList.add("is-opening");
           trigger.setAttribute("aria-expanded", "true");
-          if ((select.id === "onboardingCurrencySelect" || select.id === "obligationDownPaymentEntrySelect") && customSelectRegistry.get(select).search) {
+          if ((select.id === "onboardingCurrencySelect" || select.id === "walletCurrencySelect" || select.id === "obligationDownPaymentEntrySelect") && customSelectRegistry.get(select).search) {
             window.setTimeout(() => customSelectRegistry.get(select).search.focus(), 0);
           }
         });
@@ -13255,6 +14110,7 @@
         input.value = capitalizeText(button.dataset.suggestionValue);
         box.hidden = true;
         input.dispatchEvent(new Event("change", { bubbles: true }));
+        input.dispatchEvent(new Event("input", { bubbles: true }));
         input.focus();
       });
     }
@@ -13286,7 +14142,8 @@
       state.suggestions.items = uniqueRecentValues(state.entries, (entry) => entry.item);
 
       const recentCategories = uniqueRecentValues(state.entries, (entry) => entry.category);
-      const categories = [...new Set([...recentCategories, ...defaultCategories])];
+      const budgetCategories = uniqueRecentValues(state.spendingBudgets || [], (budget) => budget.category);
+      const categories = [...new Set([...recentCategories, ...budgetCategories])];
       state.suggestions.categories = categories;
 
       const incomeSources = uniqueRecentValues(state.incomes, (income) => income.source);
@@ -13320,8 +14177,13 @@
       const selectedMonthIncomeTotal = sumIncome(
         state.incomes.filter((income) => income.date.startsWith(selectedMonth))
       );
-      const selectedMonthCashBalance = selectedMonthIncomeTotal - selectedMonthExpenseTotal;
-      const totalCashBalance = sumIncome(state.incomes) - sum(state.entries);
+      ensureWallets();
+      const selectedMonthCashBalance = state.wallets.reduce((total, wallet) => (
+        total + amountInCurrentCurrency(walletBalanceForMonth(wallet, selectedMonth), walletCurrency(wallet))
+      ), 0);
+      const totalCashBalance = state.wallets.reduce((total, wallet) => (
+        total + amountInCurrentCurrency(walletBalance(wallet), walletCurrency(wallet))
+      ), 0);
       const activePeriod = `${localizedMonthNames()[Number(controls.month.value) - 1]} ${controls.year.value}`;
 
       $("summaryGrid").innerHTML = [
@@ -13350,6 +14212,7 @@
     function renderRecentActivity() {
       const activities = [
         ...state.entries.map((entry) => ({
+          record: entry,
           type: "expense",
           date: entry.date,
           label: entry.item,
@@ -13358,6 +14221,7 @@
           amount: Number(entry.total || 0)
         })),
         ...state.incomes.map((income) => ({
+          record: income,
           type: "income",
           date: income.date,
           label: income.source,
@@ -13366,6 +14230,7 @@
           amount: Number(income.amount || 0)
         })),
         ...state.transfers.map((transfer) => ({
+          record: transfer,
           type: "transfer",
           date: transfer.date,
           label: `${transfer.fromWallet} → ${transfer.toWallet}`,
@@ -13391,7 +14256,11 @@
                 <strong>${escapeHtml(activity.label)}</strong>
                 <small>${escapeHtml(activity.category)} · ${escapeHtml(activity.wallet)} · ${formatDate(activity.date)}</small>
               </span>
-              <b class="recent-activity-amount">${activity.type === "income" ? "+" : activity.type === "transfer" ? "" : "−"}${rupiah.format(activity.amount)}</b>
+              <span class="recent-activity-amount">${transactionAmountMarkup(
+                activity.record,
+                activity.type,
+                { prefix: activity.type === "income" ? "+" : activity.type === "transfer" ? "" : "−" }
+              )}</span>
             </div>
           `).join("")}
         </div>
@@ -13410,7 +14279,10 @@
       if (!estimate) return;
       const qty = Number(controls.qty.value || 0);
       const price = parseCurrencyInput(controls.price.value);
-      estimate.textContent = rupiah.format(Math.round(qty * price));
+      estimate.textContent = formatCurrencyAmount(
+        Math.round(qty * price),
+        walletCurrency(controls.expenseWallet.value || defaultWalletName())
+      );
     }
 
     function renderIncomeUsage() {
@@ -13431,18 +14303,18 @@
 
     function walletBalanceForMonth(wallet, month) {
       const key = walletKey(wallet);
-      const incomeTotal = sumIncome(state.incomes.filter((income) =>
+      const incomeTotal = state.incomes.filter((income) =>
         monthKey(income.date) === month && walletKey(income.wallet) === key
-      ));
-      const expenseTotal = sum(state.entries.filter((entry) =>
+      ).reduce((total, income) => total + Number(income.amount || 0), 0);
+      const expenseTotal = state.entries.filter((entry) =>
         monthKey(entry.date) === month && walletKey(entry.wallet) === key
-      ));
-      const transferIn = sumTransfers(state.transfers.filter((transfer) =>
+      ).reduce((total, entry) => total + Number(entry.total || 0), 0);
+      const transferIn = state.transfers.filter((transfer) =>
         monthKey(transfer.date) === month && walletKey(transfer.toWallet) === key
-      ));
-      const transferOut = sumTransfers(state.transfers.filter((transfer) =>
+      ).reduce((total, transfer) => total + Number(transfer.toAmount ?? transfer.amount ?? 0), 0);
+      const transferOut = state.transfers.filter((transfer) =>
         monthKey(transfer.date) === month && walletKey(transfer.fromWallet) === key
-      ));
+      ).reduce((total, transfer) => total + Number(transfer.amount || 0), 0);
       return incomeTotal - expenseTotal + transferIn - transferOut;
     }
 
@@ -13465,17 +14337,20 @@
 
       mount.innerHTML = walletRows.map((row) => {
         const tone = row.delta > 0 ? "good" : row.delta < 0 ? "bad" : "neutral";
+        const currency = walletCurrency(row.wallet);
+        const equivalent = walletEquivalentText(row.wallet, row.current);
         return `
           <article class="wallet-balance-item">
             <span class="wallet-balance-copy">
               <strong>${escapeHtml(row.wallet)}</strong>
-              <small>${t("previousPeriod")}: ${rupiah.format(row.previous)}</small>
+              <small>${t("previousPeriod")}: ${formatCurrencyAmount(row.previous, currency)}</small>
               <b class="wallet-balance-delta ${tone}">${t("walletBalanceChange", {
-                amount: signedCurrency(row.delta),
+                amount: row.delta > 0 ? `+${formatCurrencyAmount(row.delta, currency)}` : formatCurrencyAmount(row.delta, currency),
                 percent: signedPercent(row.percent)
               })}</b>
+              ${equivalent ? `<small>${escapeHtml(equivalent)}</small>` : ""}
             </span>
-            <b class="wallet-balance-amount">${rupiah.format(row.current)}</b>
+            <b class="wallet-balance-amount">${formatCurrencyAmount(row.current, currency)}</b>
           </article>
         `;
       }).join("");
@@ -13531,10 +14406,120 @@
       return average > 0 ? formatGoalDuration(remaining / average) : t("goalNoAverage");
     }
 
+    function spendingBudgetPeriodRange(period) {
+      if (period === "daily") {
+        const today = todayISO();
+        return { start: today, end: today, label: formatDate(today) };
+      }
+      if (period === "weekly") {
+        const now = new Date();
+        const day = now.getDay();
+        const mondayOffset = day === 0 ? -6 : 1 - day;
+        const start = new Date(now);
+        start.setDate(now.getDate() + mondayOffset);
+        const end = new Date(start);
+        end.setDate(start.getDate() + 6);
+        const startIso = toISODate(start);
+        const endIso = toISODate(end);
+        return { start: startIso, end: endIso, label: `${formatDate(startIso)} - ${formatDate(endIso)}` };
+      }
+      const key = `${controls.year.value}-${controls.month.value}`;
+      const year = Number(controls.year.value);
+      const month = Number(controls.month.value);
+      const end = new Date(year, month, 0);
+      return { start: `${key}-01`, end: toISODate(end), label: monthLabel(key) };
+    }
+
+    function spendingBudgetUsage(budget) {
+      const limit = Number(budget.amount || 0);
+      const range = spendingBudgetPeriodRange(budget.period);
+      const categoryKey = normalizeName(budget.category || "").toLocaleLowerCase("id-ID");
+      const budgetWalletKey = walletKey(budget.wallet || "");
+      const rows = state.entries.filter((entry) => {
+        if (!entry.date || entry.date < range.start || entry.date > range.end) return false;
+        if (categoryKey && normalizeName(entry.category || "").toLocaleLowerCase("id-ID") !== categoryKey) return false;
+        if (budgetWalletKey && walletKey(entry.wallet || defaultWalletName()) !== budgetWalletKey) return false;
+        return true;
+      });
+      const used = sum(rows);
+      const percent = limit > 0 ? Math.min(999, (used / limit) * 100) : 0;
+      return {
+        limit,
+        used,
+        remaining: limit - used,
+        percent,
+        range,
+        rows
+      };
+    }
+
+    function spendingBudgetMeta(budget, usage) {
+      const scope = [
+        t(budget.period === "daily" ? "daily" : budget.period === "weekly" ? "weekly" : "monthly"),
+        budget.category ? budget.category : t("allCategories"),
+        budget.wallet ? budget.wallet : t("allWallets")
+      ].filter(Boolean).join(" · ");
+      return `${scope} · ${usage.range.label}`;
+    }
+
+    function renderSpendingBudgets() {
+      const mounts = [$("spendingBudgetList"), $("goalsSpendingBudgetList")].filter(Boolean);
+      if (!mounts.length) return;
+      const emptyHtml = (isHome = false) => `
+        <div class="goal-empty-state">
+          <div class="goal-empty-content">
+            <span class="goal-empty-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14"></path><path d="M12 5v14"></path><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22h11a2.5 2.5 0 0 0 2.5-2.5v-15A2.5 2.5 0 0 0 17.5 2h-11A2.5 2.5 0 0 0 4 4.5z"></path>
+              </svg>
+            </span>
+            <h3>${escapeHtml(t("emptySpendingBudgetTitle"))}</h3>
+            <p>${escapeHtml(t("emptySpendingBudgetCopy"))}</p>
+            <button type="button" ${isHome ? "data-open-goals-view=\"spending-budget\"" : "data-open-spending-budget-dialog"}>
+              ${isHome ? "" : `<span aria-hidden="true">+</span>`}
+              <span>${escapeHtml(isHome ? t("viewDetails") : t("newSpendingBudgetCta"))}</span>
+            </button>
+          </div>
+        </div>
+      `;
+      const html = state.spendingBudgets.map((budget) => {
+        const usage = spendingBudgetUsage(budget);
+        const progress = Math.min(100, Math.max(0, usage.percent));
+        const over = usage.remaining < 0;
+        return `
+          <article class="budget-goal-card ${over ? "is-over-budget" : ""}">
+            <div class="budget-goal-head">
+              <span>
+                <strong>${escapeHtml(budget.name || t("spendingBudgetTitle"))}</strong>
+                <small>${escapeHtml(spendingBudgetMeta(budget, usage))}</small>
+              </span>
+              <span class="pill">${numberFmt.format(Math.round(usage.percent))}%</span>
+            </div>
+            <div class="budget-goal-progress" aria-label="${escapeHtml(budget.name || "")}">
+              <i style="width:${progress}%"></i>
+            </div>
+            <div class="budget-goal-stats">
+              <span class="budget-goal-stat"><span>${t("budgetUsed")}</span><b>${rupiah.format(usage.used)}</b></span>
+              <span class="budget-goal-stat"><span>${t("budgetLimit")}</span><b>${rupiah.format(usage.limit)}</b></span>
+              <span class="budget-goal-stat"><span>${over ? t("budgetOver") : t("budgetRemaining")}</span><b>${rupiah.format(Math.abs(usage.remaining))}</b></span>
+              <span class="budget-goal-stat"><span>${t("transactions")}</span><b>${numberFmt.format(usage.rows.length)}</b></span>
+            </div>
+            <div class="budget-goal-actions">
+              <button type="button" class="ghost" data-edit-spending-budget="${escapeHtml(budget.id)}">${t("edit")}</button>
+              <button type="button" class="danger" data-delete-spending-budget="${escapeHtml(budget.id)}">${t("delete")}</button>
+            </div>
+          </article>
+        `;
+      }).join("");
+      mounts.forEach((mount) => {
+        mount.innerHTML = state.spendingBudgets.length ? html : emptyHtml(mount.id === "spendingBudgetList");
+      });
+    }
+
     function renderBudgetGoals() {
       const mounts = [$("budgetGoalList"), $("goalsBudgetGoalList")].filter(Boolean);
       if (!mounts.length) return;
-      const goalsEmptyHtml = `
+      const goalsEmptyHtml = (isHome = false) => `
         <div class="goal-empty-state">
           <div class="goal-empty-content">
             <span class="goal-empty-icon" aria-hidden="true">
@@ -13548,9 +14533,9 @@
             </span>
             <h3>${escapeHtml(t("emptyGoalsTitle"))}</h3>
             <p>${escapeHtml(t("emptyGoalsCopy"))}</p>
-            <button type="button" data-open-goal-dialog>
-              <span aria-hidden="true">+</span>
-              <span>${escapeHtml(t("newGoalCta"))}</span>
+            <button type="button" ${isHome ? "data-open-goals-view=\"future-plans\"" : "data-open-goal-dialog"}>
+              ${isHome ? "" : `<span aria-hidden="true">+</span>`}
+              <span>${escapeHtml(isHome ? t("viewDetails") : t("newGoalCta"))}</span>
             </button>
           </div>
         </div>
@@ -13599,7 +14584,7 @@
       mounts.forEach((mount) => {
         mount.innerHTML = state.budgetGoals.length
           ? goalsHtml
-          : goalsEmptyHtml;
+          : goalsEmptyHtml(mount.id === "budgetGoalList");
       });
     }
 
@@ -14010,8 +14995,8 @@
                   <td data-label="${t("category")}">${escapeHtml(entry.category)}</td>
                   <td data-label="${t("wallet")}">${escapeHtml(entry.wallet || defaultWalletName())}</td>
                   <td class="num" data-label="${t("quantity")}">${numberFmt.format(entry.qty)}</td>
-                  <td class="num" data-label="${t("unitPrice")}">${rupiah.format(entry.unitPrice)}</td>
-                  <td class="num" data-label="${t("total")}"><b>${rupiah.format(entry.total)}</b></td>
+                  <td class="num" data-label="${t("unitPrice")}">${formatCurrencyAmount(entry.unitPrice, transactionNativeCurrency(entry))}</td>
+                  <td class="num" data-label="${t("total")}">${transactionAmountMarkup(entry, "expense")}</td>
                   <td data-label="${t("notes")}">${escapeHtml(entry.note || "-")}</td>
                   <td data-label="${t("actions")}">
                     <div class="row-actions">
@@ -14061,7 +15046,7 @@
                   <td data-label="${t("date")}">${formatDate(income.date)}</td>
                   <td data-label="${t("source")}"><b>${escapeHtml(income.source)}</b></td>
                   <td data-label="${t("wallet")}">${escapeHtml(income.wallet || defaultWalletName())}</td>
-                  <td class="num" data-label="${t("amount")}"><b>${rupiah.format(income.amount)}</b></td>
+                  <td class="num" data-label="${t("amount")}">${transactionAmountMarkup(income, "income")}</td>
                   <td data-label="${t("notes")}">${escapeHtml(income.note || "-")}</td>
                   <td data-label="${t("actions")}"><button type="button" class="ghost" data-delete-income="${income.id}" title="${t("delete")}">${t("delete")}</button></td>
                 </tr>
@@ -14072,12 +15057,66 @@
       `;
     }
 
+    function renderTransferTable() {
+      const mount = $("transferTableMount");
+      if (!mount) return;
+      if (!state.transfers.length) {
+        mount.innerHTML = `<div class="empty">${t("noTransfers")}</div>`;
+        return;
+      }
+
+      mount.innerHTML = `
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>${t("date")}</th>
+                <th>${t("fromWallet")}</th>
+                <th>${t("toWallet")}</th>
+                <th class="num">${t("amountSent")}</th>
+                <th class="num">${t("amountReceived")}</th>
+                <th>${t("effectiveRate")}</th>
+                <th>${t("notes")}</th>
+                <th>${t("actions")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${state.transfers.map((transfer) => {
+                const fromCurrency = transactionNativeCurrency(transfer);
+                const toCurrency = String(transfer.toCurrency || walletCurrency(transfer.toWallet)).toUpperCase();
+                const sentAmount = Number(transfer.amount || 0);
+                const receivedAmount = Number(transfer.toAmount ?? transfer.amount ?? 0);
+                const effectiveRate = sentAmount > 0 ? receivedAmount / sentAmount : 0;
+                const rateText = fromCurrency === toCurrency
+                  ? "—"
+                  : fromCurrency === currentCurrency()
+                    ? `1 ${toCurrency} = ${formatCurrencyAmount(sentAmount / receivedAmount, fromCurrency)}`
+                    : `1 ${fromCurrency} = ${formatCurrencyAmount(effectiveRate, toCurrency)}`;
+                return `
+                  <tr>
+                    <td data-label="${t("date")}">${formatDate(transfer.date)}</td>
+                    <td data-label="${t("fromWallet")}"><b>${escapeHtml(transfer.fromWallet)}</b></td>
+                    <td data-label="${t("toWallet")}"><b>${escapeHtml(transfer.toWallet)}</b></td>
+                    <td class="num" data-label="${t("amountSent")}">${formatCurrencyAmount(sentAmount, fromCurrency)}</td>
+                    <td class="num" data-label="${t("amountReceived")}">${formatCurrencyAmount(receivedAmount, toCurrency)}</td>
+                    <td data-label="${t("effectiveRate")}">${escapeHtml(rateText)}</td>
+                    <td data-label="${t("notes")}">${escapeHtml(transfer.note || "-")}</td>
+                    <td data-label="${t("actions")}"><button type="button" class="ghost" data-delete-transfer="${escapeHtml(transfer.id)}" title="${t("delete")}">${t("delete")}</button></td>
+                  </tr>
+                `;
+              }).join("")}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
     function sumIncome(rows) {
-      return rows.reduce((total, income) => total + Number(income.amount || 0), 0);
+      return rows.reduce((total, income) => total + transactionBaseAmount(income, "income"), 0);
     }
 
     function sumTransfers(rows) {
-      return rows.reduce((total, transfer) => total + Number(transfer.amount || 0), 0);
+      return rows.reduce((total, transfer) => total + transactionBaseAmount(transfer, "transfer"), 0);
     }
 
     function formatDate(dateString) {
@@ -14246,6 +15285,8 @@
       const categoryLabels = categoryPairs.map(([label]) => label);
       const categoryValues = categoryPairs.map(([, value]) => Number(value || 0));
       const categoryColors = categoryPairs.map((pair, index) => palette[index % palette.length]);
+
+      $("homeCategoryChartLayout")?.classList.toggle("is-empty", categoryPairs.length === 0);
 
       $("homeCategoryLegend").innerHTML = categoryPairs.length
         ? categoryPairs.map(([category, value], index) => {
@@ -14798,6 +15839,10 @@
           unit: normalizeName(entry.unit || "unit"),
           unitPrice: Number(entry.unitPrice || 0),
           total: Number(entry.total || Number(entry.qty || 1) * Number(entry.unitPrice || 0)),
+          currency: entry.currency,
+          baseCurrency: entry.baseCurrency,
+          exchangeRate: entry.exchangeRate,
+          baseAmount: entry.baseAmount,
           note: entry.note || ""
         }));
       }
@@ -14843,6 +15888,10 @@
         source: normalizeName(income.source || income.sumber || ""),
         wallet: normalizeWalletName(income.wallet || income.dompet || defaultWalletName()),
         amount: Number(income.amount || income.nominal || 0),
+        currency: income.currency,
+        baseCurrency: income.baseCurrency,
+        exchangeRate: income.exchangeRate,
+        baseAmount: income.baseAmount,
         note: income.note || income.catatan || ""
       })).filter((income) => income.date && income.source);
     }
@@ -14871,6 +15920,14 @@
         fromWallet: normalizeWalletName(transfer.fromWallet || transfer.from || transfer.dariWallet || defaultWalletName()),
         toWallet: normalizeWalletName(transfer.toWallet || transfer.to || transfer.keWallet || defaultWalletName()),
         amount: Number(transfer.amount || transfer.nominal || 0),
+        toAmount: Number(transfer.toAmount || 0) || undefined,
+        fromCurrency: transfer.fromCurrency,
+        toCurrency: transfer.toCurrency,
+        baseCurrency: transfer.baseCurrency,
+        exchangeRate: transfer.exchangeRate,
+        conversionRate: transfer.conversionRate,
+        marketToAmount: Number(transfer.marketToAmount || 0) || undefined,
+        baseAmount: transfer.baseAmount,
         note: transfer.note || transfer.catatan || ""
       };
     }
@@ -14884,6 +15941,19 @@
         currentAmount: Number(goal.currentAmount || goal.currentSaved || goal.terkumpul || 0),
         createdAt: goal.createdAt || new Date().toISOString(),
         updatedAt: goal.updatedAt || goal.createdAt || new Date().toISOString()
+      };
+    }
+
+    function normalizeImportedSpendingBudget(budget) {
+      return {
+        id: budget.id || createId(),
+        name: normalizeName(budget.name || budget.nama || ""),
+        amount: Number(budget.amount || budget.nominal || budget.limit || 0),
+        period: ["daily", "weekly", "monthly"].includes(budget.period) ? budget.period : "monthly",
+        category: normalizeName(budget.category || budget.kategori || ""),
+        wallet: budget.wallet ? normalizeWalletName(budget.wallet) : "",
+        createdAt: budget.createdAt || new Date().toISOString(),
+        updatedAt: budget.updatedAt || budget.createdAt || new Date().toISOString()
       };
     }
 
@@ -14932,10 +16002,13 @@
       const budgetGoals = Array.isArray(parsed.budgetGoals)
         ? parsed.budgetGoals.map(normalizeImportedBudgetGoal).filter((goal) => goal.name && goal.targetAmount > 0)
         : [];
+      const spendingBudgets = Array.isArray(parsed.spendingBudgets)
+        ? parsed.spendingBudgets.map(normalizeImportedSpendingBudget).filter((budget) => budget.name && budget.amount > 0)
+        : [];
       const obligations = Array.isArray(parsed.obligations)
         ? parsed.obligations.map(normalizeImportedObligation).filter((item) => item.name && item.amount > 0)
         : [];
-      if (!allowEmpty && !entries.length && !incomes.length && !recurringIncomes.length && !transfers.length && !budgetGoals.length && !obligations.length) throw new Error("no valid records");
+      if (!allowEmpty && !entries.length && !incomes.length && !recurringIncomes.length && !transfers.length && !budgetGoals.length && !spendingBudgets.length && !obligations.length) throw new Error("no valid records");
       const importedSettings = parsed.settings || {};
       const wallets = Array.isArray(parsed.wallets)
         ? parsed.wallets.map(normalizeWalletName)
@@ -14948,7 +16021,9 @@
           language: importedSettings.language === "en" ? "en" : "id",
           currency: supportedCurrencies.includes(importedSettings.currency) ? importedSettings.currency : currentCurrency(),
           defaultWallet: normalizeName(String(importedSettings.defaultWallet || "")) || state.settings.defaultWallet || "Cash",
-          onboardingComplete: importedSettings.onboardingComplete === true
+          onboardingComplete: importedSettings.onboardingComplete === true,
+          walletCurrencies: importedSettings.walletCurrencies && typeof importedSettings.walletCurrencies === "object" && !Array.isArray(importedSettings.walletCurrencies) ? importedSettings.walletCurrencies : {},
+          exchangeRates: importedSettings.exchangeRates && typeof importedSettings.exchangeRates === "object" && !Array.isArray(importedSettings.exchangeRates) ? importedSettings.exchangeRates : {}
         },
         wallets,
         entries,
@@ -14956,6 +16031,7 @@
         recurringIncomes,
         transfers,
         budgetGoals,
+        spendingBudgets,
         obligations
       };
     }
@@ -14966,14 +16042,17 @@
       state.recurringIncomes = Array.isArray(payload.recurringIncomes) ? payload.recurringIncomes.map(normalizeImportedRecurringIncome) : [];
       state.transfers = Array.isArray(payload.transfers) ? payload.transfers.map(normalizeImportedTransfer) : [];
       state.budgetGoals = Array.isArray(payload.budgetGoals) ? payload.budgetGoals.map(normalizeImportedBudgetGoal) : [];
+      state.spendingBudgets = Array.isArray(payload.spendingBudgets) ? payload.spendingBudgets.map(normalizeImportedSpendingBudget) : [];
       state.obligations = Array.isArray(payload.obligations) ? payload.obligations.map(normalizeImportedObligation) : [];
       state.settings = payload.settings;
       state.wallets = Array.isArray(payload.wallets) ? payload.wallets.map(normalizeWalletName) : [];
       ensureWallets();
+      ensureWalletCurrencies();
       syncSettingsControls();
       persist();
       setupFilterOptions();
       render();
+      refreshWalletExchangeRates();
     }
 
     async function importJson(file) {
@@ -15128,12 +16207,15 @@
 
     function syncSettingsControls() {
       controls.theme.value = state.settings.theme || "system";
+      if (controls.walletCurrency) controls.walletCurrency.value = currentCurrency();
+      if (controls.walletDifferentCurrency && !editingWalletName) controls.walletDifferentCurrency.checked = false;
+      syncWalletCurrencyForm();
       applyTheme(controls.theme.value);
       applyLanguage(state.settings.language || "id");
     }
 
     function disableBrowserAutofill() {
-      const wordCapitalizedFields = new Set(["itemInput", "categoryInput", "incomeSourceInput", "walletNameInput", "budgetGoalNameInput"]);
+      const wordCapitalizedFields = new Set(["itemInput", "categoryInput", "incomeSourceInput", "walletNameInput", "budgetGoalNameInput", "spendingBudgetNameInput", "spendingBudgetCategoryInput"]);
       const sentenceCapitalizedFields = new Set(["noteInput", "incomeNoteInput", "transferNoteInput"]);
       document.querySelectorAll("form").forEach((form) => form.setAttribute("autocomplete", "off"));
       document.querySelectorAll("input:not([type='file']), textarea").forEach((field) => {
@@ -15171,8 +16253,10 @@
       safeRender("charts", () => renderCharts(rows));
       safeRender("shopping table", () => renderTable(rows));
       safeRender("income table", renderIncomeTable);
+      safeRender("transfer table", renderTransferTable);
       safeRender("income usage", renderIncomeUsage);
       safeRender("budget goals", renderBudgetGoals);
+      safeRender("spending budgets", renderSpendingBudgets);
       safeRender("obligations", renderObligations);
       safeRender("debts", renderDebts);
       safeRender("receivables", renderReceivables);
@@ -15398,19 +16482,23 @@
       $("closeExpenseEntryDialog").addEventListener("click", () => closeEntryDialog("expense", { resetEdit: true }));
       $("closeTransferEntryDialog").addEventListener("click", closeTransferDialog);
       $("closeBudgetGoalDialog").addEventListener("click", closeBudgetGoalDialog);
+      $("closeSpendingBudgetDialog").addEventListener("click", closeSpendingBudgetDialog);
       $("closeObligationDialog").addEventListener("click", closeObligationDialog);
       $("closeObligationPaymentDialog").addEventListener("click", closeObligationPaymentDialog);
       controls.transferForm.addEventListener("submit", addTransfer);
       controls.budgetGoalForm.addEventListener("submit", saveBudgetGoal);
+      controls.spendingBudgetForm.addEventListener("submit", saveSpendingBudget);
       controls.obligationForm.addEventListener("submit", saveObligation);
       controls.obligationPaymentForm.addEventListener("submit", confirmObligationPayment);
-      [$("incomeEntryDialog"), $("expenseEntryDialog"), $("transferEntryDialog"), $("budgetGoalDialog"), $("obligationDialog"), $("obligationPaymentDialog")].forEach((dialog) => {
+      [$("incomeEntryDialog"), $("expenseEntryDialog"), $("transferEntryDialog"), $("budgetGoalDialog"), $("spendingBudgetDialog"), $("obligationDialog"), $("obligationPaymentDialog")].forEach((dialog) => {
         dialog.addEventListener("mousedown", (event) => {
           if (event.target !== dialog) return;
           if (dialog.id === "transferEntryDialog") {
             closeTransferDialog();
           } else if (dialog.id === "budgetGoalDialog") {
             closeBudgetGoalDialog();
+          } else if (dialog.id === "spendingBudgetDialog") {
+            closeSpendingBudgetDialog();
           } else if (dialog.id === "obligationDialog") {
             closeObligationDialog();
           } else if (dialog.id === "obligationPaymentDialog") {
@@ -15507,6 +16595,33 @@
         window.scrollTo({ top: 0, behavior: "smooth" });
       };
 
+      const openWalletSettingsFromSelect = (select) => {
+        select.value = defaultWalletName();
+        syncCustomSelect(select);
+        closeEntryDialog("income");
+        closeEntryDialog("expense", { resetEdit: true });
+        closeTransferDialog();
+        closeBudgetGoalDialog();
+        closeSpendingBudgetDialog();
+        closeObligationDialog();
+        closeObligationPaymentDialog();
+        navigateHeaderView("settings");
+        window.requestAnimationFrame(() => {
+          openWalletForm();
+        });
+        toast(t("addWallet"));
+      };
+
+      [controls.incomeWallet, controls.expenseWallet, controls.transferFromWallet, controls.transferToWallet, controls.budgetGoalWallet, controls.spendingBudgetWallet, controls.obligationWallet, controls.obligationPaymentWallet].forEach((select) => {
+        if (!select) return;
+        select.addEventListener("change", (event) => {
+          if (select.value !== ADD_WALLET_OPTION_VALUE) return;
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          openWalletSettingsFromSelect(select);
+        }, true);
+      });
+
       bottomNavButtons.forEach((button) => {
         button.addEventListener("click", (event) => {
           if (button.dataset.bottomTarget === "settings") event.stopPropagation();
@@ -15518,6 +16633,21 @@
         if (insightButton) navigateBottomNav(insightButton);
       });
       $("headerSettingsBtn").addEventListener("click", () => navigateHeaderView("settings"));
+      document.addEventListener("click", (event) => {
+        const openGoalsButton = event.target.closest("[data-open-goals-view]");
+        if (!openGoalsButton) return;
+        event.preventDefault();
+        const goalsButton = bottomNavButtons.find((button) => button.dataset.bottomTarget === "goals");
+        if (!goalsButton) return;
+        const sectionId = openGoalsButton.dataset.openGoalsView === "spending-budget"
+          ? "goalsSpendingBudgetSection"
+          : "goalsFuturePlansSection";
+        navigateBottomNav(goalsButton);
+        window.setTimeout(() => {
+          const section = $(sectionId);
+          if (section) section.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 180);
+      });
       $("homeObligationSummary").addEventListener("click", (event) => {
         const detailButton = event.target.closest("[data-open-bills-view]");
         if (!detailButton) return;
@@ -15636,6 +16766,7 @@
       setupAutocomplete(controls.category, $("categorySuggestions"), () => state.suggestions.categories);
       setupAutocomplete(controls.incomeSource, $("incomeSourceSuggestions"), () => state.suggestions.incomeSources);
       setupAutocomplete(controls.trendItem, $("trendItemSuggestions"), () => state.suggestions.items);
+      setupAutocomplete(controls.spendingBudgetCategory, $("spendingBudgetCategorySuggestions"), () => state.suggestions.categories);
       $("activeMonthButton").addEventListener("pointermove", (event) => {
         const rect = event.currentTarget.getBoundingClientRect();
         const x = ((event.clientX - rect.left) / rect.width) * 100;
@@ -15680,7 +16811,7 @@
       window.addEventListener("resize", syncMonthNavigatorPlacement);
       document.addEventListener("mousedown", (event) => {
         if (!event.target.closest("#monthNavigator")) closeMonthPicker();
-        if (!event.target.closest(".suggestion-box") && !event.target.closest("#itemInput") && !event.target.closest("#categoryInput") && !event.target.closest("#incomeSourceInput") && !event.target.closest("#trendItemInput")) {
+        if (!event.target.closest(".suggestion-box") && !event.target.closest("#itemInput") && !event.target.closest("#categoryInput") && !event.target.closest("#incomeSourceInput") && !event.target.closest("#trendItemInput") && !event.target.closest("#spendingBudgetCategoryInput")) {
           hideSuggestionBoxes();
         }
       });
@@ -15743,7 +16874,8 @@
         updateEstimate();
       });
       controls.incomeAmount.addEventListener("input", () => {
-        formatCurrencyField(controls.incomeAmount);
+        const currency = walletCurrency(controls.incomeWallet.value || defaultWalletName());
+        controls.incomeAmount.value = formatTransferAmount(controls.incomeAmount.value, currency);
         saveDraft("income");
       });
       controls.incomeDate.addEventListener("change", () => {
@@ -15755,7 +16887,12 @@
         updateIncomeAutoControls();
         saveDraft("income");
       });
-      controls.incomeWallet.addEventListener("change", () => saveDraft("income"));
+      controls.incomeWallet.addEventListener("change", () => {
+        controls.incomeAmount.value = "";
+        updateTransactionCurrencyLabels();
+        saveDraft("income");
+      });
+      controls.expenseWallet.addEventListener("change", updateTransactionCurrencyLabels);
       controls.incomeSource.addEventListener("input", () => {
         capitalizeTextField(controls.incomeSource);
         saveDraft("income");
@@ -15775,12 +16912,31 @@
       controls.incomeAutoDay.addEventListener("input", () => saveDraft("income"));
       controls.incomeAutoWeekday.addEventListener("change", () => saveDraft("income"));
       controls.transferAmount.addEventListener("input", () => {
-        formatCurrencyField(controls.transferAmount);
+        formatTransferAmountField();
         updateTransferPreview();
       });
-      controls.transferFromWallet.addEventListener("change", updateTransferPreview);
+      controls.transferReceivedAmount.addEventListener("input", () => {
+        transferReceivedManuallyEdited = true;
+        const currency = walletCurrency(controls.transferToWallet.value || defaultWalletName());
+        controls.transferReceivedAmount.value = formatTransferAmount(controls.transferReceivedAmount.value, currency);
+        updateTransferPreview();
+      });
+      controls.transferFromWallet.addEventListener("change", () => {
+        transferReceivedManuallyEdited = false;
+        controls.transferAmount.value = "";
+        controls.transferReceivedAmount.value = "";
+        updateTransferPreview();
+      });
+      controls.transferToWallet.addEventListener("change", () => {
+        transferReceivedManuallyEdited = false;
+        controls.transferReceivedAmount.value = "";
+        updateTransferPreview();
+      });
       controls.transferMax.addEventListener("click", () => {
-        controls.transferAmount.value = formatCurrencyInput(Math.max(0, transferSourceBalance()));
+        const currency = transferCurrency();
+        const precision = 10 ** currencyFractionDigits(currency);
+        const balance = Math.floor(Math.max(0, transferSourceBalance()) * precision) / precision;
+        controls.transferAmount.value = formatTransferAmount(balance, currency);
         updateTransferPreview();
         controls.transferAmount.focus();
       });
@@ -15876,6 +17032,20 @@
       });
       controls.budgetGoalWallet.addEventListener("change", syncBudgetGoalWalletBalance);
       controls.budgetGoalName.addEventListener("input", () => capitalizeTextField(controls.budgetGoalName));
+      controls.spendingBudgetAmount.addEventListener("input", () => {
+        formatCurrencyField(controls.spendingBudgetAmount);
+        updateSpendingBudgetPreview();
+      });
+      controls.spendingBudgetName.addEventListener("input", () => {
+        capitalizeTextField(controls.spendingBudgetName);
+        updateSpendingBudgetPreview();
+      });
+      controls.spendingBudgetCategory.addEventListener("input", () => {
+        capitalizeTextField(controls.spendingBudgetCategory);
+        updateSpendingBudgetPreview();
+      });
+      controls.spendingBudgetPeriod.addEventListener("change", updateSpendingBudgetPreview);
+      controls.spendingBudgetWallet.addEventListener("change", updateSpendingBudgetPreview);
       [$("budgetGoalList"), $("goalsBudgetGoalList")].filter(Boolean).forEach((mount) => mount.addEventListener("click", (event) => {
         const openButton = event.target.closest("[data-open-goal-dialog]");
         if (openButton) {
@@ -15890,6 +17060,20 @@
         const deleteButton = event.target.closest("[data-delete-goal]");
         if (deleteButton) deleteBudgetGoal(deleteButton.dataset.deleteGoal);
       }));
+      document.addEventListener("click", (event) => {
+        const openSpendingBudgetButton = event.target.closest("[data-open-spending-budget-dialog]");
+        if (openSpendingBudgetButton) {
+          openSpendingBudgetDialog();
+          return;
+        }
+        const editSpendingBudgetButton = event.target.closest("[data-edit-spending-budget]");
+        if (editSpendingBudgetButton) {
+          openSpendingBudgetDialog(editSpendingBudgetButton.dataset.editSpendingBudget);
+          return;
+        }
+        const deleteSpendingBudgetButton = event.target.closest("[data-delete-spending-budget]");
+        if (deleteSpendingBudgetButton) deleteSpendingBudget(deleteSpendingBudgetButton.dataset.deleteSpendingBudget);
+      });
       [$("budgetGoalList"), $("goalsBudgetGoalList")].filter(Boolean).forEach((mount) => {
         mount.addEventListener("pointermove", (event) => {
           const button = event.target.closest("[data-open-goal-dialog]");
@@ -15997,6 +17181,7 @@
       });
       controls.language.addEventListener("change", () => {
         state.settings.language = controls.language.value;
+        populateCurrencyOptions();
         applyLanguage(state.settings.language);
         setupFilterOptions();
         updateDateDisplays();
@@ -16029,6 +17214,9 @@
       $("sampleBtn").addEventListener("click", () => {
         if (seedSample()) closeSettingsMenu();
       });
+      $("openWalletFormBtn").addEventListener("click", () => openWalletForm());
+      $("cancelWalletFormBtn").addEventListener("click", closeWalletForm);
+      controls.walletDifferentCurrency.addEventListener("change", syncWalletCurrencyForm);
       $("addWalletBtn").addEventListener("click", addWalletFromSettings);
       $("walletNameInput").addEventListener("keydown", (event) => {
         if (event.key !== "Enter") return;
@@ -16205,6 +17393,8 @@
           closeTransferDialog();
         } else if (!$("budgetGoalDialog").hidden) {
           closeBudgetGoalDialog();
+        } else if (!$("spendingBudgetDialog").hidden) {
+          closeSpendingBudgetDialog();
         } else if (!$("obligationPaymentDialog").hidden) {
           closeObligationPaymentDialog();
         } else if (!$("obligationDialog").hidden) {
@@ -16245,7 +17435,22 @@
       $("incomeTableMount").addEventListener("click", (event) => {
         const id = event.target.dataset.deleteIncome;
         if (!id) return;
+        const income = state.incomes.find((item) => item.id === id);
+        const recurringRuleId = income?.recurringIncomeId || "";
         state.incomes = state.incomes.filter((income) => income.id !== id);
+        if (recurringRuleId) {
+          state.recurringIncomes = state.recurringIncomes.filter((rule) => rule.id !== recurringRuleId);
+        }
+        persist();
+        setupFilterOptions();
+        render();
+        if (recurringRuleId) toast(t("automaticIncomeDeleted"));
+      });
+      $("transferTableMount").addEventListener("click", (event) => {
+        const button = event.target.closest("[data-delete-transfer]");
+        if (!button) return;
+        if (!confirm(t("deleteConfirm"))) return;
+        state.transfers = state.transfers.filter((transfer) => transfer.id !== button.dataset.deleteTransfer);
         persist();
         setupFilterOptions();
         render();
