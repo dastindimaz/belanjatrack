@@ -7417,7 +7417,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-<small id="appVersionBadge">v266</small>
+<small id="appVersionBadge">v268</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -8820,6 +8820,8 @@
         obligationReminderTitle: "Saatnya cek {type}",
         obligationReminderBody: "{name} jatuh tempo hari ini. Estimasi: {amount}.",
         notificationEnabled: "Notifikasi aktif. Nanti kami ingatkan sesuai jadwal.",
+        pushNeedsSecureAddressTitle: "Buka versi online aplikasi",
+        pushNeedsSecureAddress: "Izin browser sudah bisa diberikan, tetapi push notification OneSignal tidak dapat didaftarkan melalui file lokal. Buka aplikasi dari GitHub Pages (HTTPS) atau localhost, lalu aktifkan notifikasi kembali.",
         obligationActiveStatus: "Status", notificationOn: "Aktif", notificationOff: "Nonaktif",
         budgetGoalsTitle: "Your Future Plans", addBudgetGoal: "Tambah Target", budgetGoalPill: "Goal",
         emptyGoalsTitle: "Belum ada rencana masa depan", emptyGoalsCopy: "Buat target tabungan seperti rumah, dana darurat, pendidikan, atau liburan agar progresnya bisa dipantau.",
@@ -9182,6 +9184,8 @@
         obligationReminderTitle: "Time to check {type}",
         obligationReminderBody: "{name} is due today. Estimate: {amount}.",
         notificationEnabled: "Notifications are on. We will remind you on schedule.",
+        pushNeedsSecureAddressTitle: "Open the online app",
+        pushNeedsSecureAddress: "Browser permission may be granted, but OneSignal push notifications cannot be registered from a local file. Open the app from GitHub Pages (HTTPS) or localhost, then enable notifications again.",
         obligationActiveStatus: "Status", notificationOn: "On", notificationOff: "Off",
         budgetGoalsTitle: "Your Future Plans", addBudgetGoal: "Add Goal", budgetGoalPill: "Goal",
         emptyGoalsTitle: "No future plans yet", emptyGoalsCopy: "Create savings goals such as a house, emergency fund, education, or vacation so progress stays visible.",
@@ -9539,6 +9543,7 @@
     };
     let oneSignalSdkPromise = null;
     let oneSignalReady = false;
+    let oneSignalPushSubscribed = false;
     const PLAN_CONFIG = {
       defaultPlan: "free",
       ownerEmails: [],
@@ -15282,9 +15287,15 @@
         updateHeaderNotificationButton();
         return "unavailable";
       }
-      if (Notification.permission === "granted") {
+      if (ONESIGNAL_CONFIG.enabled && ONESIGNAL_CONFIG.appId && window.location.protocol === "file:") {
+        await requestAppConfirmation(t("pushNeedsSecureAddress"), {
+          title: t("pushNeedsSecureAddressTitle"),
+          confirmLabel: t("understood"),
+          danger: false,
+          showCancel: false
+        });
         updateHeaderNotificationButton();
-        return "granted";
+        return "insecure";
       }
       if (Notification.permission === "denied") {
         await requestAppConfirmation(t("notificationsBlockedHelp"), {
@@ -15300,9 +15311,15 @@
         const oneSignal = await initializeOneSignal();
         if (oneSignal) {
           await identifyOneSignalUser(oneSignal);
-          await oneSignal.Notifications.requestPermission();
+          if (Notification.permission !== "granted") {
+            await oneSignal.Notifications.requestPermission();
+          }
+          if (Notification.permission === "granted") {
+            await oneSignal.User.PushSubscription.optIn();
+            oneSignalPushSubscribed = Boolean(oneSignal.User.PushSubscription.optedIn);
+          }
         } else {
-          await Notification.requestPermission();
+          if (Notification.permission !== "granted") await Notification.requestPermission();
         }
         const permission = Notification.permission;
         if (permission === "granted") toast(t("notificationEnabled"));
@@ -15392,6 +15409,11 @@
           language: state.settings.language || "id",
           plan: currentUser.plan || PLAN_CONFIG.defaultPlan
         });
+        if (Notification.permission === "granted") {
+          await sdk.User.PushSubscription.optIn();
+          oneSignalPushSubscribed = Boolean(sdk.User.PushSubscription.optedIn);
+        }
+        updateHeaderNotificationButton();
         return true;
       } catch (error) {
         console.warn("Identitas OneSignal gagal disambungkan:", error);
@@ -15405,13 +15427,19 @@
       if (!sdk) return;
       try {
         await sdk.logout();
+        oneSignalPushSubscribed = false;
       } catch (error) {
         console.warn("Identitas OneSignal gagal dilepas:", error);
       }
     }
 
     function shouldShowNotificationReminder() {
-      return Boolean(currentUser && "Notification" in window && Notification.permission !== "granted");
+      const pushNotSubscribed = oneSignalConfigured() && !oneSignalPushSubscribed;
+      return Boolean(
+        currentUser &&
+        "Notification" in window &&
+        (Notification.permission !== "granted" || pushNotSubscribed)
+      );
     }
 
     function updateHeaderNotificationButton() {
