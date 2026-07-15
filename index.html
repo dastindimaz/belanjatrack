@@ -654,6 +654,75 @@
       50% { opacity: 1; transform: scale(1.15); }
     }
 
+    .sample-preview-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 0 0 18px;
+      padding: 13px 16px;
+      border: 1px solid rgba(180, 83, 9, .22);
+      border-radius: 12px;
+      background: rgba(255, 247, 237, .94);
+      color: #9a3412;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, .08);
+    }
+
+    .sample-preview-banner[hidden] { display: none; }
+
+    .sample-preview-copy {
+      display: block;
+      min-width: 0;
+    }
+
+    .sample-preview-copy strong,
+    .sample-preview-copy span { display: block; }
+
+    .sample-preview-copy strong {
+      font-size: 13px;
+      font-weight: 950;
+    }
+
+    .sample-preview-copy span {
+      margin-top: 2px;
+      color: color-mix(in srgb, currentColor 78%, transparent);
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .sample-preview-banner button {
+      flex: 0 0 auto;
+      min-height: 38px;
+      padding: 8px 13px;
+      border: 1px solid rgba(154, 52, 18, .22);
+      border-radius: 9px;
+      background: rgba(255, 255, 255, .74);
+      color: inherit;
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    html[data-resolved-theme="dark"] .sample-preview-banner {
+      border-color: rgba(251, 146, 60, .24);
+      background: rgba(67, 38, 24, .94);
+      color: #fdba74;
+    }
+
+    html[data-resolved-theme="dark"] .sample-preview-banner button {
+      background: rgba(255, 255, 255, .08);
+    }
+
+    @media (max-width: 640px) {
+      .sample-preview-banner {
+        align-items: stretch;
+        flex-direction: column;
+        margin-bottom: 14px;
+      }
+
+      .sample-preview-banner button { width: 100%; }
+    }
+
     .topbar {
       display: flex;
       align-items: center;
@@ -1441,6 +1510,52 @@
       font-size: 12px;
     }
 
+    .account-name-editor {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: end;
+      margin: 0 4px 10px;
+    }
+
+    .account-name-editor label {
+      min-width: 0;
+      color: #8f8f9b;
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .account-name-editor input {
+      width: 100%;
+      min-height: 38px;
+      margin-top: 6px;
+      padding: 7px 12px;
+      border-radius: 9px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .account-name-editor button {
+      min-height: 38px;
+      padding: 7px 14px;
+      border-color: rgba(0, 167, 122, .26);
+      background: rgba(0, 167, 122, .1);
+      color: var(--green-dark);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    @media (max-width: 440px) {
+      .account-name-editor {
+        grid-template-columns: 1fr;
+      }
+
+      .account-name-editor button {
+        width: 100%;
+      }
+    }
+
     .user-greeting {
       min-width: 0;
       margin: 0 0 0 auto;
@@ -1476,6 +1591,7 @@
     }
 
     .header-notification-button {
+      display: none;
       min-height: 42px;
       padding: 0 14px;
       border: 1px solid rgba(14, 165, 233, .24);
@@ -2607,6 +2723,124 @@
       padding: 16px 22px;
       box-shadow: var(--shadow);
       margin-bottom: 34px;
+    }
+
+    .desktop-notification-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 22px;
+      min-height: 66px;
+      margin: -10px 0 18px;
+      padding: 12px 16px 12px 20px;
+      border: 1px solid rgba(0, 159, 107, .18);
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 12% 10%, rgba(255, 255, 255, .52), transparent 28%),
+        linear-gradient(110deg, rgba(0, 159, 107, .12), rgba(14, 165, 233, .08));
+      box-shadow: 0 10px 28px rgba(24, 24, 27, .08);
+    }
+
+    .desktop-notification-copy {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      min-width: 0;
+    }
+
+    .desktop-notification-icon {
+      display: grid;
+      place-items: center;
+      align-self: center;
+      width: 42px;
+      height: 42px;
+      flex: 0 0 42px;
+      box-sizing: border-box;
+      border: 1px solid rgba(0, 159, 107, .2);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .68);
+      color: var(--accent);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .78), 0 6px 14px rgba(0, 159, 107, .1);
+      line-height: 0;
+    }
+
+    .desktop-notification-icon svg {
+      display: block;
+      width: 21px;
+      height: 21px;
+      margin: 0;
+      transform: none;
+    }
+
+    .desktop-notification-copy > div > strong,
+    .desktop-notification-copy > div > span {
+      display: block;
+    }
+
+    .desktop-notification-copy > div > strong {
+      margin-bottom: 2px;
+      font-size: 14px;
+    }
+
+    .desktop-notification-copy > div > span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .desktop-notification-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 0 0 auto;
+    }
+
+    .desktop-notification-enable {
+      min-height: 40px;
+      padding: 0 18px;
+      border-radius: 12px;
+      background: var(--ink);
+      color: var(--surface, #fff);
+      box-shadow: 0 8px 20px rgba(24, 24, 27, .14);
+    }
+
+    .desktop-notification-close {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      min-width: 40px;
+      height: 40px;
+      min-height: 40px;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .56);
+      color: var(--ink);
+      box-shadow: none;
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    html[data-resolved-theme="dark"] .desktop-notification-banner {
+      border-color: rgba(52, 211, 153, .2);
+      background: linear-gradient(110deg, rgba(0, 159, 107, .16), rgba(14, 165, 233, .1));
+    }
+
+    html[data-resolved-theme="dark"] .desktop-notification-enable {
+      background: #f4f4f5;
+      color: #18181b;
+    }
+
+    html[data-resolved-theme="dark"] .desktop-notification-icon {
+      border-color: rgba(52, 211, 153, .26);
+      background: rgba(255, 255, 255, .07);
+      color: #34d399;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 6px 16px rgba(0, 0, 0, .18);
+    }
+
+    html[data-resolved-theme="dark"] .desktop-notification-close {
+      background: rgba(255, 255, 255, .06);
+      color: #f4f4f5;
     }
 
     .mark {
@@ -4071,7 +4305,10 @@
     }
 
     .growth-card {
+      display: flex;
+      flex-direction: column;
       min-width: 0;
+      min-height: 190px;
       padding: 14px;
       border: 1px solid var(--line);
       border-radius: 10px;
@@ -4100,6 +4337,7 @@
       margin-top: 7px;
       font-size: 12px;
       line-height: 1.35;
+      overflow-wrap: anywhere;
     }
 
     .growth-card small {
@@ -4109,6 +4347,49 @@
       font-size: 11px;
       font-weight: 750;
       line-height: 1.35;
+    }
+
+    .inflation-horizons {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .inflation-horizon {
+      min-width: 0;
+      padding: 8px 6px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      text-align: center;
+    }
+
+    .inflation-horizon span,
+    .inflation-horizon strong {
+      display: block;
+    }
+
+    .inflation-horizon span {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 22px;
+      color: var(--muted);
+      font-size: 9px;
+      font-weight: 850;
+      line-height: 1.2;
+      text-transform: uppercase;
+    }
+
+    .inflation-horizon strong {
+      margin-top: 4px;
+      font-size: 14px;
+      overflow-wrap: anywhere;
+    }
+
+    .inflation-card > b {
+      min-height: 32px;
     }
 
     .growth-card .good {
@@ -4135,10 +4416,61 @@
       line-height: 1.45;
     }
 
+    .executive-summary-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
     .purchasing-power-status h3 {
-      margin: 0 0 12px;
+      margin: 0;
       font-size: 14px;
       font-weight: 900;
+    }
+
+    .executive-summary-help {
+      flex: 0 0 auto;
+      min-height: 32px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 850;
+      box-shadow: none;
+    }
+
+    .executive-summary-help:hover {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .executive-summary-explanation {
+      display: grid;
+      gap: 7px;
+      margin: 0 0 13px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .executive-summary-explanation[hidden] {
+      display: none;
+    }
+
+    .executive-summary-explanation p {
+      margin: 0;
+    }
+
+    .executive-summary-explanation strong {
+      color: var(--ink);
     }
 
     .executive-summary-list {
@@ -4153,7 +4485,13 @@
       position: relative;
       padding-left: 19px;
       color: var(--ink);
-      font-weight: 700;
+      font-weight: 500;
+      line-height: 1.48;
+    }
+
+    .executive-summary-list li strong {
+      color: var(--ink);
+      font-weight: 850;
     }
 
     .executive-summary-list li::before {
@@ -4752,6 +5090,24 @@
 
     .debt-step-mode .field-row[data-debt-step].active {
       display: grid;
+    }
+
+    .expense-step-mode [data-expense-step] {
+      display: none;
+    }
+
+    .expense-step-mode [data-expense-step].active {
+      display: grid;
+      animation: debt-step-in 180ms ease both;
+    }
+
+    .expense-step-mode .expense-item-field.active,
+    .expense-step-mode .expense-note-field.active {
+      grid-column: span 2;
+    }
+
+    .expense-step-mode .form-footer {
+      order: 20;
     }
 
     #obligationInterestToggleField.active {
@@ -5706,6 +6062,10 @@
         padding: 12px;
       }
 
+      .desktop-notification-banner {
+        display: none !important;
+      }
+
       .topbar {
         align-items: center;
         flex-direction: row;
@@ -5750,7 +6110,7 @@
       }
 
       .user-greeting {
-        order: 1;
+        order: 0;
         width: 100%;
         margin: 0;
         padding-top: 10px;
@@ -5761,8 +6121,11 @@
 
       .header-actions {
         order: 3;
-        display: contents;
-        width: 100%;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 10px;
+        width: calc(100% + 60px);
+        margin-right: -60px;
       }
 
       .header-settings-button {
@@ -5774,11 +6137,13 @@
       }
 
       .header-notification-button {
-        order: 4;
+        display: inline-flex;
+        order: 1;
         width: 100%;
+        max-width: none;
         justify-content: center;
         min-height: 44px;
-        margin-top: 10px;
+        margin: 0;
       }
 
       .obligation-list {
@@ -5941,6 +6306,14 @@
 
       .growth-grid {
         grid-template-columns: 1fr;
+      }
+
+      .growth-card {
+        min-height: 0;
+      }
+
+      .executive-summary-heading {
+        align-items: flex-start;
       }
 
       .home-obligation-summary {
@@ -7044,7 +7417,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-                <small id="appVersionBadge">v245</small>
+<small id="appVersionBadge">v266</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -7095,6 +7468,21 @@
     </div>
   </section>
   <main class="app-shell" id="appMain">
+    <section class="desktop-notification-banner" id="desktopNotificationBanner" aria-live="polite" hidden>
+      <div class="desktop-notification-copy">
+        <span class="desktop-notification-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.268 21a2 2 0 0 0 3.464 0"></path><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.411 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"></path></svg>
+        </span>
+        <div>
+          <strong data-i18n="notificationBannerTitle">Jangan lewatkan pengingat keuangan</strong>
+          <span data-i18n="notificationBannerDescription">Aktifkan notifikasi untuk pengingat tagihan, hutang, piutang, dan pemasukan otomatis.</span>
+        </div>
+      </div>
+      <div class="desktop-notification-actions">
+        <button class="desktop-notification-enable" id="desktopNotificationEnableBtn" type="button" data-i18n="enableNotifications">Aktifkan notifikasi</button>
+        <button class="desktop-notification-close" id="desktopNotificationCloseBtn" type="button" aria-label="Tutup pengingat notifikasi" data-i18n-aria="close">&times;</button>
+      </div>
+    </section>
     <header class="topbar">
       <div class="brand">
         <div class="mark" aria-hidden="true">
@@ -7118,7 +7506,7 @@
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M10 21h4"></path></svg>
           <span data-i18n="enableNotifications">Aktifkan notifikasi</span>
         </button>
-        <p class="user-greeting" id="userGreeting" hidden></p>
+        <p class="user-greeting" id="userGreeting" aria-live="polite"></p>
         <button class="header-settings-button" id="headerSettingsBtn" type="button" aria-label="Buka menu pengaturan" data-i18n-aria="openSettings">
           <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06a1.7 1.7 0 0 0-1.88-.34A1.7 1.7 0 0 0 14 20.93V21h-4v-.08A1.7 1.7 0 0 0 8.97 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15 1.7 1.7 0 0 0 3.04 14H3v-4h.08A1.7 1.7 0 0 0 4.6 8.97a1.7 1.7 0 0 0-.34-1.88l-.06-.06L7.03 4.2l.06.06A1.7 1.7 0 0 0 8.97 4.6 1.7 1.7 0 0 0 10 3.04V3h4v.08a1.7 1.7 0 0 0 1.03 1.52 1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06a1.7 1.7 0 0 0-.34 1.88A1.7 1.7 0 0 0 20.96 10H21v4h-.08A1.7 1.7 0 0 0 19.4 15Z"></path></svg>
         </button>
@@ -7129,6 +7517,12 @@
             <div class="account-summary">
               <strong id="accountDisplayName">Pengguna</strong>
               <small id="accountUsername">@user</small>
+            </div>
+            <div class="account-name-editor">
+              <label><span data-i18n="yourName">Nama Anda</span>
+                <input id="settingsDisplayNameInput" type="text" maxlength="80" autocomplete="off" autocapitalize="words" autocorrect="off" spellcheck="false">
+              </label>
+              <button type="button" id="saveDisplayNameBtn" data-i18n="saveName">Simpan nama</button>
             </div>
             <label class="theme-control"><span data-i18n="language">Bahasa</span>
               <select id="languageSelect" aria-label="Pilih bahasa" data-i18n-aria="chooseLanguage">
@@ -7230,6 +7624,16 @@
           </div>
       </div>
     </header>
+
+    <div class="sample-preview-banner" id="samplePreviewBanner" role="status" aria-live="polite" hidden>
+      <div class="sample-preview-copy">
+        <span>
+          <strong data-i18n="samplePreviewTitle">Mode preview data contoh</strong>
+          <span data-i18n="samplePreviewDescription">Data ini hanya sementara, terpisah dari data asli, dan tidak akan diunggah ke cloud.</span>
+        </span>
+      </div>
+      <button type="button" id="exitSamplePreviewBtn" data-i18n="exitSamplePreview">Keluar &amp; hapus sample</button>
+    </div>
 
     <div class="month-navigator-wrap" id="mobileMonthNavigatorMount">
         <div class="month-navigator" id="monthNavigator" aria-label="Navigasi bulan" data-i18n-aria="monthNavigation">
@@ -7363,7 +7767,6 @@
           <section class="panel growth-panel">
             <div class="panel-header">
               <h2 data-i18n="growthAnalytics">Pertumbuhan & Daya Beli</h2>
-              <span class="pill" id="growthComparisonPeriod">Dibanding bulan sebelumnya</span>
             </div>
             <div class="panel-body">
               <div class="purchasing-power-status" id="purchasingPowerStatus"></div>
@@ -7379,9 +7782,22 @@
                   <b id="growthExpenseDelta" class="neutral">—</b>
                   <small id="growthNewItemSpend"></small>
                 </article>
-                <article class="growth-card">
+                <article class="growth-card inflation-card">
                   <span data-i18n="livingCostInflation">Inflasi Biaya Hidup</span>
-                  <strong id="growthInflation">—</strong>
+                  <div class="inflation-horizons" aria-label="Inflasi biaya hidup berdasarkan periode">
+                    <div class="inflation-horizon">
+                      <span data-i18n="monthly">Bulanan</span>
+                      <strong id="growthInflation">—</strong>
+                    </div>
+                    <div class="inflation-horizon">
+                      <span data-i18n="sixMonths">6 Bulan</span>
+                      <strong id="growthInflationSixMonths">—</strong>
+                    </div>
+                    <div class="inflation-horizon">
+                      <span data-i18n="yearly">Tahunan</span>
+                      <strong id="growthInflationYearly">—</strong>
+                    </div>
+                  </div>
                   <b id="growthRealIncome" class="neutral">—</b>
                   <small id="growthInflationBreakdown"></small>
                 </article>
@@ -7762,30 +8178,41 @@
         </div>
         <div class="panel-body">
           <form id="entryForm" class="form-grid" autocomplete="off">
-            <label><span data-i18n="shoppingDate">Tanggal Belanja</span>
+            <div class="debt-story-stepper span-2" id="expenseStoryStepper">
+              <div>
+                <small id="expenseStoryStepKicker">Step 1 dari 3</small>
+                <strong id="expenseStoryStepTitle">Ceritakan belanjaannya</strong>
+              </div>
+              <div class="debt-story-dots" id="expenseStoryDots" aria-label="Tahapan pencatatan pengeluaran">
+                <button type="button" class="active" data-expense-step-dot="0" aria-label="Langkah 1"></button>
+                <button type="button" data-expense-step-dot="1" aria-label="Langkah 2"></button>
+                <button type="button" data-expense-step-dot="2" aria-label="Langkah 3"></button>
+              </div>
+            </div>
+            <label data-expense-step="0"><span data-i18n="expenseDateQuestion">Belanjanya kapan?</span>
               <span class="date-field">
                 <span class="date-display" id="dateInputDisplay" aria-hidden="true"></span>
                 <input class="date-native" id="dateInput" type="date" autocomplete="off" required>
               </span>
             </label>
-            <label><span data-i18n="category">Kategori</span>
+            <label data-expense-step="0"><span data-i18n="expenseCategoryQuestion">Masuk kategori apa?</span>
               <input id="categoryInput" type="text" placeholder="Sembako" autocomplete="new-password" autocapitalize="words" autocorrect="off" spellcheck="false">
               <div class="suggestion-box" id="categorySuggestions" hidden></div>
             </label>
-            <label><span data-i18n="wallet">Wallet</span>
+            <label data-expense-step="2"><span data-i18n="expenseWalletQuestion">Bayar pakai wallet apa?</span>
               <select id="expenseWalletSelect" aria-label="Pilih wallet" data-i18n-aria="chooseWallet"></select>
             </label>
-            <label class="span-2"><span data-i18n="itemName">Nama Barang</span>
+            <label class="span-2 expense-item-field" data-expense-step="0"><span data-i18n="expenseItemQuestion">Kamu beli apa?</span>
               <input id="itemInput" type="text" placeholder="Contoh: Beras Rojo Lele, Minyak Goreng Bimoli" data-i18n-placeholder="itemPlaceholder" autocomplete="new-password" autocapitalize="words" autocorrect="off" spellcheck="false" required>
               <div class="suggestion-box" id="itemSuggestions" hidden></div>
             </label>
-            <label><span id="expensePriceCurrencyLabel" data-i18n="unitPriceRp">Harga Satuan (Rp)</span>
+            <label data-expense-step="1"><span id="expensePriceCurrencyLabel" data-i18n="expensePriceQuestion">Berapa harga satuannya?</span>
               <input id="priceInput" type="text" inputmode="decimal" placeholder="Contoh: 15.000" data-i18n-placeholder="pricePlaceholder" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" required>
             </label>
-            <label><span data-i18n="quantity">Jumlah Barang</span>
+            <label data-expense-step="1"><span data-i18n="expenseQuantityQuestion">Jumlahnya berapa?</span>
               <input id="qtyInput" type="number" min="0.001" step="any" value="1" autocomplete="off" required>
             </label>
-            <label class="span-2"><span data-i18n="notesOptional">Catatan (Opsional)</span>
+            <label class="span-2 expense-note-field" data-expense-step="2"><span data-i18n="expenseNoteQuestion">Ada catatan tambahan? (Opsional)</span>
               <textarea id="noteInput" rows="2" placeholder="Contoh: Beli di supermarket ABC, sedang promo" data-i18n-placeholder="shoppingNotePlaceholder" autocomplete="off" autocapitalize="sentences" autocorrect="off" spellcheck="false"></textarea>
             </label>
             <div class="form-footer">
@@ -7798,6 +8225,8 @@
               <div class="form-actions">
                 <button type="button" class="ghost discard-draft-btn" id="discardExpenseDraftBtn" data-i18n="discardDraft" hidden>Buang Draft</button>
                 <button type="button" class="ghost" id="cancelEditBtn" data-i18n="cancel" hidden>Batal</button>
+                <button type="button" class="ghost" id="expenseStoryBackBtn" data-i18n="back" hidden>Kembali</button>
+                <button type="button" id="expenseStoryNextBtn" data-i18n="next">Lanjut</button>
                 <button type="submit" id="saveEntryBtn" data-i18n="saveTransaction">Simpan Transaksi</button>
               </div>
             </div>
@@ -8146,6 +8575,16 @@
       </form>
     </section>
   </div>
+  <div class="secure-dialog" id="appConfirmDialog" hidden>
+    <section class="secure-dialog-panel" role="alertdialog" aria-modal="true" aria-labelledby="appConfirmTitle" aria-describedby="appConfirmMessage">
+      <h2 id="appConfirmTitle">Konfirmasi Hapus</h2>
+      <p id="appConfirmMessage"></p>
+      <div class="secure-dialog-actions">
+        <button type="button" class="secondary" id="appConfirmCancel" data-i18n="cancel">Batal</button>
+        <button type="button" class="danger" id="appConfirmSubmit">Hapus</button>
+      </div>
+    </section>
+  </div>
   <div class="secure-dialog" id="walletDeleteDialog" hidden>
     <section class="secure-dialog-panel" role="dialog" aria-modal="true" aria-labelledby="walletDeleteTitle">
       <h2 id="walletDeleteTitle" data-i18n="deleteWalletTitle">Hapus Wallet</h2>
@@ -8434,6 +8873,14 @@
         amountSent: "Nominal dikirim", amountReceived: "Nominal diterima", effectiveRate: "Kurs efektif", noTransfers: "Belum ada transfer antar-wallet.",
         shoppingDate: "Tanggal Belanja", category: "Kategori", itemName: "Nama Barang",
         itemPlaceholder: "Contoh: Beras Rojo Lele, Minyak Goreng Bimoli", unitPriceRp: "Harga Satuan (Rp)",
+        expenseStoryStep: "Step {current} dari {total}",
+        expenseStoryTitle1: "Ceritakan belanjaannya",
+        expenseStoryTitle2: "Berapa yang kamu bayar?",
+        expenseStoryTitle3: "Bayar dari mana?",
+        expenseDateQuestion: "Belanjanya kapan?", expenseCategoryQuestion: "Masuk kategori apa?",
+        expenseItemQuestion: "Kamu beli apa?", expensePriceQuestion: "Berapa harga satuannya?",
+        expenseQuantityQuestion: "Jumlahnya berapa?", expenseWalletQuestion: "Bayar pakai wallet apa?",
+        expenseNoteQuestion: "Ada catatan tambahan? (Opsional)",
         pricePlaceholder: "Contoh: 15.000", quantity: "Jumlah Barang",
         shoppingNotePlaceholder: "Contoh: Beli di supermarket ABC, sedang promo",
         estimatedTotal: "Estimasi Total", estimatedLocalEquivalent: "Sekitar {amount} dalam mata uang utama",
@@ -8455,14 +8902,24 @@
         edit: "Edit", delete: "Hapus", showingIncome: "Menampilkan {count} pemasukan",
         noIncome: "Belum ada data pemasukan.", yearPeriod: "Tahun {year}",
         localDataError: "Data lokal tidak bisa dibaca. Mulai dengan data kosong.", saved: "Tersimpan",
-        autoSave: "Auto-save", sampleAdded: "Data contoh Januari-Desember berhasil dibuat.",
-        sampleReplaceConfirm: "Semua data belanja, pemasukan, transfer, wallet, dan target budget saat ini akan dihapus dan diganti dengan data contoh Januari-Desember. Lanjutkan?",
-        quantityPositive: "Jumlah barang harus lebih dari 0.", changesSaved: "Perubahan transaksi tersimpan.",
+        autoSave: "Auto-save", sampleAdded: "Preview data contoh Januari-Desember aktif. Data asli Anda tetap aman.",
+        sampleReplaceConfirm: "Buka data contoh Januari-Desember sebagai preview sementara? Data asli tetap aman dan preview tidak akan disinkronkan ke cloud.",
+        samplePreviewTitle: "Mode preview data contoh",
+        samplePreviewDescription: "Data ini hanya sementara, terpisah dari data asli, dan tidak akan diunggah ke cloud.",
+        exitSamplePreview: "Keluar & hapus sample",
+        samplePreviewStatus: "Preview sample lokal",
+        samplePreviewExitConfirm: "Keluar dari preview dan hapus seluruh perubahan pada data contoh? Data asli Anda akan ditampilkan kembali.",
+        samplePreviewExited: "Preview sample dihapus. Data asli Anda sudah dimuat kembali.",
+        quantityPositive: "Jumlah barang harus lebih dari 0.", pricePositive: "Harga harus lebih dari 0.", changesSaved: "Perubahan transaksi tersimpan.",
         transactionSaved: "Transaksi belanja tersimpan.", incomeSaved: "Pemasukan tersimpan.",
         exportReady: "Export JSON disiapkan. Cek folder Downloads browser.", importSuccess: "Import JSON berhasil.",
         importInvalid: "File JSON tidak valid untuk TrackBelanja. Pastikan halaman sudah di-refresh.",
         editCancelled: "Edit transaksi dibatalkan.", themeActive: "Tema {theme} aktif.",
         deleteConfirm: "Hapus semua data belanja di browser ini?", allDeleted: "Semua data sudah dihapus.",
+        confirmDeleteTitle: "Konfirmasi Hapus", confirmActionTitle: "Konfirmasi Tindakan",
+        deleteTransactionConfirm: "Hapus transaksi pengeluaran ini? Data yang dihapus tidak dapat dipulihkan.",
+        deleteIncomeRecordConfirm: "Hapus catatan pemasukan ini? Data yang dihapus tidak dapat dipulihkan.",
+        deleteTransferRecordConfirm: "Hapus catatan transfer ini? Saldo wallet akan dihitung ulang.",
         chooseDate: "Pilih tanggal", noChartData: "Belum ada data untuk grafik ini.", sampleDataNote: "Data contoh",
         sampleSalary: "Gaji", sampleAnnualBonus: "Bonus Tahunan",
         exportExcel: "Export Excel", importExcel: "Import Excel", downloadSampleExcel: "Download Sample Excel",
@@ -8489,6 +8946,17 @@
         incomeChange: "Perubahan Pemasukan", expenseChange: "Perubahan Pengeluaran",
         itemPriceInflation: "Inflasi Harga Barang", livingCostInflation: "Inflasi Biaya Hidup", billInflationBreakdown: "Barang {items} · Tagihan rutin {bills}", monthlyBalanceChange: "Perubahan Saldo Bulanan",
         executiveSummary: "Executive Summary",
+        executiveSummaryHelp: "Apa artinya?",
+        executiveSummaryHelpClose: "Tutup penjelasan",
+        inflationLabel: "Inflasi",
+        deflationLabel: "Deflasi",
+        inflationDefinition: "Inflasi berarti harga barang atau tagihan yang sama naik dibanding periode acuannya.",
+        deflationDefinition: "Deflasi berarti harga barang atau tagihan yang sama turun dibanding periode acuannya.",
+        inflationMethodDefinition: "Aplikasi hanya membandingkan nama barang dan tagihan rutin yang sama. Barang baru tidak dianggap sebagai inflasi.",
+        summaryInflationHorizons: "Inflasi biaya hidup: bulanan {monthly}, 6 bulan {sixMonths}, dan 12 bulan {yearly}. Hanya barang dan tagihan rutin yang sama yang dibandingkan.",
+        summaryInflationContributor: "{period}: kontribusi inflasi terbesar berasal dari {name} ({value}).",
+        summaryDeflationContributor: "{period}: kontribusi deflasi terbesar berasal dari {name} ({value}).",
+        summaryPeakIncome: "Pemasukan tertinggi tercatat pada {period}: {source}, sebesar {amount}.",
         summaryIncomeVsInflation: "Pemasukan berubah {incomeGrowth}, dibanding inflasi biaya hidup {inflation}.",
         summaryPurchasingPower: "Daya beli {direction} {gap}, setara {moneyGap}.",
         summaryPurchasingPowerUp: "meningkat",
@@ -8525,8 +8993,13 @@
         enableNotificationsTitle: "Aktifkan notifikasi",
         enableNotificationsText: "Izinkan notifikasi agar pengingat tagihan, hutang, dan piutang bisa muncul saat waktunya.",
         enableNotifications: "Aktifkan notifikasi", notificationsUnavailable: "Notifikasi tidak tersedia di browser atau alamat ini.",
+        notificationBannerTitle: "Jangan lewatkan pengingat keuangan",
+        notificationBannerDescription: "Aktifkan notifikasi untuk pengingat tagihan, hutang, piutang, dan pemasukan otomatis.",
         notificationsAlreadyEnabled: "Notifikasi sudah aktif.", notificationsBlocked: "Notifikasi diblokir. Aktifkan dari pengaturan browser.",
         notificationsBlockedShort: "Notifikasi diblokir",
+        notificationsBlockedHelpTitle: "Notifikasi diblokir",
+        notificationsBlockedHelp: "Aplikasi tidak dapat meminta izin lagi. Buka pengaturan situs atau aplikasi di browser/perangkat Anda, pilih BelanjaTrack, lalu ubah izin Notifikasi menjadi Izinkan.",
+        understood: "Mengerti",
         onboardingSaved: "Setup awal berhasil disimpan.",
         installAsAppTitle: "Install sebagai aplikasi",
         installApp: "Install sebagai aplikasi", appInstalled: "Aplikasi sudah terpasang",
@@ -8539,6 +9012,7 @@
         pwaUnavailable: "Instalasi PWA belum tersedia pada browser atau alamat ini.",
         localAccountSubtitle: "Akun lokal untuk data belanja Anda", login: "Masuk", register: "Daftar",
         username: "Nama pengguna", userId: "User ID", email: "Email", password: "Password", displayName: "Nama tampilan", yourName: "Nama Anda",
+        saveName: "Simpan nama", nameRequired: "Nama Anda belum diisi.", nameSaved: "Nama Anda sudah diperbarui.",
         confirmPassword: "Ulangi password", createAccount: "Buat akun", restoreAccount: "Pulihkan akun dari JSON",
         localAccountNote: "Aplikasi ini tetap bisa berjalan tanpa internet. Saat internet tersedia, data akan dibackup ke cloud otomatis.",
         logout: "Keluar", continue: "Lanjutkan", usernameRequired: "Masukkan email yang valid.",
@@ -8761,6 +9235,14 @@
         amountSent: "Amount sent", amountReceived: "Amount received", effectiveRate: "Effective rate", noTransfers: "No wallet transfers yet.",
         shoppingDate: "Purchase Date", category: "Category", itemName: "Item Name",
         itemPlaceholder: "Example: Rice, Cooking Oil", unitPriceRp: "Unit Price (Rp)",
+        expenseStoryStep: "Step {current} of {total}",
+        expenseStoryTitle1: "Tell us about the purchase",
+        expenseStoryTitle2: "How much did you pay?",
+        expenseStoryTitle3: "Where did you pay from?",
+        expenseDateQuestion: "When did you buy it?", expenseCategoryQuestion: "Which category is it in?",
+        expenseItemQuestion: "What did you buy?", expensePriceQuestion: "What was the unit price?",
+        expenseQuantityQuestion: "How many did you buy?", expenseWalletQuestion: "Which wallet did you use?",
+        expenseNoteQuestion: "Anything else to note? (Optional)",
         pricePlaceholder: "Example: 15,000", quantity: "Quantity",
         shoppingNotePlaceholder: "Example: Bought at the supermarket during a promotion",
         estimatedTotal: "Estimated Total", estimatedLocalEquivalent: "About {amount} in your primary currency",
@@ -8782,14 +9264,24 @@
         edit: "Edit", delete: "Delete", showingIncome: "Showing {count} income entries",
         noIncome: "No income data yet.", yearPeriod: "Year {year}",
         localDataError: "Local data could not be read. Starting with an empty dataset.", saved: "Saved",
-        autoSave: "Auto-save", sampleAdded: "January-December sample data created.",
-        sampleReplaceConfirm: "All current shopping, income, transfer, wallet, and budget goal data will be deleted and replaced with January-December sample data. Continue?",
-        quantityPositive: "Quantity must be greater than 0.", changesSaved: "Transaction changes saved.",
+        autoSave: "Auto-save", sampleAdded: "January-December sample preview is active. Your original data stays safe.",
+        sampleReplaceConfirm: "Open January-December sample data as a temporary preview? Your original data stays safe and the preview will never sync to the cloud.",
+        samplePreviewTitle: "Sample data preview",
+        samplePreviewDescription: "This data is temporary, separate from your original data, and will never be uploaded to the cloud.",
+        exitSamplePreview: "Exit & delete sample",
+        samplePreviewStatus: "Local sample preview",
+        samplePreviewExitConfirm: "Exit preview and delete every change made to the sample data? Your original data will be shown again.",
+        samplePreviewExited: "Sample preview deleted. Your original data is back.",
+        quantityPositive: "Quantity must be greater than 0.", pricePositive: "Price must be greater than 0.", changesSaved: "Transaction changes saved.",
         transactionSaved: "Shopping transaction saved.", incomeSaved: "Income saved.",
         exportReady: "JSON export prepared. Check your browser's Downloads folder.", importSuccess: "JSON imported successfully.",
         importInvalid: "This JSON file is not valid for TrackBelanja. Make sure the page has been refreshed.",
         editCancelled: "Transaction edit cancelled.", themeActive: "{theme} theme enabled.",
         deleteConfirm: "Delete all shopping data in this browser?", allDeleted: "All shopping data has been deleted.",
+        confirmDeleteTitle: "Confirm deletion", confirmActionTitle: "Confirm action",
+        deleteTransactionConfirm: "Delete this expense transaction? Deleted data cannot be recovered.",
+        deleteIncomeRecordConfirm: "Delete this income record? Deleted data cannot be recovered.",
+        deleteTransferRecordConfirm: "Delete this transfer record? Wallet balances will be recalculated.",
         chooseDate: "Choose a date", noChartData: "No data available for this chart.", sampleDataNote: "Sample data",
         sampleSalary: "Salary", sampleAnnualBonus: "Annual Bonus",
         exportExcel: "Export Excel", importExcel: "Import Excel", downloadSampleExcel: "Download Sample Excel",
@@ -8816,6 +9308,17 @@
         incomeChange: "Income Change", expenseChange: "Expense Change",
         itemPriceInflation: "Item Price Inflation", livingCostInflation: "Living Cost Inflation", billInflationBreakdown: "Items {items} · Recurring bills {bills}", monthlyBalanceChange: "Monthly Balance Change",
         executiveSummary: "Executive Summary",
+        executiveSummaryHelp: "What does this mean?",
+        executiveSummaryHelpClose: "Close explanation",
+        inflationLabel: "Inflation",
+        deflationLabel: "Deflation",
+        inflationDefinition: "Inflation means the price of the same item or bill increased compared with its reference period.",
+        deflationDefinition: "Deflation means the price of the same item or bill decreased compared with its reference period.",
+        inflationMethodDefinition: "The app only compares matching item names and recurring bills. New items are not treated as inflation.",
+        summaryInflationHorizons: "Living-cost inflation: monthly {monthly}, six months {sixMonths}, and 12 months {yearly}. Only matching items and recurring bills are compared.",
+        summaryInflationContributor: "{period}: the largest inflation contribution came from {name} ({value}).",
+        summaryDeflationContributor: "{period}: the largest deflation contribution came from {name} ({value}).",
+        summaryPeakIncome: "The highest income was recorded in {period}: {source}, totaling {amount}.",
         summaryIncomeVsInflation: "Income changed {incomeGrowth}, compared with living-cost inflation of {inflation}.",
         summaryPurchasingPower: "Purchasing power {direction} by {gap}, equal to {moneyGap}.",
         summaryPurchasingPowerUp: "increased",
@@ -8852,8 +9355,13 @@
         enableNotificationsTitle: "Enable notifications",
         enableNotificationsText: "Allow notifications so bill, debt, and receivable reminders can appear when they are due.",
         enableNotifications: "Enable notifications", notificationsUnavailable: "Notifications are not available in this browser or address.",
+        notificationBannerTitle: "Stay on top of your financial reminders",
+        notificationBannerDescription: "Enable notifications for bills, debts, receivables, and automatic income reminders.",
         notificationsAlreadyEnabled: "Notifications are already enabled.", notificationsBlocked: "Notifications are blocked. Enable them from browser settings.",
         notificationsBlockedShort: "Notifications blocked",
+        notificationsBlockedHelpTitle: "Notifications blocked",
+        notificationsBlockedHelp: "The app cannot request permission again. Open the site or app settings in your browser/device, choose BelanjaTrack, then change Notifications to Allow.",
+        understood: "Got it",
         onboardingSaved: "Initial setup saved.",
         installAsAppTitle: "Install as app",
         installApp: "Install as app", appInstalled: "App installed",
@@ -8866,6 +9374,7 @@
         pwaUnavailable: "PWA installation is not available in this browser or at this address.",
         localAccountSubtitle: "A local account for your shopping data", login: "Log in", register: "Register",
         username: "Username", userId: "User ID", email: "Email", password: "Password", displayName: "Display name", yourName: "Your name",
+        saveName: "Save name", nameRequired: "Enter your name first.", nameSaved: "Your name has been updated.",
         confirmPassword: "Confirm password", createAccount: "Create account", restoreAccount: "Restore account from JSON",
         localAccountNote: "This app can keep working without internet. When internet is available, your data is backed up to the cloud automatically.",
         logout: "Log out", continue: "Continue", usernameRequired: "Enter a valid email address.",
@@ -9023,6 +9532,13 @@
       publishableKey: "sb_publishable_bp-LZp6jCgS7WYrIdKizYw_QCpNglJN",
       authRedirectUrl: ""
     };
+    const ONESIGNAL_CONFIG = {
+      enabled: true,
+      appId: "3b41a91d-1f22-401a-9c51-2a3f688fde5f",
+      sdkUrl: "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js"
+    };
+    let oneSignalSdkPromise = null;
+    let oneSignalReady = false;
     const PLAN_CONFIG = {
       defaultPlan: "free",
       ownerEmails: [],
@@ -9075,6 +9591,7 @@
       "budgetGoals", "spendingBudgets", "obligations"
     ];
     const CLOUD_PULL_CACHE_MS = 30 * 60 * 1000;
+    const SAMPLE_PREVIEW_KEY_PREFIX = "belanjatrack:sample-preview:";
     let mainChartInstance = null;
     let priceChartInstance = null;
     let homeCategoryChartInstance = null;
@@ -9088,8 +9605,11 @@
       let cloudSyncBannerHideTimer = null;
       let cloudSyncBannerDismissed = false;
       let cloudSyncInFlight = false;
+      let desktopNotificationBannerDismissed = false;
     let cloudDirty = false;
+    let samplePreviewActive = false;
     let passwordDialogResolver = null;
+    let appConfirmResolver = null;
     let pendingAccountRestore = null;
     let greetingTimer = null;
     let accountRecoveryMode = "password";
@@ -9110,6 +9630,7 @@
       let onboardingCurrencyLoading = false;
       let editingObligationCategory = false;
       let debtStoryStep = 0;
+      let expenseStoryStep = 0;
     let activeDatePickerInput = null;
     let appDatePickerMonth = new Date();
     let appDatePickerMode = "calendar";
@@ -9902,7 +10423,7 @@
       const incomeCurrency = walletCurrency(controls.incomeWallet.value || defaultWalletName());
       const expenseCurrency = walletCurrency(controls.expenseWallet.value || defaultWalletName());
       if (incomeLabel) incomeLabel.textContent = `${t("amount")} (${incomeCurrency})`;
-      if (expenseLabel) expenseLabel.textContent = `${t("unitPrice")} (${expenseCurrency})`;
+      if (expenseLabel) expenseLabel.textContent = `${t("expensePriceQuestion")} (${expenseCurrency})`;
       if (controls.incomeAmount) controls.incomeAmount.inputMode = currencyFractionDigits(incomeCurrency) ? "decimal" : "numeric";
       if (controls.price) controls.price.inputMode = currencyFractionDigits(expenseCurrency) ? "decimal" : "numeric";
       updateEstimate();
@@ -10008,10 +10529,10 @@
       toast(t(rule.active ? "automaticIncomeEnabled" : "automaticIncomeDisabled"));
     }
 
-    function deleteRecurringIncome(id) {
+    async function deleteRecurringIncome(id) {
       const rule = state.recurringIncomes.find((item) => item.id === id);
       if (!rule) return;
-      if (!confirm(t("deleteAutomaticIncomeConfirm"))) return;
+      if (!await requestAppConfirmation(t("deleteAutomaticIncomeConfirm"))) return;
       state.recurringIncomes = state.recurringIncomes.filter((item) => item.id !== id);
       persist();
       renderRecurringIncomeManager();
@@ -10401,7 +10922,11 @@
     }
 
     function draftStorageKey(type) {
-      return currentUser ? `trackbelanja:draft:${currentUser.id}:${type}:v1` : "";
+      return currentUser ? `trackbelanja:draft:${currentUser.id}:${type}:${samplePreviewActive ? "sample" : "v1"}` : "";
+    }
+
+    function draftStorageBackend() {
+      return samplePreviewActive ? sessionStorage : localStorage;
     }
 
     function capitalizeText(value) {
@@ -10536,10 +11061,11 @@
       if (!key) return;
       const draft = draftPayload(type);
       const hasContent = hasDraftContent(type, draft);
+      const storage = draftStorageBackend();
       if (hasContent) {
-        localStorage.setItem(key, JSON.stringify({ ...draft, updatedAt: new Date().toISOString() }));
+        storage.setItem(key, JSON.stringify({ ...draft, updatedAt: new Date().toISOString() }));
       } else {
-        localStorage.removeItem(key);
+        storage.removeItem(key);
       }
       syncDraftButton(type, hasContent);
     }
@@ -10600,7 +11126,7 @@
 
     function clearDraft(type, { resetForm = true } = {}) {
       const key = draftStorageKey(type);
-      if (key) localStorage.removeItem(key);
+      if (key) draftStorageBackend().removeItem(key);
       if (resetForm) {
         resetDraftForm(type);
       } else {
@@ -10612,10 +11138,11 @@
       resetDraftForm(type);
       const key = draftStorageKey(type);
       if (!key) return false;
+      const storage = draftStorageBackend();
       try {
-        const draft = JSON.parse(localStorage.getItem(key) || "null");
+        const draft = JSON.parse(storage.getItem(key) || "null");
         if (!draft || typeof draft !== "object" || !hasDraftContent(type, draft)) {
-          localStorage.removeItem(key);
+          storage.removeItem(key);
           return false;
         }
         if (
@@ -10684,7 +11211,7 @@
         syncDraftButton(type, true);
         return true;
       } catch (error) {
-        localStorage.removeItem(key);
+        storage.removeItem(key);
         return false;
       }
     }
@@ -11094,6 +11621,39 @@
       return candidate || displayNameFromCloudUser(null, fallback) || normalizeName(fallback);
     }
 
+    function isGenericAccountName(value, accountLike = {}) {
+      const candidate = normalizeName(value).toLocaleLowerCase("id-ID");
+      if (!candidate) return true;
+      const email = normalizeEmail(accountLike.email || accountLike.username || "");
+      const identifiers = [
+        accountLike.username,
+        accountLike.usernameKey,
+        email,
+        email ? email.split("@")[0] : "",
+        "cloud-user"
+      ].map((item) => normalizeName(item).toLocaleLowerCase("id-ID")).filter(Boolean);
+      return identifiers.includes(candidate);
+    }
+
+    function bestCloudDisplayName({ user = null, profile = null, existing = null, fallback = "" } = {}) {
+      const metadata = user?.user_metadata || {};
+      const identity = {
+        username: existing?.username || profile?.username || user?.email || fallback,
+        usernameKey: existing?.usernameKey || profile?.username || user?.email || fallback,
+        email: user?.email || existing?.username || fallback
+      };
+      const candidates = [
+        profile?.display_name,
+        existing?.displayName,
+        metadata.display_name,
+        metadata.full_name,
+        metadata.name
+      ].map((item) => normalizeName(item)).filter(Boolean);
+      return candidates.find((item) => !isGenericAccountName(item, identity))
+        || candidates[0]
+        || friendlyDisplayName(fallback, fallback);
+    }
+
     function normalizeAccountDisplayName(account) {
       if (!account) return account;
       const displayName = friendlyDisplayName(account.displayName, account.username);
@@ -11131,6 +11691,7 @@
       persistCloudAuthSession(session);
       return saveUpdatedAccount({
         ...account,
+        displayName: bestCloudDisplayName({ user, existing: account, fallback: account.username }),
         cloudEnabled: true,
         cloudUserId: user.id || account.cloudUserId,
         cloudAccessToken: session.access_token || account.cloudAccessToken,
@@ -11410,6 +11971,7 @@
     }
 
     async function pullCloudRecordChanges(account, { full = false } = {}) {
+      if (samplePreviewActive) return { status: "skipped", changed: false };
       if (!supabaseConfigured() || !account?.cloudAccessToken || !account?.cloudUserId) return { status: "skipped", changed: false };
       const cursor = full ? "" : localStorage.getItem(cloudRecordCursorKey(account)) || "";
       let offset = 0;
@@ -11446,6 +12008,7 @@
     }
 
     async function pushCloudRecordChanges(account = currentUser) {
+      if (samplePreviewActive) return { status: "preview", count: 0 };
       const delta = changedCloudRecords(account);
       if (!delta.changed.length) return { status: "ok", count: 0 };
       const rows = delta.changed.map((record) => ({
@@ -11506,6 +12069,7 @@
     }
 
     async function pullCloudIfNewer(account) {
+      if (samplePreviewActive) return "preview";
       markCloudPullChecked(account);
       try {
         const needsFullRecordPull = !currentUser || currentUser.id !== account.id;
@@ -11537,12 +12101,14 @@
     }
 
     async function refreshCurrentUserFromCloud({ quiet = true, force = false } = {}) {
+      if (samplePreviewActive) return "preview";
       if (!currentUser?.cloudAccessToken || !currentUser?.cloudUserId || cloudDirty) return "skipped";
       if (!force && !cloudPullIsDue(currentUser)) return "cached";
       try {
         setSyncStatus("syncing");
         currentUser = await refreshCloudSession(currentUser);
         rememberAccountSession(currentUser);
+        updateAccountUi();
         const pullStatus = await pullCloudIfNewer(currentUser);
         if (pullStatus === "updated") {
           load();
@@ -11572,7 +12138,6 @@
         );
         const profile = Array.isArray(profileRows) ? profileRows[0] : null;
         cloudProfile = profile;
-        displayName = friendlyDisplayName(profile?.display_name || profile?.username, displayName);
       } catch (error) {
         displayName = displayName || usernameKey;
       }
@@ -11585,6 +12150,12 @@
           : {}
       };
       const existingAccount = loadAccounts().find((account) => account.usernameKey === usernameKey);
+      displayName = bestCloudDisplayName({
+        user: authData?.user,
+        profile: cloudProfile,
+        existing: existingAccount,
+        fallback: displayName || username
+      });
       if (existingAccount) {
         const refreshedAccount = await updateAccountPassword({ ...existingAccount, displayName, ...planFields }, password);
         const syncedAccount = applyCloudSession(refreshedAccount, authData);
@@ -11607,7 +12178,6 @@
           { token: authData.access_token }
         );
         cloudProfile = Array.isArray(rows) ? rows[0] : null;
-        displayName = friendlyDisplayName(cloudProfile?.display_name || cloudProfile?.username, displayName);
       } catch (error) {}
       const planFields = {
         plan: normalizePlan(cloudProfile?.plan || ownerPlanForAccount({ username, usernameKey })),
@@ -11620,6 +12190,12 @@
       const existingAccount = loadAccounts().find((account) =>
         account.cloudUserId === user.id || account.usernameKey === usernameKey
       );
+      displayName = bestCloudDisplayName({
+        user,
+        profile: cloudProfile,
+        existing: existingAccount,
+        fallback: displayName || username
+      });
       if (existingAccount) {
         const account = applyCloudSession(saveUpdatedAccount({
           ...existingAccount,
@@ -11723,6 +12299,10 @@
     }
 
       function scheduleCloudSync(delay = CLOUD_SYNC_DEBOUNCE_MS) {
+        if (samplePreviewActive) {
+          setSyncStatus("preview");
+          return;
+        }
         if (!supabaseConfigured() || !currentUser?.cloudAccessToken) return;
         cloudSyncBannerDismissed = false;
         cloudDirty = true;
@@ -11735,6 +12315,10 @@
     }
 
     async function syncCloudNow({ force = false } = {}) {
+      if (samplePreviewActive) {
+        setSyncStatus("preview");
+        return false;
+      }
       if (!supabaseConfigured() || !currentUser?.cloudAccessToken || cloudSyncInFlight) return false;
       if (!force && !cloudDirty) return false;
       cloudSyncInFlight = true;
@@ -12059,27 +12643,56 @@
       if (!currentUser) return;
       $("accountDisplayName").textContent = currentUser.displayName;
       $("accountUsername").textContent = currentUser.username;
+      if ($("settingsDisplayNameInput")) $("settingsDisplayNameInput").value = currentUser.displayName || "";
       $("manageRecoveryCodeBtn").querySelector("span").textContent = t(
         currentUser.recoveryHash ? "renewRecoveryCode" : "manageRecoveryCode"
       );
       updateGreeting();
     }
 
+    async function saveDisplayNameFromSettings() {
+      if (!currentUser) return;
+      const displayName = normalizeName($("settingsDisplayNameInput")?.value || "");
+      if (!displayName) {
+        toast(t("nameRequired"));
+        $("settingsDisplayNameInput")?.focus();
+        return;
+      }
+      currentUser = saveUpdatedAccount({ ...currentUser, displayName });
+      updateAccountUi();
+      try {
+        await upsertCloudProfile(currentUser);
+      } catch (error) {
+        scheduleCloudSync(0);
+      }
+      toast(t("nameSaved"));
+    }
+
     function updateGreeting() {
       const greeting = $("userGreeting");
       if (!greeting) return;
       if (!currentUser) {
+        greeting.textContent = "";
         greeting.hidden = true;
         return;
       }
+      greeting.hidden = false;
       const hour = new Date().getHours();
       const key = hour >= 5 && hour <= 10
         ? "greetingMorning"
         : hour >= 11 && hour <= 17
           ? "greetingAfternoon"
           : "greetingEvening";
-      greeting.textContent = t(key, { name: currentUser.displayName });
-      greeting.hidden = false;
+      let greetingName = normalizeName(currentUser.displayName) || friendlyDisplayName(currentUser.username, t("user"));
+      try {
+        const storedCloudUser = readCloudAuthSession()?.user || null;
+        greetingName = bestCloudDisplayName({
+          user: storedCloudUser,
+          existing: currentUser,
+          fallback: greetingName
+        });
+      } catch (error) {}
+      greeting.textContent = t(key, { name: greetingName });
     }
 
     function startGreetingClock() {
@@ -12669,6 +13282,7 @@
       closeBudgetGoalDialog();
       closeSpendingBudgetDialog();
       closeObligationDialog();
+      if (!$("appConfirmDialog").hidden) closeAppConfirmation(false);
       setAuthView("login");
       $("loginPassword").value = "";
     }
@@ -12717,7 +13331,7 @@
       safeAccountStep("greeting clock", startGreetingClock);
       if ($("authScreen")) $("authScreen").hidden = true;
       if ($("syncFooter")) $("syncFooter").hidden = false;
-      setSyncStatus(currentUser.cloudSyncedAt ? "synced" : "local");
+      setSyncStatus(samplePreviewActive ? "preview" : currentUser.cloudSyncedAt ? "synced" : "local");
       document.body.classList.remove("auth-locked");
       document.body.classList.add("app-ready");
       setMainLocked(false);
@@ -12734,14 +13348,22 @@
       }
       window.setTimeout(() => safeAccountStep("obligation reminders", checkObligationReminders), 300);
       safeAccountStep("startup notifications", requestStartupNotifications);
+      window.setTimeout(() => safeAccountStep("push identity", identifyOneSignalUser), 900);
       if (shouldShowOnboarding()) window.setTimeout(() => safeAccountStep("onboarding", openOnboardingDialog), 120);
       if (migrated) toast(t("legacyDataMigrated"));
       if (message) toast(message);
     }
 
     async function logoutAccount() {
+      if (samplePreviewActive) {
+        clearSamplePreviewSession();
+        samplePreviewActive = false;
+        resetUserState();
+        load();
+      }
       persist();
       await syncCloudNow({ force: true });
+      await disconnectOneSignalUser();
       localStorage.removeItem(SESSION_KEY);
       localStorage.removeItem(LAST_ACCOUNT_KEY);
       localStorage.removeItem(ACTIVE_ACCOUNT_SNAPSHOT_KEY);
@@ -12782,33 +13404,98 @@
       if (resolver) resolver(value);
     }
 
+    function requestAppConfirmation(message, {
+      title = t("confirmDeleteTitle"),
+      confirmLabel = t("delete"),
+      danger = true,
+      showCancel = true
+    } = {}) {
+      if (appConfirmResolver) return Promise.resolve(false);
+      $("appConfirmTitle").textContent = title;
+      $("appConfirmMessage").textContent = String(message || "");
+      const submit = $("appConfirmSubmit");
+      submit.textContent = confirmLabel;
+      submit.classList.toggle("danger", danger);
+      $("appConfirmCancel").hidden = !showCancel;
+      $("appConfirmDialog").hidden = false;
+      setMainLocked(true);
+      window.setTimeout(() => submit.focus(), 0);
+      return new Promise((resolve) => {
+        appConfirmResolver = resolve;
+      });
+    }
+
+    function closeAppConfirmation(confirmed = false) {
+      $("appConfirmDialog").hidden = true;
+      $("appConfirmCancel").hidden = false;
+      if ($("authScreen").hidden) setMainLocked(false);
+      const resolver = appConfirmResolver;
+      appConfirmResolver = null;
+      if (resolver) resolver(Boolean(confirmed));
+    }
+
+    function samplePreviewStorageKey(account = currentUser) {
+      return `${SAMPLE_PREVIEW_KEY_PREFIX}${account?.id || "anonymous"}`;
+    }
+
+    function readSamplePreviewPayload(account = currentUser) {
+      if (!account) return null;
+      try {
+        const payload = JSON.parse(sessionStorage.getItem(samplePreviewStorageKey(account)) || "null");
+        return payload && typeof payload === "object" ? payload : null;
+      } catch (error) {
+        sessionStorage.removeItem(samplePreviewStorageKey(account));
+        return null;
+      }
+    }
+
+    function clearSamplePreviewSession(account = currentUser) {
+      if (!account) return;
+      sessionStorage.removeItem(samplePreviewStorageKey(account));
+      ["income", "expense", "obligation"].forEach((type) => {
+        sessionStorage.removeItem(`trackbelanja:draft:${account.id}:${type}:sample`);
+      });
+    }
+
+    function updateSamplePreviewBanner() {
+      const banner = $("samplePreviewBanner");
+      if (banner) banner.hidden = !samplePreviewActive;
+    }
+
+    function applyStoredPayload(parsed) {
+      if (!parsed || typeof parsed !== "object") return;
+      state.entries = Array.isArray(parsed.entries) ? parsed.entries : [];
+      state.incomes = Array.isArray(parsed.incomes) ? parsed.incomes : [];
+      state.recurringIncomes = Array.isArray(parsed.recurringIncomes) ? parsed.recurringIncomes.map(normalizeImportedRecurringIncome) : [];
+      state.transfers = Array.isArray(parsed.transfers) ? parsed.transfers.map(normalizeImportedTransfer) : [];
+      state.budgetGoals = Array.isArray(parsed.budgetGoals) ? parsed.budgetGoals.map(normalizeImportedBudgetGoal) : [];
+      state.spendingBudgets = Array.isArray(parsed.spendingBudgets) ? parsed.spendingBudgets.map(normalizeImportedSpendingBudget) : [];
+      state.obligations = Array.isArray(parsed.obligations) ? parsed.obligations.map(normalizeImportedObligation) : [];
+      const savedSettings = parsed.settings || {};
+      state.settings = {
+        theme: ["system", "light", "dark"].includes(savedSettings.theme) ? savedSettings.theme : "system",
+        language: ["id", "en"].includes(savedSettings.language) ? savedSettings.language : defaultLanguage(),
+        currency: supportedCurrencies.includes(savedSettings.currency) ? savedSettings.currency : defaultCurrency(),
+        defaultWallet: normalizeName(String(savedSettings.defaultWallet || "")) || "Cash",
+        onboardingComplete: savedSettings.onboardingComplete === true,
+        walletCurrencies: savedSettings.walletCurrencies && typeof savedSettings.walletCurrencies === "object" && !Array.isArray(savedSettings.walletCurrencies) ? savedSettings.walletCurrencies : {},
+        exchangeRates: savedSettings.exchangeRates && typeof savedSettings.exchangeRates === "object" && !Array.isArray(savedSettings.exchangeRates) ? savedSettings.exchangeRates : {},
+        exchangeRateDates: savedSettings.exchangeRateDates && typeof savedSettings.exchangeRateDates === "object" && !Array.isArray(savedSettings.exchangeRateDates) ? savedSettings.exchangeRateDates : {}
+      };
+      state.wallets = Array.isArray(parsed.wallets) ? parsed.wallets.map(normalizeWalletName) : [];
+      ensureWallets();
+      ensureWalletCurrencies();
+    }
+
     function load() {
       if (!currentUser) return;
       try {
         const raw = localStorage.getItem(userDataKey(currentUser.id));
-        if (!raw) return;
-        const parsed = JSON.parse(raw);
-        state.entries = Array.isArray(parsed.entries) ? parsed.entries : [];
-        state.incomes = Array.isArray(parsed.incomes) ? parsed.incomes : [];
-        state.recurringIncomes = Array.isArray(parsed.recurringIncomes) ? parsed.recurringIncomes.map(normalizeImportedRecurringIncome) : [];
-        state.transfers = Array.isArray(parsed.transfers) ? parsed.transfers.map(normalizeImportedTransfer) : [];
-        state.budgetGoals = Array.isArray(parsed.budgetGoals) ? parsed.budgetGoals.map(normalizeImportedBudgetGoal) : [];
-        state.spendingBudgets = Array.isArray(parsed.spendingBudgets) ? parsed.spendingBudgets.map(normalizeImportedSpendingBudget) : [];
-        state.obligations = Array.isArray(parsed.obligations) ? parsed.obligations.map(normalizeImportedObligation) : [];
-        const savedSettings = parsed.settings || {};
-        state.settings = {
-          theme: ["system", "light", "dark"].includes(savedSettings.theme) ? savedSettings.theme : "system",
-          language: ["id", "en"].includes(savedSettings.language) ? savedSettings.language : defaultLanguage(),
-          currency: supportedCurrencies.includes(savedSettings.currency) ? savedSettings.currency : defaultCurrency(),
-          defaultWallet: normalizeName(String(savedSettings.defaultWallet || "")) || "Cash",
-          onboardingComplete: savedSettings.onboardingComplete === true,
-          walletCurrencies: savedSettings.walletCurrencies && typeof savedSettings.walletCurrencies === "object" && !Array.isArray(savedSettings.walletCurrencies) ? savedSettings.walletCurrencies : {},
-          exchangeRates: savedSettings.exchangeRates && typeof savedSettings.exchangeRates === "object" && !Array.isArray(savedSettings.exchangeRates) ? savedSettings.exchangeRates : {},
-          exchangeRateDates: savedSettings.exchangeRateDates && typeof savedSettings.exchangeRateDates === "object" && !Array.isArray(savedSettings.exchangeRateDates) ? savedSettings.exchangeRateDates : {}
-        };
-        state.wallets = Array.isArray(parsed.wallets) ? parsed.wallets.map(normalizeWalletName) : [];
-        ensureWallets();
-        ensureWalletCurrencies();
+        if (raw) applyStoredPayload(JSON.parse(raw));
+        const samplePayload = readSamplePreviewPayload();
+        samplePreviewActive = Boolean(samplePayload);
+        if (samplePayload) applyStoredPayload(samplePayload);
+        updateSamplePreviewBanner();
       } catch (error) {
         toast(t("localDataError"));
       }
@@ -12850,6 +13537,7 @@
     function setSyncStatus(status) {
       const statusKey = {
         local: "localOnly",
+        preview: "samplePreviewStatus",
         queued: "cloudQueued",
         syncing: "cloudSyncing",
         synced: "cloudSynced",
@@ -12864,6 +13552,11 @@
       const banner = $("cloudSyncBanner");
       const bannerText = $("cloudSyncBannerText");
       if (banner && bannerText) {
+        if (status === "preview") {
+          clearCloudSyncBannerTimers({ clearDueAt: true });
+          banner.hidden = true;
+          banner.dataset.syncState = "preview";
+        }
         const previousStatus = banner.dataset.syncState;
         const bannerKey = {
           local: "cloudLocalPending",
@@ -12873,7 +13566,7 @@
           error: "cloudUploadError"
         }[status];
         const showSaved = status === "synced" && ["queued", "syncing"].includes(previousStatus);
-            const canShow = Boolean(!cloudSyncBannerDismissed && currentUser?.cloudAccessToken && supabaseConfigured() && bannerKey && (status !== "synced" || showSaved));
+            const canShow = Boolean(status !== "preview" && !cloudSyncBannerDismissed && currentUser?.cloudAccessToken && supabaseConfigured() && bannerKey && (status !== "synced" || showSaved));
         clearCloudSyncBannerTimers();
         banner.hidden = !canShow;
         banner.dataset.syncState = status;
@@ -12900,6 +13593,12 @@
 
     function persist() {
       if (!currentUser) return;
+      if (samplePreviewActive) {
+        sessionStorage.setItem(samplePreviewStorageKey(), JSON.stringify(currentDataPayload()));
+        updateSamplePreviewBanner();
+        setSyncStatus("preview");
+        return;
+      }
       localStorage.setItem(userDataKey(currentUser.id), JSON.stringify(currentDataPayload()));
       setSyncStatus("local");
       scheduleCloudSync();
@@ -12933,6 +13632,71 @@
       }
     }
 
+    function updateExpenseStoryStep(nextStep = expenseStoryStep, { focus = false } = {}) {
+      const form = controls.form;
+      expenseStoryStep = Math.max(0, Math.min(2, Number(nextStep) || 0));
+      form.classList.add("expense-step-mode");
+      form.querySelectorAll("[data-expense-step]").forEach((node) => {
+        const active = Number(node.dataset.expenseStep) === expenseStoryStep;
+        node.classList.toggle("active", active);
+        node.querySelectorAll("input, select, textarea").forEach((field) => {
+          field.disabled = !active;
+        });
+      });
+      [...$("expenseStoryDots").querySelectorAll("[data-expense-step-dot]")].forEach((dot) => {
+        const active = Number(dot.dataset.expenseStepDot) === expenseStoryStep;
+        dot.classList.toggle("active", active);
+        dot.setAttribute("aria-current", active ? "step" : "false");
+      });
+      $("expenseStoryStepKicker").textContent = t("expenseStoryStep", { current: expenseStoryStep + 1, total: 3 });
+      $("expenseStoryStepTitle").textContent = t(`expenseStoryTitle${expenseStoryStep + 1}`);
+      $("expenseStoryBackBtn").hidden = expenseStoryStep === 0;
+      $("expenseStoryNextBtn").hidden = expenseStoryStep === 2;
+      controls.saveEntry.hidden = expenseStoryStep !== 2;
+      const estimate = controls.form.querySelector(".estimate");
+      if (estimate) estimate.hidden = expenseStoryStep === 0;
+      closeCustomSelectMenus();
+      hideSuggestionBoxes();
+      if (!focus) return;
+      const focusTarget = form.querySelector(`[data-expense-step="${expenseStoryStep}"] input, [data-expense-step="${expenseStoryStep}"] select, [data-expense-step="${expenseStoryStep}"] textarea`);
+      if (focusTarget) window.setTimeout(() => focusTarget.focus(), 0);
+    }
+
+    function validateExpenseStoryStep() {
+      const stepFields = [...controls.form.querySelectorAll(`[data-expense-step="${expenseStoryStep}"] input, [data-expense-step="${expenseStoryStep}"] select, [data-expense-step="${expenseStoryStep}"] textarea`)]
+        .filter((field) => !field.disabled && !field.hidden && field.type !== "hidden");
+      const invalid = stepFields.find((field) => !field.checkValidity());
+      if (invalid) {
+        invalid.reportValidity();
+        return false;
+      }
+      if (expenseStoryStep === 1) {
+        const currency = walletCurrency(controls.expenseWallet.value || defaultWalletName());
+        if (parseTransferAmount(controls.price.value, currency) <= 0) {
+          controls.price.setCustomValidity(t("pricePositive"));
+          controls.price.reportValidity();
+          controls.price.setCustomValidity("");
+          return false;
+        }
+        if (Number(controls.qty.value) <= 0) {
+          controls.qty.reportValidity();
+          return false;
+        }
+      }
+      return true;
+    }
+
+    function nextExpenseStoryStep() {
+      if (!validateExpenseStoryStep()) return;
+      updateExpenseStoryStep(expenseStoryStep + 1, { focus: true });
+      saveDraft("expense");
+    }
+
+    function previousExpenseStoryStep() {
+      updateExpenseStoryStep(expenseStoryStep - 1, { focus: true });
+      saveDraft("expense");
+    }
+
     function openEntryDialog(type) {
       closeQuickAddMenu();
       hideSuggestionBoxes();
@@ -12945,6 +13709,7 @@
       dialog.hidden = false;
       document.body.classList.add("entry-dialog-open");
       updateDateDisplays();
+      if (type === "expense") updateExpenseStoryStep(0);
       window.setTimeout(() => {
         const focusTarget = type === "income" ? controls.incomeAmount : controls.item;
         focusTarget.focus();
@@ -13446,53 +14211,120 @@
       if (quickAddButton) quickAddButton.focus();
     }
 
+    function sampleDatasetProfile(currency = currentCurrency()) {
+      const profiles = {
+        IDR: {
+          wallets: ["Cash", "BCA", "Mandiri", "BRI", "BNI", "GoPay", "OVO", "DANA", "ShopeePay", "Jenius", "SeaBank", "Deposito"],
+          products: [
+            ["Beras Ramos 1 kg", "Sembako", 5, 14500, .006],
+            ["Telur Ayam 1 kg", "Protein", 2, 29500, .008],
+            ["Minyak Goreng 1 L", "Sembako", 2, 18500, .004],
+            ["Sayur & Buah Mingguan", "Sayur & Buah", 1, 145000, -.002]
+          ], salary: 6500000, bonus: 3500000, transfer: 500000,
+          goalNames: ["DP Rumah", "Dana Darurat"], bill: ["Tagihan Listrik", "PLN"], debt: ["Hutang Kartu Kredit", "BCA"], receivable: ["Piutang Teman", "Andi"]
+        },
+        USD: {
+          wallets: ["Cash", "Checking", "Savings", "Credit Union", "PayPal", "Venmo", "Apple Cash", "Brokerage"],
+          products: [["Milk 1 gal", "Groceries", 1, 4.15, .004], ["Eggs 12 ct", "Protein", 1, 4.6, .009], ["Bread loaf", "Groceries", 2, 3.25, .003], ["Weekly produce", "Fruit & Vegetables", 1, 34, -.002]],
+          salary: 4800, bonus: 2400, transfer: 450,
+          goalNames: ["Home Down Payment", "Emergency Fund"], bill: ["Electric Bill", "Utility Company"], debt: ["Credit Card", "Bank"], receivable: ["Loan to Friend", "Alex"]
+        },
+        MYR: {
+          wallets: ["Cash", "Maybank", "CIMB", "Public Bank", "RHB", "Touch 'n Go", "GrabPay", "ASB"],
+          products: [["Beras 5 kg", "Barangan Dapur", 1, 32, .005], ["Telur 30 biji", "Protein", 1, 15.5, .008], ["Minyak Masak 2 kg", "Barangan Dapur", 1, 15, .004], ["Sayur & Buah Mingguan", "Sayur & Buah", 1, 45, -.002]],
+          salary: 5200, bonus: 2600, transfer: 500,
+          goalNames: ["Deposit Rumah", "Dana Kecemasan"], bill: ["Bil Elektrik", "TNB"], debt: ["Kad Kredit", "Maybank"], receivable: ["Pinjaman Kawan", "Amir"]
+        },
+        SGD: {
+          wallets: ["Cash", "DBS", "OCBC", "UOB", "PayNow", "GrabPay", "YouTrip", "Investment"],
+          products: [["Jasmine Rice 5 kg", "Groceries", 1, 18.5, .004], ["Eggs 10 ct", "Protein", 2, 4.2, .007], ["Cooking Oil 2 L", "Groceries", 1, 8.9, .003], ["Weekly Produce", "Fruit & Vegetables", 1, 32, -.002]],
+          salary: 6200, bonus: 3200, transfer: 700,
+          goalNames: ["Home Deposit", "Emergency Fund"], bill: ["Electricity Bill", "SP Group"], debt: ["Credit Card", "DBS"], receivable: ["Loan to Friend", "Kai"]
+        },
+        JPY: {
+          wallets: ["Cash", "MUFG", "SMBC", "Mizuho", "Japan Post", "PayPay", "Rakuten Pay", "Investment"],
+          products: [["Rice 5 kg", "Groceries", 1, 4300, .007], ["Eggs 10 ct", "Protein", 2, 310, .005], ["Milk 1 L", "Groceries", 3, 245, .003], ["Weekly Vegetables", "Fruit & Vegetables", 1, 3200, -.002]],
+          salary: 420000, bonus: 450000, transfer: 50000,
+          goalNames: ["Home Deposit", "Emergency Fund"], bill: ["Electricity Bill", "Power Company"], debt: ["Credit Card", "Bank"], receivable: ["Loan to Friend", "Haru"]
+        },
+        EUR: {
+          wallets: ["Cash", "Current Account", "Savings", "Revolut", "PayPal", "N26", "Trade Republic", "Term Deposit"],
+          products: [["Milk 1 L", "Groceries", 4, 1.35, .004], ["Eggs 10 ct", "Protein", 1, 3.4, .006], ["Bread loaf", "Groceries", 2, 2.25, .003], ["Weekly Produce", "Fruit & Vegetables", 1, 29, -.002]],
+          salary: 3600, bonus: 1800, transfer: 400,
+          goalNames: ["Home Deposit", "Emergency Fund"], bill: ["Electricity Bill", "Energy Provider"], debt: ["Credit Card", "Bank"], receivable: ["Loan to Friend", "Luca"]
+        },
+        GBP: {
+          wallets: ["Cash", "Current Account", "Savings", "Monzo", "Starling", "PayPal", "ISA", "Investment"],
+          products: [["Milk 4 pints", "Groceries", 1, 1.65, .004], ["Eggs 12 ct", "Protein", 1, 3.25, .006], ["Bread loaf", "Groceries", 2, 1.45, .003], ["Weekly Produce", "Fruit & Vegetables", 1, 25, -.002]],
+          salary: 3300, bonus: 1600, transfer: 350,
+          goalNames: ["House Deposit", "Emergency Fund"], bill: ["Energy Bill", "Energy Provider"], debt: ["Credit Card", "Bank"], receivable: ["Loan to Friend", "Sam"]
+        },
+        AUD: {
+          wallets: ["Cash", "CommBank", "ANZ", "Westpac", "NAB", "PayPal", "Up", "Investment"],
+          products: [["Milk 2 L", "Groceries", 2, 3.2, .004], ["Eggs 12 ct", "Protein", 1, 6.5, .007], ["Bread loaf", "Groceries", 2, 3.8, .003], ["Weekly Produce", "Fruit & Vegetables", 1, 42, -.002]],
+          salary: 6200, bonus: 3000, transfer: 650,
+          goalNames: ["Home Deposit", "Emergency Fund"], bill: ["Electricity Bill", "Energy Provider"], debt: ["Credit Card", "Bank"], receivable: ["Loan to Friend", "Taylor"]
+        },
+        INR: {
+          wallets: ["Cash", "SBI", "HDFC", "ICICI", "Axis", "Paytm", "PhonePe", "Investment"],
+          products: [["Rice 5 kg", "Groceries", 1, 340, .005], ["Eggs 12 ct", "Protein", 2, 90, .007], ["Cooking Oil 1 L", "Groceries", 2, 150, .004], ["Weekly Vegetables", "Fruit & Vegetables", 1, 650, -.002]],
+          salary: 75000, bonus: 35000, transfer: 8000,
+          goalNames: ["Home Deposit", "Emergency Fund"], bill: ["Electricity Bill", "Power Company"], debt: ["Credit Card", "HDFC"], receivable: ["Loan to Friend", "Aarav"]
+        }
+      };
+      if (profiles[currency]) return profiles[currency];
+      const zeroDecimal = currencyFractionDigits(currency) === 0;
+      const scale = zeroDecimal ? 100 : 1;
+      return {
+        wallets: ["Cash", "Main Bank", "Savings", "Digital Wallet", "Credit Account", "Investment"],
+        products: [["Rice", "Groceries", 2, 4 * scale, .005], ["Eggs", "Protein", 1, 3 * scale, .007], ["Cooking Oil", "Groceries", 2, 2.5 * scale, .004], ["Weekly Produce", "Fruit & Vegetables", 1, 25 * scale, -.002]],
+        salary: 3500 * scale, bonus: 1700 * scale, transfer: 350 * scale,
+        goalNames: ["Home Deposit", "Emergency Fund"], bill: ["Electricity Bill", "Utility Provider"], debt: ["Credit Card", "Main Bank"], receivable: ["Loan to Friend", "Friend"]
+      };
+    }
+
     function createSampleDataset(sampleYear = new Date().getFullYear()) {
-      const sampleWallets = [
-        "Cash",
-        "BCA",
-        "Mandiri",
-        "BRI",
-        "BNI",
-        "GoPay",
-        "OVO",
-        "DANA",
-        "ShopeePay",
-        "Jenius",
-        "SeaBank",
-        "Deposito"
-      ];
-      const products = [
-        { day: "05", item: "Beras Ramos", category: "Sembako", qty: 5, basePrice: 14500, monthlyChange: 450 },
-        { day: "11", item: "Telur Ayam", category: "Protein", qty: 2, basePrice: 29500, monthlyChange: 700 },
-        { day: "18", item: "Minyak Goreng", category: "Sembako", qty: 2, basePrice: 18500, monthlyChange: 350 },
-        { day: "24", item: "Sayur Mingguan", category: "Sayur & Buah", qty: 1, basePrice: 145000, monthlyChange: 2500 }
-      ];
-      const seededEntries = Array.from({ length: 12 }, (_, monthIndex) => {
-        const month = String(monthIndex + 1).padStart(2, "0");
+      const currency = currentCurrency();
+      const profile = sampleDatasetProfile(currency);
+      const sampleWallets = profile.wallets.slice();
+      const products = profile.products.map(([item, category, qty, basePrice, monthlyRate], index) => ({
+        day: String(5 + (index * 6)).padStart(2, "0"), item, category, qty, basePrice, monthlyRate
+      }));
+      const seededEntries = Array.from({ length: 24 }, (_, monthIndex) => {
+        const date = new Date(sampleYear - 1, monthIndex, 1);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
         return products.map((product, productIndex) => {
-          const fluctuation = ((monthIndex + productIndex) % 4 === 0) ? -500 : 0;
-          const unitPrice = product.basePrice + (product.monthlyChange * monthIndex) + fluctuation;
+          const trendIndex = monthIndex - 12;
+          const seasonalRate = ((monthIndex + productIndex) % 5 === 0) ? -.008 : ((monthIndex + productIndex) % 7 === 0) ? .006 : 0;
+          const unitPrice = roundCurrencyAmount(product.basePrice * (1 + (product.monthlyRate * trendIndex) + seasonalRate), currency);
           return {
             id: createId(),
-            date: `${sampleYear}-${month}-${product.day}`,
+            date: `${year}-${month}-${product.day}`,
             item: product.item,
             category: product.category,
             wallet: sampleWallets[(monthIndex + productIndex) % (sampleWallets.length - 1)],
             qty: product.qty,
             unitPrice,
-            total: Math.round(product.qty * unitPrice),
+            total: roundCurrencyAmount(product.qty * unitPrice, currency),
+            currency,
+            baseCurrency: currency,
             note: t("sampleDataNote")
           };
         });
       }).reduce((allEntries, monthEntries) => allEntries.concat(monthEntries), []);
-      const seededIncomes = Array.from({ length: 12 }, (_, monthIndex) => {
-        const month = String(monthIndex + 1).padStart(2, "0");
+      const seededIncomes = Array.from({ length: 24 }, (_, monthIndex) => {
+        const date = new Date(sampleYear - 1, monthIndex, 1);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
         return {
           id: createId(),
-          date: `${sampleYear}-${month}-27`,
+          date: `${year}-${month}-27`,
           source: t("sampleSalary"),
-          wallet: sampleWallets[(monthIndex % 5) + 1],
-          amount: 6000000 + (monthIndex * 50000),
+          wallet: sampleWallets[(monthIndex % Math.max(1, Math.min(4, sampleWallets.length - 1))) + 1],
+          amount: roundCurrencyAmount(profile.salary * (1 + (.004 * monthIndex)), currency),
+          currency,
+          baseCurrency: currency,
           note: t("sampleDataNote")
         };
       });
@@ -13500,8 +14332,10 @@
         id: createId(),
         date: `${sampleYear}-12-15`,
         source: t("sampleAnnualBonus"),
-        wallet: "Deposito",
-        amount: 3000000,
+        wallet: sampleWallets[sampleWallets.length - 1],
+        amount: profile.bonus,
+        currency,
+        baseCurrency: currency,
         note: t("sampleDataNote")
       });
       const seededTransfers = Array.from({ length: 12 }, (_, monthIndex) => {
@@ -13509,28 +14343,30 @@
         return {
           id: createId(),
           date: `${sampleYear}-${month}-28`,
-          fromWallet: sampleWallets[(monthIndex % 5) + 1],
-          toWallet: sampleWallets[(monthIndex % 6) + 6],
-          amount: 350000 + (monthIndex * 25000),
+          fromWallet: sampleWallets[(monthIndex % Math.max(1, Math.min(3, sampleWallets.length - 1))) + 1],
+          toWallet: sampleWallets[(monthIndex + 3) % sampleWallets.length],
+          amount: roundCurrencyAmount(profile.transfer * (1 + (.01 * monthIndex)), currency),
+          currency,
+          baseCurrency: currency,
           note: t("sampleDataNote")
         };
       });
       const seededBudgetGoals = [
         {
           id: createId(),
-          name: "DP Rumah",
-          wallet: "Deposito",
-          targetAmount: 250000000,
-          currentAmount: 42000000,
+          name: profile.goalNames[0],
+          wallet: sampleWallets[sampleWallets.length - 1],
+          targetAmount: roundCurrencyAmount(profile.salary * 48, currency),
+          currentAmount: roundCurrencyAmount(profile.salary * 8, currency),
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         },
         {
           id: createId(),
-          name: "Dana Darurat",
-          wallet: "SeaBank",
-          targetAmount: 60000000,
-          currentAmount: 38500000,
+          name: profile.goalNames[1],
+          wallet: sampleWallets[Math.max(1, sampleWallets.length - 2)],
+          targetAmount: roundCurrencyAmount(profile.salary * 6, currency),
+          currentAmount: roundCurrencyAmount(profile.salary * 3, currency),
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         }
@@ -13538,30 +14374,52 @@
       const seededSpendingBudgets = [
         {
           id: createId(),
-          name: "Makan Harian Liburan",
-          amount: 250000,
+          name: currentLanguage() === "id" ? "Makan Harian" : "Daily Meals",
+          amount: roundCurrencyAmount(profile.salary * .04, currency),
           period: "daily",
-          category: "Protein",
+          category: products[1].category,
           wallet: "",
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         },
         {
           id: createId(),
-          name: "Belanja Sembako Bulanan",
-          amount: 900000,
+          name: currentLanguage() === "id" ? "Belanja Bulanan" : "Monthly Groceries",
+          amount: roundCurrencyAmount(profile.salary * .15, currency),
           period: "monthly",
-          category: "Sembako",
-          wallet: "BCA",
+          category: products[0].category,
+          wallet: sampleWallets[1],
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         }
       ];
       const seededObligations = [
-        { id: createId(), type: "bill", dueDate: `${sampleYear}-07-10`, name: "Tagihan Listrik", party: "PLN", amount: 450000, frequency: "monthly", paymentDay: 10, endDate: "", interest: 0, note: t("sampleDataNote"), status: "unpaid", createdAt: new Date().toISOString() },
-        { id: createId(), type: "debt", dueDate: `${sampleYear}-08-01`, name: "Hutang Kartu Kredit", party: "BCA", amount: 1250000, frequency: "monthly", paymentDay: 1, endDate: `${sampleYear}-12-01`, interest: 2.5, note: t("sampleDataNote"), status: "unpaid", createdAt: new Date().toISOString() },
-        { id: createId(), type: "receivable", dueDate: `${sampleYear}-07-20`, name: "Piutang Teman", party: "Andi", amount: 300000, frequency: "none", paymentDay: 20, endDate: "", interest: 0, note: t("sampleDataNote"), status: "unpaid", createdAt: new Date().toISOString() }
+        { id: createId(), type: "bill", dueDate: `${sampleYear}-07-10`, name: profile.bill[0], party: profile.bill[1], wallet: sampleWallets[1], category: currentLanguage() === "id" ? "Tagihan" : "Bills", amount: roundCurrencyAmount(profile.salary * .07, currency), frequency: "monthly", paymentDay: 10, endDate: "", interest: 0, note: t("sampleDataNote"), status: "unpaid", createdAt: new Date().toISOString() },
+        { id: createId(), type: "debt", dueDate: `${sampleYear}-08-01`, name: profile.debt[0], party: profile.debt[1], wallet: sampleWallets[1], category: currentLanguage() === "id" ? "Hutang" : "Debt", amount: roundCurrencyAmount(profile.salary * .2, currency), frequency: "monthly", paymentDay: 1, endDate: `${sampleYear}-12-01`, interest: 2.5, note: t("sampleDataNote"), status: "unpaid", createdAt: new Date().toISOString() },
+        { id: createId(), type: "receivable", dueDate: `${sampleYear}-07-20`, name: profile.receivable[0], party: profile.receivable[1], wallet: sampleWallets[1], category: currentLanguage() === "id" ? "Piutang" : "Receivables", amount: roundCurrencyAmount(profile.salary * .05, currency), frequency: "none", paymentDay: 20, endDate: "", interest: 0, note: t("sampleDataNote"), status: "unpaid", createdAt: new Date().toISOString() }
       ];
+      const sampleBill = seededObligations[0];
+      Array.from({ length: 24 }, (_, monthIndex) => {
+        const date = new Date(sampleYear - 1, monthIndex, 1);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const seasonalRate = [0, .01, .025, .015, 0, -.01][monthIndex % 6];
+        const amount = roundCurrencyAmount(profile.salary * .06 * (1 + (.003 * (monthIndex - 12)) + seasonalRate), currency);
+        seededEntries.push({
+          id: createId(),
+          date: `${year}-${month}-10`,
+          item: sampleBill.name,
+          category: sampleBill.category,
+          wallet: sampleBill.wallet,
+          qty: 1,
+          unitPrice: amount,
+          total: amount,
+          obligationId: sampleBill.id,
+          currency,
+          baseCurrency: currency,
+          note: t("sampleDataNote")
+        });
+      });
       return {
         wallets: sampleWallets,
         entries: seededEntries.sort((a, b) => b.date.localeCompare(a.date)),
@@ -13574,9 +14432,16 @@
       };
     }
 
-    function seedSample() {
-      if (!confirm(t("sampleReplaceConfirm"))) return false;
+    async function seedSample() {
+      if (!await requestAppConfirmation(t("sampleReplaceConfirm"), {
+        title: t("confirmActionTitle"),
+        confirmLabel: t("continue"),
+        danger: false
+      })) return false;
       const sample = createSampleDataset();
+      window.clearTimeout(cloudSyncTimer);
+      cloudSyncDueAt = 0;
+      samplePreviewActive = true;
       state.entries = sample.entries;
       state.incomes = sample.incomes;
       state.recurringIncomes = sample.recurringIncomes;
@@ -13585,7 +14450,11 @@
       state.spendingBudgets = sample.spendingBudgets;
       state.obligations = sample.obligations;
       state.wallets = sample.wallets;
-      state.settings.defaultWallet = "Cash";
+      state.settings = {
+        ...state.settings,
+        defaultWallet: "Cash",
+        walletCurrencies: Object.fromEntries(sample.wallets.map((wallet) => [walletKey(wallet), state.settings.currency]))
+      };
       ensureWallets();
       exitEntryEditMode(true);
       persist();
@@ -13595,8 +14464,37 @@
       return true;
     }
 
+    async function exitSamplePreview() {
+      if (!samplePreviewActive || !currentUser) return;
+      if (!await requestAppConfirmation(t("samplePreviewExitConfirm"), {
+        title: t("confirmActionTitle"),
+        confirmLabel: t("exitSamplePreview"),
+        danger: true
+      })) return;
+      clearSamplePreviewSession();
+      samplePreviewActive = false;
+      const activeView = state.view;
+      const activeMode = state.mode;
+      resetUserState();
+      load();
+      state.view = activeView;
+      state.mode = activeMode;
+      syncSettingsControls();
+      setupFilterOptions();
+      updateDateDisplays();
+      updateSamplePreviewBanner();
+      render();
+      if (cloudDirty) scheduleCloudSync();
+      else setSyncStatus(currentUser.cloudSyncedAt ? "synced" : "local");
+      toast(t("samplePreviewExited"));
+    }
+
     function addEntry(event) {
       event.preventDefault();
+      if (expenseStoryStep < 2) {
+        nextExpenseStoryStep();
+        return;
+      }
       const qty = Number(controls.qty.value);
       const wallet = normalizeWalletName(controls.expenseWallet.value);
       const currency = walletCurrency(wallet);
@@ -13920,10 +14818,10 @@
       toast(t("goalSaved"));
     }
 
-    function deleteBudgetGoal(id) {
+    async function deleteBudgetGoal(id) {
       const goal = state.budgetGoals.find((item) => item.id === id);
       if (!goal) return;
-      if (!confirm(t("deleteGoalConfirm"))) return;
+      if (!await requestAppConfirmation(t("deleteGoalConfirm"))) return;
       state.budgetGoals = state.budgetGoals.filter((item) => item.id !== id);
       persist();
       render();
@@ -14042,10 +14940,10 @@
       toast(t("spendingBudgetSaved"));
     }
 
-    function deleteSpendingBudget(id) {
+    async function deleteSpendingBudget(id) {
       const budget = state.spendingBudgets.find((item) => item.id === id);
       if (!budget) return;
-      if (!confirm(t("deleteSpendingBudgetConfirm"))) return;
+      if (!await requestAppConfirmation(t("deleteSpendingBudgetConfirm"))) return;
       state.spendingBudgets = state.spendingBudgets.filter((item) => item.id !== id);
       persist();
       render();
@@ -14370,8 +15268,8 @@
       toast(t("billPaidFromWallet", { wallet }));
     }
 
-    function deleteObligation(id) {
-      if (!confirm(t("deleteObligationConfirm"))) return;
+    async function deleteObligation(id) {
+      if (!await requestAppConfirmation(t("deleteObligationConfirm"))) return;
       state.obligations = state.obligations.filter((item) => item.id !== id);
       persist();
       render();
@@ -14389,12 +15287,24 @@
         return "granted";
       }
       if (Notification.permission === "denied") {
-        toast(t("notificationsBlocked"));
+        await requestAppConfirmation(t("notificationsBlockedHelp"), {
+          title: t("notificationsBlockedHelpTitle"),
+          confirmLabel: t("understood"),
+          danger: false,
+          showCancel: false
+        });
         updateHeaderNotificationButton();
         return "denied";
       }
       try {
-        const permission = await Notification.requestPermission();
+        const oneSignal = await initializeOneSignal();
+        if (oneSignal) {
+          await identifyOneSignalUser(oneSignal);
+          await oneSignal.Notifications.requestPermission();
+        } else {
+          await Notification.requestPermission();
+        }
+        const permission = Notification.permission;
         if (permission === "granted") toast(t("notificationEnabled"));
         updateHeaderNotificationButton();
         return permission;
@@ -14405,21 +15315,123 @@
       }
     }
 
+    function oneSignalConfigured() {
+      return Boolean(
+        ONESIGNAL_CONFIG.enabled &&
+        ONESIGNAL_CONFIG.appId &&
+        /^https?:$/.test(window.location.protocol)
+      );
+    }
+
+    function loadOneSignalSdk() {
+      if (!oneSignalConfigured()) return Promise.resolve(false);
+      if (oneSignalSdkPromise) return oneSignalSdkPromise;
+      oneSignalSdkPromise = new Promise((resolve, reject) => {
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+        const existing = document.getElementById("onesignal-sdk");
+        if (existing) {
+          if (existing.dataset.loaded === "true") resolve(true);
+          else {
+            existing.addEventListener("load", () => resolve(true), { once: true });
+            existing.addEventListener("error", reject, { once: true });
+          }
+          return;
+        }
+        const script = document.createElement("script");
+        script.id = "onesignal-sdk";
+        script.src = ONESIGNAL_CONFIG.sdkUrl;
+        script.defer = true;
+        script.onload = () => {
+          script.dataset.loaded = "true";
+          resolve(true);
+        };
+        script.onerror = () => reject(new Error("OneSignal SDK gagal dimuat."));
+        document.head.appendChild(script);
+      });
+      return oneSignalSdkPromise;
+    }
+
+    async function initializeOneSignal() {
+      if (!oneSignalConfigured()) return null;
+      try {
+        await loadOneSignalSdk();
+        return await new Promise((resolve, reject) => {
+          window.OneSignalDeferred.push(async (oneSignal) => {
+            try {
+              if (!oneSignalReady) {
+                const appBasePath = new URL("./", window.location.href).pathname;
+                await oneSignal.init({
+                  appId: ONESIGNAL_CONFIG.appId,
+                  allowLocalhostAsSecureOrigin: true,
+                  serviceWorkerPath: `${appBasePath}push/onesignal/OneSignalSDKWorker.js`.replace(/^\/+/, ""),
+                  serviceWorkerParam: { scope: `${appBasePath}push/onesignal/` }
+                });
+                oneSignalReady = true;
+              }
+              resolve(oneSignal);
+            } catch (error) {
+              reject(error);
+            }
+          });
+        });
+      } catch (error) {
+        console.warn("OneSignal belum siap; notifikasi lokal tetap digunakan:", error);
+        return null;
+      }
+    }
+
+    async function identifyOneSignalUser(oneSignal = null) {
+      if (!currentUser || !oneSignalConfigured()) return false;
+      const sdk = oneSignal || await initializeOneSignal();
+      if (!sdk) return false;
+      const externalId = currentUser.cloudUserId || currentUser.id;
+      if (!externalId) return false;
+      try {
+        await sdk.login(String(externalId));
+        await sdk.User.addTags({
+          language: state.settings.language || "id",
+          plan: currentUser.plan || PLAN_CONFIG.defaultPlan
+        });
+        return true;
+      } catch (error) {
+        console.warn("Identitas OneSignal gagal disambungkan:", error);
+        return false;
+      }
+    }
+
+    async function disconnectOneSignalUser() {
+      if (!oneSignalConfigured()) return;
+      const sdk = await initializeOneSignal();
+      if (!sdk) return;
+      try {
+        await sdk.logout();
+      } catch (error) {
+        console.warn("Identitas OneSignal gagal dilepas:", error);
+      }
+    }
+
     function shouldShowNotificationReminder() {
       return Boolean(currentUser && "Notification" in window && Notification.permission !== "granted");
     }
 
     function updateHeaderNotificationButton() {
       const button = $("headerNotificationBtn");
-      if (!button) return;
-      button.hidden = !shouldShowNotificationReminder();
-      button.disabled = !("Notification" in window);
-      const label = button.querySelector("span");
-      if (!label) return;
-      if ("Notification" in window && Notification.permission === "denied") {
-        label.textContent = t("notificationsBlockedShort");
-      } else {
-        label.textContent = t("enableNotifications");
+      const banner = $("desktopNotificationBanner");
+      const desktopButton = $("desktopNotificationEnableBtn");
+      const reminderVisible = shouldShowNotificationReminder();
+      if (button) {
+        button.hidden = !reminderVisible;
+        button.disabled = !("Notification" in window);
+      }
+      if (banner) banner.hidden = !reminderVisible || desktopNotificationBannerDismissed;
+      if (desktopButton) desktopButton.disabled = !("Notification" in window);
+      const blocked = "Notification" in window && Notification.permission === "denied";
+      const labelText = blocked ? t("notificationsBlockedShort") : t("enableNotifications");
+      const label = button ? button.querySelector("span") : null;
+      if (label) label.textContent = labelText;
+      if (desktopButton) desktopButton.textContent = labelText;
+      if (!reminderVisible) {
+        desktopNotificationBannerDismissed = false;
       }
     }
 
@@ -14571,6 +15583,13 @@
       return `${year}-${String(month).padStart(2, "0")}`;
     }
 
+    function comparableUnitPrice(entry) {
+      const quantity = Number(entry.quantity || 1);
+      const baseTotal = transactionBaseAmount(entry, "expense");
+      if (quantity > 0 && baseTotal > 0) return baseTotal / quantity;
+      return Number(entry.unitPrice || 0);
+    }
+
     function averagePriceChangeForRange(startDate, endDate, requirePriorBeforeStart = false) {
       const recurringBillIds = new Set(
         state.obligations
@@ -14581,7 +15600,7 @@
         // Recurring bills have their own same-bill comparison and must not be
         // counted again as ordinary item-price inflation.
         if (entry.obligationId && recurringBillIds.has(entry.obligationId)) return items;
-        if (!entry.item || !Number(entry.unitPrice)) return items;
+        if (!entry.item || comparableUnitPrice(entry) <= 0) return items;
         const itemKey = normalizeName(entry.item).toLocaleLowerCase("id-ID");
         if (!items[itemKey]) items[itemKey] = [];
         items[itemKey].push(entry);
@@ -14595,8 +15614,11 @@
         const prior = sorted.filter((entry) => entry.date < startDate).pop();
         if (requirePriorBeforeStart && !prior) return null;
         const baseline = prior || (withinPeriod.length > 1 ? withinPeriod[0] : null);
-        if (!baseline || baseline === latest || !Number(baseline.unitPrice)) return null;
-        return ((Number(latest.unitPrice) - Number(baseline.unitPrice)) / Number(baseline.unitPrice)) * 100;
+        if (!baseline || baseline === latest) return null;
+        const baselinePrice = comparableUnitPrice(baseline);
+        const latestPrice = comparableUnitPrice(latest);
+        if (baselinePrice <= 0 || latestPrice <= 0) return null;
+        return ((latestPrice - baselinePrice) / baselinePrice) * 100;
       }).filter((value) => value !== null);
       if (!changes.length) return null;
       return changes.reduce((total, value) => total + value, 0) / changes.length;
@@ -14642,6 +15664,122 @@
       const totalWeight = available.reduce((total, item) => total + item.weight, 0);
       if (totalWeight <= 0) return available.reduce((total, item) => total + item.value, 0) / available.length;
       return available.reduce((total, item) => total + (item.value * item.weight), 0) / totalWeight;
+    }
+
+    function livingCostInflationForMonths(endIndex, monthCount) {
+      const startIndex = endIndex - monthCount + 1;
+      const startKey = monthKeyFromIndex(startIndex);
+      const endKey = monthKeyFromIndex(endIndex);
+      const baselineKey = monthKeyFromIndex(startIndex - 1);
+      const itemInflation = averagePriceChangeForRange(`${startKey}-01`, `${endKey}-31`, true);
+      const billInflation = recurringBillInflationForRange(`${startKey}-01`, `${endKey}-31`);
+      const billIds = new Set(
+        state.obligations.filter((item) => item.type === "bill").map((item) => item.id)
+      );
+      const baselineRows = state.entries.filter((entry) => monthKey(entry.date) === baselineKey);
+      const billWeight = sum(baselineRows.filter((entry) => billIds.has(entry.obligationId)));
+      const itemWeight = sum(baselineRows.filter((entry) => !billIds.has(entry.obligationId)));
+      return {
+        item: itemInflation,
+        bills: billInflation,
+        combined: combinedLivingCostInflation(itemInflation, billInflation, itemWeight, billWeight)
+      };
+    }
+
+    function livingCostContributorsForMonths(endIndex, monthCount) {
+      const startKey = monthKeyFromIndex(endIndex - monthCount + 1);
+      const endKey = monthKeyFromIndex(endIndex);
+      const startDate = `${startKey}-01`;
+      const endDate = `${endKey}-31`;
+      const billById = new Map(
+        state.obligations
+          .filter((item) => item.type === "bill")
+          .map((item) => [item.id, item])
+      );
+      const candidates = [];
+      const itemGroups = new Map();
+
+      state.entries.forEach((entry) => {
+        if (entry.obligationId && billById.has(entry.obligationId)) return;
+        const name = normalizeName(entry.item || "");
+        if (!name || comparableUnitPrice(entry) <= 0) return;
+        const key = name.toLocaleLowerCase("id-ID");
+        if (!itemGroups.has(key)) itemGroups.set(key, []);
+        itemGroups.get(key).push(entry);
+      });
+
+      itemGroups.forEach((entries) => {
+        const sorted = entries.slice().sort((a, b) => a.date.localeCompare(b.date));
+        const latest = sorted.filter((entry) => entry.date >= startDate && entry.date <= endDate).pop();
+        const baseline = sorted.filter((entry) => entry.date < startDate).pop();
+        if (!latest || !baseline) return;
+        const baselinePrice = comparableUnitPrice(baseline);
+        const latestPrice = comparableUnitPrice(latest);
+        if (baselinePrice <= 0 || latestPrice <= 0 || baselinePrice === latestPrice) return;
+        candidates.push({
+          name: normalizeName(latest.item || baseline.item),
+          percent: ((latestPrice - baselinePrice) / baselinePrice) * 100,
+          impact: latestPrice - baselinePrice
+        });
+      });
+
+      const billGroups = new Map();
+      state.entries.forEach((entry) => {
+        if (!entry.obligationId || !billById.has(entry.obligationId)) return;
+        if (!billGroups.has(entry.obligationId)) billGroups.set(entry.obligationId, []);
+        billGroups.get(entry.obligationId).push(entry);
+      });
+      billGroups.forEach((entries, obligationId) => {
+        const sorted = entries.slice().sort((a, b) => a.date.localeCompare(b.date));
+        const latest = sorted.filter((entry) => entry.date >= startDate && entry.date <= endDate).pop();
+        const baseline = sorted.filter((entry) => entry.date < startDate).pop();
+        if (!latest || !baseline) return;
+        const baselineAmount = transactionBaseAmount(baseline, "expense");
+        const latestAmount = transactionBaseAmount(latest, "expense");
+        if (baselineAmount <= 0 || latestAmount <= 0 || baselineAmount === latestAmount) return;
+        const bill = billById.get(obligationId);
+        candidates.push({
+          name: normalizeName(bill?.name || latest.item || baseline.item || t("bill")),
+          percent: ((latestAmount - baselineAmount) / baselineAmount) * 100,
+          impact: latestAmount - baselineAmount
+        });
+      });
+
+      const inflation = candidates
+        .filter((item) => item.impact > 0)
+        .sort((a, b) => b.impact - a.impact)[0] || null;
+      const deflation = candidates
+        .filter((item) => item.impact < 0)
+        .sort((a, b) => a.impact - b.impact)[0] || null;
+      return { inflation, deflation };
+    }
+
+    function highestIncomePeriod(endIndex) {
+      const endDate = `${monthKeyFromIndex(endIndex)}-31`;
+      const monthGroups = new Map();
+      state.incomes
+        .filter((income) => income.date && income.date <= endDate)
+        .forEach((income) => {
+          const key = monthKey(income.date);
+          if (!monthGroups.has(key)) monthGroups.set(key, []);
+          monthGroups.get(key).push(income);
+        });
+      const peak = [...monthGroups.entries()]
+        .map(([key, rows]) => ({ key, rows, total: sumIncome(rows) }))
+        .sort((a, b) => b.total - a.total)[0];
+      if (!peak || peak.total <= 0) return null;
+      const sourceGroups = new Map();
+      peak.rows.forEach((income) => {
+        const source = normalizeName(income.source || t("income"));
+        sourceGroups.set(source, (sourceGroups.get(source) || 0) + transactionBaseAmount(income, "income"));
+      });
+      const source = [...sourceGroups.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || t("income");
+      const [year, month] = peak.key.split("-");
+      return {
+        period: `${localizedMonthNames()[Number(month) - 1]} ${year}`,
+        source,
+        amount: peak.total
+      };
     }
 
     function formatPriceChange(value) {
@@ -15689,12 +16827,14 @@
       const previousIncome = sumIncome(state.incomes.filter((entry) => monthKey(entry.date) === previousKey));
       const currentBalance = currentIncome - currentExpenses;
       const previousBalance = previousIncome - previousExpenses;
-      const itemInflation = averagePriceChangeForRange(`${currentKey}-01`, `${currentKey}-31`, true);
-      const billInflation = recurringBillInflationForRange(`${currentKey}-01`, `${currentKey}-31`);
-      const billIds = new Set(state.obligations.filter((item) => item.type === "bill").map((item) => item.id));
-      const previousBillSpend = sum(previousExpenseRows.filter((entry) => billIds.has(entry.obligationId)));
-      const previousItemSpend = sum(previousExpenseRows.filter((entry) => !billIds.has(entry.obligationId)));
-      const inflation = combinedLivingCostInflation(itemInflation, billInflation, previousItemSpend, previousBillSpend);
+      const inflationHorizons = {
+        monthly: livingCostInflationForMonths(currentIndex, 1),
+        sixMonths: livingCostInflationForMonths(currentIndex, 6),
+        yearly: livingCostInflationForMonths(currentIndex, 12)
+      };
+      const itemInflation = inflationHorizons.monthly.item;
+      const billInflation = inflationHorizons.monthly.bills;
+      const inflation = inflationHorizons.monthly.combined;
       const knownItems = new Set(
         state.entries
           .filter((entry) => entry.date < `${currentKey}-01`)
@@ -15705,7 +16845,6 @@
         !knownItems.has(normalizeName(entry.item || "").toLocaleLowerCase("id-ID"))
       )));
 
-      $("growthComparisonPeriod").textContent = t("comparedWith", { period: previousPeriod });
       const incomeChange = setGrowthValue(
         "growthIncomeCurrent",
         "growthIncomeDelta",
@@ -15731,11 +16870,16 @@
         true
       );
 
-      const inflationElement = $("growthInflation");
-      inflationElement.textContent = signedPercent(inflation);
-      inflationElement.className = inflation === null || inflation === 0
-        ? "neutral"
-        : inflation > 0 ? "bad" : "good";
+      function setInflationHorizon(elementId, value) {
+        const element = $(elementId);
+        element.textContent = signedPercent(value);
+        element.className = value === null || value === 0
+          ? "neutral"
+          : value > 0 ? "bad" : "good";
+      }
+      setInflationHorizon("growthInflation", inflation);
+      setInflationHorizon("growthInflationSixMonths", inflationHorizons.sixMonths.combined);
+      setInflationHorizon("growthInflationYearly", inflationHorizons.yearly.combined);
       $("growthInflationBreakdown").textContent = t("billInflationBreakdown", {
         items: signedPercent(itemInflation),
         bills: signedPercent(billInflation)
@@ -15762,18 +16906,121 @@
       const status = $("purchasingPowerStatus");
       status.className = "purchasing-power-status";
       status.replaceChildren();
+      const summaryHeading = document.createElement("div");
+      summaryHeading.className = "executive-summary-heading";
       const summaryTitle = document.createElement("h3");
       summaryTitle.textContent = t("executiveSummary");
-      status.appendChild(summaryTitle);
+      const summaryHelp = document.createElement("button");
+      summaryHelp.type = "button";
+      summaryHelp.className = "executive-summary-help";
+      summaryHelp.textContent = t("executiveSummaryHelp");
+      summaryHelp.setAttribute("aria-expanded", "false");
+      summaryHeading.append(summaryTitle, summaryHelp);
+      status.appendChild(summaryHeading);
+
+      const summaryExplanation = document.createElement("div");
+      summaryExplanation.className = "executive-summary-explanation";
+      summaryExplanation.hidden = true;
+      [
+        [t("inflationDefinition"), t("inflationLabel")],
+        [t("deflationDefinition"), t("deflationLabel")],
+        [t("inflationMethodDefinition"), ""]
+      ].forEach(([text, label]) => {
+        const paragraph = document.createElement("p");
+        if (label) {
+          const strong = document.createElement("strong");
+          strong.textContent = `${label}: `;
+          paragraph.appendChild(strong);
+        }
+        paragraph.appendChild(document.createTextNode(text));
+        summaryExplanation.appendChild(paragraph);
+      });
+      summaryHelp.addEventListener("click", () => {
+        summaryExplanation.hidden = !summaryExplanation.hidden;
+        const expanded = !summaryExplanation.hidden;
+        summaryHelp.setAttribute("aria-expanded", String(expanded));
+        summaryHelp.textContent = t(expanded ? "executiveSummaryHelpClose" : "executiveSummaryHelp");
+      });
+      status.appendChild(summaryExplanation);
       const summaryList = document.createElement("ul");
       summaryList.className = "executive-summary-list";
       status.appendChild(summaryList);
 
-      function addSummaryItem(text, tone) {
+      function addSummaryItem(text, tone, highlights = []) {
         const item = document.createElement("li");
-        item.textContent = text;
+        const titleEnd = text.indexOf(":");
+        const emphasized = new Set(highlights.filter(Boolean));
+        if (titleEnd > 0) emphasized.add(text.slice(0, titleEnd + 1));
+        const parts = [...emphasized]
+          .sort((left, right) => right.length - left.length)
+          .reduce((segments, value) => segments.flatMap((segment) => {
+            if (segment.strong || !value || !segment.text.includes(value)) return [segment];
+            const output = [];
+            let remaining = segment.text;
+            while (remaining.includes(value)) {
+              const index = remaining.indexOf(value);
+              if (index > 0) output.push({ text: remaining.slice(0, index), strong: false });
+              output.push({ text: value, strong: true });
+              remaining = remaining.slice(index + value.length);
+            }
+            if (remaining) output.push({ text: remaining, strong: false });
+            return output;
+          }), [{ text, strong: false }]);
+        parts.forEach((part) => {
+          const node = document.createElement(part.strong ? "strong" : "span");
+          node.textContent = part.text;
+          item.appendChild(node);
+        });
         if (tone) item.classList.add(tone);
         summaryList.appendChild(item);
+      }
+
+      const horizonInflationValues = [
+        inflationHorizons.monthly.combined,
+        inflationHorizons.sixMonths.combined,
+        inflationHorizons.yearly.combined
+      ];
+      if (horizonInflationValues.every((value) => Number.isFinite(value))) {
+        const values = horizonInflationValues.map((value) => signedPercent(value));
+        addSummaryItem(t("summaryInflationHorizons", {
+          monthly: values[0],
+          sixMonths: values[1],
+          yearly: values[2]
+        }), "neutral", values);
+      }
+
+      [
+        { label: t("monthly"), months: 1 },
+        { label: t("sixMonths"), months: 6 },
+        { label: t("yearly"), months: 12 }
+      ].forEach(({ label, months }) => {
+        const contributors = livingCostContributorsForMonths(currentIndex, months);
+        if (contributors.inflation) {
+          const value = signedPercent(contributors.inflation.percent);
+          addSummaryItem(t("summaryInflationContributor", {
+            period: label,
+            name: contributors.inflation.name,
+            value
+          }), "bad", [contributors.inflation.name, value]);
+        }
+        if (contributors.deflation) {
+          const value = signedPercent(contributors.deflation.percent);
+          addSummaryItem(t("summaryDeflationContributor", {
+            period: label,
+            name: contributors.deflation.name,
+            value
+          }), "good", [contributors.deflation.name, value]);
+        }
+      });
+
+      const peakIncome = highestIncomePeriod(currentIndex);
+      if (peakIncome) {
+        const amount = rupiah.format(peakIncome.amount);
+        addSummaryItem(t("summaryPeakIncome", {
+          period: peakIncome.period,
+          source: peakIncome.source,
+          amount
+        }), "good", [peakIncome.period, peakIncome.source, amount]);
       }
 
       if (realIncomeGrowth === null) {
@@ -15796,16 +17043,26 @@
           ? t("summaryPurchasingPowerDown")
           : t("summaryPurchasingPowerFlat");
 
-      addSummaryItem(t("summaryIncomeVsInflation", sharedStatusValues), purchasingPowerTone);
+      addSummaryItem(t("summaryIncomeVsInflation", sharedStatusValues), purchasingPowerTone, [
+        sharedStatusValues.incomeGrowth,
+        sharedStatusValues.inflation
+      ]);
       addSummaryItem(t("summaryPurchasingPower", {
         direction: purchasingPowerDirection,
         gap: `${numberFmt.format(Math.round(Math.abs(realIncomeGrowth) * 10) / 10)}%`,
         moneyGap: signedCurrency(purchasingPowerMoneyGap)
-      }), purchasingPowerTone);
-      addSummaryItem(t("summaryIncomeTarget", sharedStatusValues), realIncomeGrowth < 0 ? "warning" : "good");
+      }), purchasingPowerTone, [
+        `${numberFmt.format(Math.round(Math.abs(realIncomeGrowth) * 10) / 10)}%`,
+        signedCurrency(purchasingPowerMoneyGap)
+      ]);
+      addSummaryItem(t("summaryIncomeTarget", sharedStatusValues), realIncomeGrowth < 0 ? "warning" : "good", [
+        sharedStatusValues.neededIncome
+      ]);
       addSummaryItem(t("summaryBalance", {
         balance: signedCurrency(balanceChange.delta)
-      }), balanceChange.delta > 0 ? "good" : balanceChange.delta < 0 ? "bad" : "neutral");
+      }), balanceChange.delta > 0 ? "good" : balanceChange.delta < 0 ? "bad" : "neutral", [
+        signedCurrency(balanceChange.delta)
+      ]);
 
       if (realIncomeGrowth > 0 && balanceChange.delta >= 0) {
         status.classList.add("good");
@@ -16654,7 +17911,11 @@
           updatedAt: new Date().toISOString()
         })).filter((goal) => goal.name && goal.targetAmount > 0);
         if (!importedIncomes.length && !importedEntries.length && !importedTransfers.length && !importedBudgetGoals.length) throw new Error("no valid rows");
-        if (!confirm(t("excelReplaceConfirm"))) return false;
+        if (!await requestAppConfirmation(t("excelReplaceConfirm"), {
+          title: t("confirmActionTitle"),
+          confirmLabel: t("continue"),
+          danger: true
+        })) return false;
 
         state.incomes = importedIncomes.sort((a, b) => b.date.localeCompare(a.date));
         state.entries = importedEntries.sort((a, b) => b.date.localeCompare(a.date));
@@ -17287,6 +18548,11 @@
         closePasswordDialog($("passwordDialogInput").value);
       });
       $("passwordDialogCancel").addEventListener("click", () => closePasswordDialog());
+      $("appConfirmSubmit").addEventListener("click", () => closeAppConfirmation(true));
+      $("appConfirmCancel").addEventListener("click", () => closeAppConfirmation(false));
+      $("appConfirmDialog").addEventListener("mousedown", (event) => {
+        if (event.target === $("appConfirmDialog")) closeAppConfirmation(false);
+      });
       $("walletDeleteForm").addEventListener("submit", (event) => {
         event.preventDefault();
         confirmWalletDelete();
@@ -17311,6 +18577,17 @@
       });
 
       controls.form.addEventListener("submit", addEntry);
+      $("expenseStoryBackBtn").addEventListener("click", previousExpenseStoryStep);
+      $("expenseStoryNextBtn").addEventListener("click", nextExpenseStoryStep);
+      $("expenseStoryDots").addEventListener("click", (event) => {
+        const dot = event.target.closest("[data-expense-step-dot]");
+        if (!dot) return;
+        const targetStep = Number(dot.dataset.expenseStepDot);
+        if (targetStep > expenseStoryStep + 1) return;
+        if (targetStep > expenseStoryStep && !validateExpenseStoryStep()) return;
+        updateExpenseStoryStep(targetStep, { focus: true });
+        saveDraft("expense");
+      });
       controls.discardExpenseDraft.addEventListener("click", () => {
         clearDraft("expense");
         toast(t("draftDiscarded"));
@@ -18086,11 +19363,26 @@
         await enableObligationNotifications();
         updateHeaderNotificationButton();
       });
-
-      $("sampleBtn").addEventListener("click", () => {
-        if (seedSample()) closeSettingsMenu();
+      $("desktopNotificationEnableBtn").addEventListener("click", async () => {
+        await enableObligationNotifications();
+        updateHeaderNotificationButton();
       });
+      $("desktopNotificationCloseBtn").addEventListener("click", () => {
+        desktopNotificationBannerDismissed = true;
+        updateHeaderNotificationButton();
+      });
+
+      $("sampleBtn").addEventListener("click", async () => {
+        if (await seedSample()) closeSettingsMenu();
+      });
+      $("exitSamplePreviewBtn").addEventListener("click", exitSamplePreview);
       $("openWalletFormBtn").addEventListener("click", () => openWalletForm());
+      $("saveDisplayNameBtn").addEventListener("click", saveDisplayNameFromSettings);
+      $("settingsDisplayNameInput").addEventListener("keydown", (event) => {
+        if (event.key !== "Enter") return;
+        event.preventDefault();
+        saveDisplayNameFromSettings();
+      });
       $("cancelWalletFormBtn").addEventListener("click", closeWalletForm);
       controls.walletDifferentCurrency.addEventListener("change", syncWalletCurrencyForm);
       $("addWalletBtn").addEventListener("click", addWalletFromSettings);
@@ -18259,7 +19551,9 @@
       });
       document.addEventListener("keydown", (event) => {
         if (event.key !== "Escape") return;
-        if (!$("appDatePickerDialog").hidden) {
+        if (!$("appConfirmDialog").hidden) {
+          closeAppConfirmation(false);
+        } else if (!$("appDatePickerDialog").hidden) {
           closeAppDatePicker();
         } else if (!$("incomeEntryDialog").hidden) {
           closeEntryDialog("income");
@@ -18283,8 +19577,8 @@
           closeQuickAddMenu();
         }
       });
-      $("clearBtn").addEventListener("click", () => {
-        if (!confirm(t("deleteConfirm"))) return;
+      $("clearBtn").addEventListener("click", async () => {
+        if (!await requestAppConfirmation(t("deleteConfirm"))) return;
         state.entries = [];
         exitEntryEditMode(true);
         persist();
@@ -18292,7 +19586,7 @@
         render();
         toast(t("allDeleted"));
       });
-      $("tableMount").addEventListener("click", (event) => {
+      $("tableMount").addEventListener("click", async (event) => {
         const actionButton = event.target.closest("[data-edit], [data-delete]");
         if (!actionButton) return;
         const editId = actionButton.dataset.edit;
@@ -18302,15 +19596,17 @@
         }
         const deleteId = actionButton.dataset.delete;
         if (!deleteId) return;
+        if (!await requestAppConfirmation(t("deleteTransactionConfirm"))) return;
         state.entries = state.entries.filter((entry) => entry.id !== deleteId);
         if (state.editingEntryId === deleteId) exitEntryEditMode(true);
         persist();
         setupFilterOptions();
         render();
       });
-      $("incomeTableMount").addEventListener("click", (event) => {
+      $("incomeTableMount").addEventListener("click", async (event) => {
         const id = event.target.dataset.deleteIncome;
         if (!id) return;
+        if (!await requestAppConfirmation(t("deleteIncomeRecordConfirm"))) return;
         const income = state.incomes.find((item) => item.id === id);
         const recurringRuleId = income?.recurringIncomeId || "";
         state.incomes = state.incomes.filter((income) => income.id !== id);
@@ -18322,10 +19618,10 @@
         render();
         if (recurringRuleId) toast(t("automaticIncomeDeleted"));
       });
-      $("transferTableMount").addEventListener("click", (event) => {
+      $("transferTableMount").addEventListener("click", async (event) => {
         const button = event.target.closest("[data-delete-transfer]");
         if (!button) return;
-        if (!confirm(t("deleteConfirm"))) return;
+        if (!await requestAppConfirmation(t("deleteTransferRecordConfirm"))) return;
         state.transfers = state.transfers.filter((transfer) => transfer.id !== button.dataset.deleteTransfer);
         persist();
         setupFilterOptions();
