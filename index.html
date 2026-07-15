@@ -464,6 +464,191 @@
       color: #b91c1c;
     }
 
+    .cloud-sync-banner {
+      position: fixed;
+      z-index: 1180;
+      top: calc(env(safe-area-inset-top, 0px) + 10px);
+      left: 50%;
+      width: min(440px, calc(100% - 28px));
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      overflow: hidden;
+      padding: 10px 16px;
+      border: 1px solid rgba(14, 116, 144, .2);
+      border-radius: 999px;
+      transform: translateX(-50%);
+      background: rgba(240, 249, 255, .9);
+      color: #075985;
+      box-shadow: 0 14px 36px rgba(15, 23, 42, .14);
+      backdrop-filter: blur(22px) saturate(1.25);
+      -webkit-backdrop-filter: blur(22px) saturate(1.25);
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .cloud-sync-banner[hidden] { display: none; }
+
+    .cloud-sync-banner-spinner {
+      position: relative;
+      z-index: 1;
+      width: 18px;
+      height: 18px;
+      flex: 0 0 18px;
+      border: 2px solid rgba(3, 105, 161, .2);
+      border-top-color: currentColor;
+      border-radius: 50%;
+      animation: cloud-sync-spin .8s linear infinite;
+    }
+
+    .cloud-sync-banner-text {
+      position: relative;
+      z-index: 1;
+      min-width: 0;
+      flex: 1;
+      overflow-wrap: anywhere;
+    }
+
+    .cloud-sync-banner-close {
+      position: relative;
+      z-index: 2;
+      width: 26px;
+      min-width: 26px;
+      max-width: 26px;
+      height: 26px;
+      min-height: 26px;
+      max-height: 26px;
+      flex: 0 0 26px;
+      box-sizing: border-box;
+      padding: 0;
+      border: 1px solid currentColor;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .4);
+      color: inherit;
+      opacity: .68;
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+      transition: opacity .18s ease, background .18s ease;
+    }
+
+    .cloud-sync-banner-close::before,
+    .cloud-sync-banner-close::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 11px;
+      height: 1.5px;
+      border-radius: 999px;
+      background: currentColor;
+    }
+
+    .cloud-sync-banner-close::before { transform: translate(-50%, -50%) rotate(45deg); }
+    .cloud-sync-banner-close::after { transform: translate(-50%, -50%) rotate(-45deg); }
+
+    .cloud-sync-banner-close:hover,
+    .cloud-sync-banner-close:focus-visible {
+      background: rgba(255, 255, 255, .72);
+      opacity: 1;
+    }
+
+    .cloud-sync-banner-close:active { opacity: .82; }
+
+    .cloud-sync-banner::after {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 -35%;
+      width: 30%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .5), transparent);
+      animation: cloud-sync-glide 1.8s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .cloud-sync-banner[data-sync-state="error"] {
+      border-color: rgba(220, 38, 38, .2);
+      background: rgba(254, 242, 242, .94);
+      color: #b91c1c;
+    }
+
+    .cloud-sync-banner[data-sync-state="error"] .cloud-sync-banner-spinner {
+      border: 0;
+      animation: none;
+    }
+
+    .cloud-sync-banner[data-sync-state="error"] .cloud-sync-banner-spinner::before {
+      content: "!";
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      border: 1px solid currentColor;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 950;
+    }
+
+    .cloud-sync-banner[data-sync-state="synced"] {
+      border-color: rgba(5, 150, 105, .22);
+      background: rgba(236, 253, 245, .94);
+      color: #047857;
+    }
+
+    .cloud-sync-banner[data-sync-state="synced"]::after { display: none; }
+
+    .cloud-sync-banner[data-sync-state="synced"] .cloud-sync-banner-spinner {
+      border: 0;
+      animation: none;
+    }
+
+    .cloud-sync-banner[data-sync-state="synced"] .cloud-sync-banner-spinner::before {
+      content: "✓";
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      border: 1px solid currentColor;
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 950;
+    }
+
+    html[data-resolved-theme="dark"] .cloud-sync-banner {
+      border-color: rgba(125, 211, 252, .22);
+      background: rgba(19, 35, 43, .9);
+      color: #7dd3fc;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, .34);
+    }
+
+    html[data-resolved-theme="dark"] .cloud-sync-banner-close {
+      background: rgba(255, 255, 255, .08);
+    }
+
+    html[data-resolved-theme="dark"] .cloud-sync-banner-close:hover,
+    html[data-resolved-theme="dark"] .cloud-sync-banner-close:focus-visible {
+      background: rgba(255, 255, 255, .16);
+    }
+
+    html[data-resolved-theme="dark"] .cloud-sync-banner[data-sync-state="error"] {
+      border-color: rgba(248, 113, 113, .25);
+      background: rgba(55, 24, 28, .92);
+      color: #fca5a5;
+    }
+
+    html[data-resolved-theme="dark"] .cloud-sync-banner[data-sync-state="synced"] {
+      border-color: rgba(52, 211, 153, .22);
+      background: rgba(17, 48, 40, .92);
+      color: #6ee7b7;
+    }
+
+    @keyframes cloud-sync-spin { to { transform: rotate(360deg); } }
+    @keyframes cloud-sync-glide {
+      0%, 25% { left: -35%; opacity: 0; }
+      45% { opacity: .7; }
+      75%, 100% { left: 110%; opacity: 0; }
+    }
+
     @keyframes sync-pulse {
       0%, 100% { opacity: .42; transform: scale(.85); }
       50% { opacity: 1; transform: scale(1.15); }
@@ -3431,6 +3616,27 @@
       font-size: 12px;
     }
 
+    .home-obligation-card.bill [data-pay-home-bill],
+    .obligation-actions [data-pay-obligation] {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(0, 159, 107, .2);
+      font-weight: 900;
+    }
+
+    .home-obligation-card.bill [data-pay-home-bill]:hover,
+    .obligation-actions [data-pay-obligation]:hover {
+      filter: brightness(1.06);
+    }
+
+    .home-bill-auto-info {
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 850;
+      line-height: 1.4;
+    }
+
     html[data-resolved-theme="dark"] .budget-goal-card {
       background: linear-gradient(135deg, rgba(16, 185, 129, .14), rgba(14, 165, 233, .1)), rgba(17, 24, 39, .86);
     }
@@ -4639,6 +4845,28 @@
       color: var(--accent);
       font-size: 22px;
       text-transform: none;
+    }
+
+    .estimate .estimate-local-equivalent,
+    .estimate .estimate-exchange-rate {
+      display: block;
+      max-width: 360px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 750;
+      line-height: 1.45;
+      text-transform: none;
+    }
+
+    .estimate .estimate-local-equivalent {
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .estimate .estimate-local-equivalent[hidden],
+    .estimate .estimate-exchange-rate[hidden] {
+      display: none;
     }
 
     .income-grid {
@@ -6772,9 +7000,11 @@
         var main = document.getElementById("appMain");
         var quickAdd = document.getElementById("quickAdd");
         var syncFooter = document.getElementById("syncFooter");
+        var cloudSyncBanner = document.getElementById("cloudSyncBanner");
         if (auth) auth.hidden = false;
         if (quickAdd) quickAdd.hidden = true;
         if (syncFooter) syncFooter.hidden = true;
+        if (cloudSyncBanner) cloudSyncBanner.hidden = true;
         if (document.body) {
           document.body.className = document.body.className.replace(/\bapp-ready\b/g, "");
           if (document.body.className.indexOf("auth-locked") < 0) document.body.className += " auth-locked";
@@ -6798,6 +7028,11 @@
       });
     }());
   </script>
+    <div class="cloud-sync-banner" id="cloudSyncBanner" role="status" aria-live="polite" hidden>
+      <span class="cloud-sync-banner-spinner" aria-hidden="true"></span>
+      <span class="cloud-sync-banner-text" id="cloudSyncBannerText"></span>
+      <button class="cloud-sync-banner-close" type="button" aria-label="Hide cloud status" onclick="dismissCloudSyncBanner()"></button>
+    </div>
   <section class="auth-screen" id="authScreen" aria-labelledby="authTitle" hidden>
     <div class="auth-panel">
       <div class="auth-brand">
@@ -6809,7 +7044,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-          <small id="appVersionBadge">v231</small>
+          <small id="appVersionBadge">v244</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -7145,9 +7380,10 @@
                   <small id="growthNewItemSpend"></small>
                 </article>
                 <article class="growth-card">
-                  <span data-i18n="itemPriceInflation">Inflasi Harga Barang</span>
+                  <span data-i18n="livingCostInflation">Inflasi Biaya Hidup</span>
                   <strong id="growthInflation">—</strong>
                   <b id="growthRealIncome" class="neutral">—</b>
+                  <small id="growthInflationBreakdown"></small>
                 </article>
                 <article class="growth-card">
                   <span data-i18n="monthlyBalanceChange">Perubahan Saldo Bulanan</span>
@@ -7544,7 +7780,7 @@
               <div class="suggestion-box" id="itemSuggestions" hidden></div>
             </label>
             <label><span id="expensePriceCurrencyLabel" data-i18n="unitPriceRp">Harga Satuan (Rp)</span>
-              <input id="priceInput" type="text" inputmode="numeric" placeholder="Contoh: 15.000" data-i18n-placeholder="pricePlaceholder" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" required>
+              <input id="priceInput" type="text" inputmode="decimal" placeholder="Contoh: 15.000" data-i18n-placeholder="pricePlaceholder" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" required>
             </label>
             <label><span data-i18n="quantity">Jumlah Barang</span>
               <input id="qtyInput" type="number" min="0.001" step="any" value="1" autocomplete="off" required>
@@ -7556,6 +7792,8 @@
               <div class="estimate">
                 <span data-i18n="estimatedTotal">Estimasi Total</span>
                 <strong id="estimateTotal">Rp 0</strong>
+                <small id="estimateLocalEquivalent" class="estimate-local-equivalent" hidden></small>
+                <small id="estimateExchangeRate" class="estimate-exchange-rate" hidden></small>
               </div>
               <div class="form-actions">
                 <button type="button" class="ghost discard-draft-btn" id="discardExpenseDraftBtn" data-i18n="discardDraft" hidden>Buang Draft</button>
@@ -8090,6 +8328,9 @@
         receivableFrequency: "Mau ditagih seberapa sering?", receivablePaymentDay: "Mau ditagih setiap tanggal berapa?",
         receivableRepeatUntil: "Batas penagihan sampai kapan?", receivableInstallment: "Mau diterima berapa tiap pembayaran? (Rp)",
         payNow: "Sudah Bayar", billPaidFromWallet: "Tagihan dibayar dari {wallet}.",
+        autoPayment: "Bayar otomatis", autoPaymentInfo: "Akan dibayar otomatis dari {wallet}",
+        autoPaymentInsufficient: "Auto-payment menunggu saldo {wallet} mencukupi.",
+        payBill: "Bayar tagihan", dueBillToday: "Jatuh tempo hari ini", upcomingBill: "Tagihan terdekat: {name} · {date}",
         billAlreadyPaidToday: "Tagihan ini sudah dibayar hari ini.",
         billWalletInsufficient: "Saldo {wallet} tidak cukup untuk membayar tagihan ini.",
         nextDueDate: "Next due date", daysUntilDue: "H-{days}", dueToday: "Hari ini (H-0)",
@@ -8195,7 +8436,9 @@
         itemPlaceholder: "Contoh: Beras Rojo Lele, Minyak Goreng Bimoli", unitPriceRp: "Harga Satuan (Rp)",
         pricePlaceholder: "Contoh: 15.000", quantity: "Jumlah Barang",
         shoppingNotePlaceholder: "Contoh: Beli di supermarket ABC, sedang promo",
-        estimatedTotal: "Estimasi Total", cancel: "Batal", saveTransaction: "Simpan Transaksi",
+        estimatedTotal: "Estimasi Total", estimatedLocalEquivalent: "Sekitar {amount} dalam mata uang utama",
+        exchangeRateInfo: "1 {from} = {rate} · Kurs diperbarui {date}", exchangeRateUpdating: "Kurs {from} ke {to} sedang diperbarui",
+        cancel: "Batal", saveTransaction: "Simpan Transaksi",
         editTransaction: "Edit Transaksi", saveChanges: "Simpan Perubahan",
         filterShopping: "Filter & Cari Catatan Belanja", searchTransactions: "Cari Transaksi",
         searchPlaceholder: "Nama barang, kategori, atau catatan", item: "Barang", month: "Bulan", year: "Tahun",
@@ -8244,9 +8487,9 @@
         cashflowChartAria: "Grafik pemasukan dan pengeluaran interaktif",
         growthAnalytics: "Purchasing Power Index", comparedWith: "Dibanding {period}",
         incomeChange: "Perubahan Pemasukan", expenseChange: "Perubahan Pengeluaran",
-        itemPriceInflation: "Inflasi Harga Barang", monthlyBalanceChange: "Perubahan Saldo Bulanan",
+        itemPriceInflation: "Inflasi Harga Barang", livingCostInflation: "Inflasi Biaya Hidup", billInflationBreakdown: "Barang {items} · Tagihan rutin {bills}", monthlyBalanceChange: "Perubahan Saldo Bulanan",
         executiveSummary: "Executive Summary",
-        summaryIncomeVsInflation: "Pemasukan berubah {incomeGrowth}, dibanding inflasi barang {inflation}.",
+        summaryIncomeVsInflation: "Pemasukan berubah {incomeGrowth}, dibanding inflasi biaya hidup {inflation}.",
         summaryPurchasingPower: "Daya beli {direction} {gap}, setara {moneyGap}.",
         summaryPurchasingPowerUp: "meningkat",
         summaryPurchasingPowerDown: "menurun",
@@ -8306,6 +8549,12 @@
         accountCreated: "Akun berhasil dibuat.", loginSuccess: "Berhasil masuk.", logoutSuccess: "Anda sudah keluar.",
         localOnly: "Lokal tersimpan", cloudSyncing: "Menyinkronkan ke cloud...",
         cloudSynced: "Tersinkron ke cloud", cloudQueued: "Menunggu sync cloud",
+        cloudLocalPending: "Tersimpan di perangkat · Menunggu backup cloud",
+        cloudUploadQueued: "Menyimpan ke cloud · ETA {eta}",
+        cloudUploadActive: "Sedang menyimpan perubahan ke cloud...",
+        cloudUploadSaved: "Tersimpan di cloud",
+        cloudUploadError: "Data tersimpan di perangkat ini · Cloud akan mencoba sinkron lagi saat online",
+        etaMinute: "1 menit", etaMinutes: "{count} menit", etaSecond: "1 detik", etaSeconds: "{count} detik",
         cloudUnavailable: "Cloud belum siap, data tetap tersimpan lokal.",
         cloudRegisterRequired: "Daftar akun membutuhkan cloud. Coba lagi saat internet stabil.",
         cloudRegisterNeedsHostedUrl: "Daftar akun harus dari URL live atau localhost, bukan file lokal. Buka versi GitHub Pages lalu coba lagi.",
@@ -8406,6 +8655,9 @@
         receivableFrequency: "How often do you want to collect it?", receivablePaymentDay: "What date do you want to collect it?",
         receivableRepeatUntil: "Until when should you collect it?", receivableInstallment: "How much do you expect per payment? (Rp)",
         payNow: "Paid", billPaidFromWallet: "Bill paid from {wallet}.",
+        autoPayment: "Automatic payment", autoPaymentInfo: "Will be paid automatically from {wallet}",
+        autoPaymentInsufficient: "Automatic payment is waiting for sufficient funds in {wallet}.",
+        payBill: "Pay bill", dueBillToday: "Due today", upcomingBill: "Upcoming bill: {name} · {date}",
         billAlreadyPaidToday: "This bill has already been paid today.",
         billWalletInsufficient: "{wallet} balance is insufficient to pay this bill.",
         nextDueDate: "Next due date", daysUntilDue: "D-{days}", dueToday: "Today (D-0)",
@@ -8511,7 +8763,9 @@
         itemPlaceholder: "Example: Rice, Cooking Oil", unitPriceRp: "Unit Price (Rp)",
         pricePlaceholder: "Example: 15,000", quantity: "Quantity",
         shoppingNotePlaceholder: "Example: Bought at the supermarket during a promotion",
-        estimatedTotal: "Estimated Total", cancel: "Cancel", saveTransaction: "Save Transaction",
+        estimatedTotal: "Estimated Total", estimatedLocalEquivalent: "About {amount} in your primary currency",
+        exchangeRateInfo: "1 {from} = {rate} · Rate updated {date}", exchangeRateUpdating: "Updating the {from} to {to} rate",
+        cancel: "Cancel", saveTransaction: "Save Transaction",
         editTransaction: "Edit Transaction", saveChanges: "Save Changes",
         filterShopping: "Filter & Search Shopping Records", searchTransactions: "Search Transactions",
         searchPlaceholder: "Item name, category, or notes", item: "Item", month: "Month", year: "Year",
@@ -8560,9 +8814,9 @@
         cashflowChartAria: "Interactive income and expense chart",
         growthAnalytics: "Purchasing Power Index", comparedWith: "Compared with {period}",
         incomeChange: "Income Change", expenseChange: "Expense Change",
-        itemPriceInflation: "Item Price Inflation", monthlyBalanceChange: "Monthly Balance Change",
+        itemPriceInflation: "Item Price Inflation", livingCostInflation: "Living Cost Inflation", billInflationBreakdown: "Items {items} · Recurring bills {bills}", monthlyBalanceChange: "Monthly Balance Change",
         executiveSummary: "Executive Summary",
-        summaryIncomeVsInflation: "Income changed {incomeGrowth}, compared with item inflation of {inflation}.",
+        summaryIncomeVsInflation: "Income changed {incomeGrowth}, compared with living-cost inflation of {inflation}.",
         summaryPurchasingPower: "Purchasing power {direction} by {gap}, equal to {moneyGap}.",
         summaryPurchasingPowerUp: "increased",
         summaryPurchasingPowerDown: "decreased",
@@ -8622,6 +8876,12 @@
         accountCreated: "Account created successfully.", loginSuccess: "Logged in successfully.", logoutSuccess: "You are now logged out.",
         localOnly: "Saved locally", cloudSyncing: "Syncing to cloud...",
         cloudSynced: "Synced to cloud", cloudQueued: "Waiting for cloud sync",
+        cloudLocalPending: "Saved on this device · Waiting for cloud backup",
+        cloudUploadQueued: "Saving to cloud · ETA {eta}",
+        cloudUploadActive: "Saving changes to cloud...",
+        cloudUploadSaved: "Saved to cloud",
+        cloudUploadError: "Data is saved on this device · Cloud sync will retry when you're online",
+        etaMinute: "1 minute", etaMinutes: "{count} minutes", etaSecond: "1 second", etaSeconds: "{count} seconds",
         cloudUnavailable: "Cloud is not ready yet, data is still saved locally.",
         cloudRegisterRequired: "Account registration needs cloud access. Try again with a stable connection.",
         cloudRegisterNeedsHostedUrl: "Account registration must use a live URL or localhost, not a local file. Open the GitHub Pages version and try again.",
@@ -8725,6 +8985,11 @@
       return ["IDR", "JPY", "KRW", "VND"].includes(currency) ? 0 : 2;
     }
 
+    function roundCurrencyAmount(amount, currency) {
+      const precision = 10 ** currencyFractionDigits(currency);
+      return Math.round(Number(amount || 0) * precision) / precision;
+    }
+
     function todayRateKey() {
       return new Date().toISOString().slice(0, 10);
     }
@@ -8804,6 +9069,12 @@
     };
     const CLOUD_SYNC_DEBOUNCE_MS = 60 * 1000;
     const CLOUD_SYNC_INTERVAL_MS = 30 * 60 * 1000;
+    const CLOUD_RECORD_PAGE_SIZE = 500;
+    const CLOUD_RECORD_COLLECTIONS = [
+      "entries", "incomes", "recurringIncomes", "transfers",
+      "budgetGoals", "spendingBudgets", "obligations"
+    ];
+    const CLOUD_PULL_CACHE_MS = 30 * 60 * 1000;
     let mainChartInstance = null;
     let priceChartInstance = null;
     let homeCategoryChartInstance = null;
@@ -8812,7 +9083,11 @@
     let deferredInstallPrompt = null;
     let currentUser = null;
     let cloudSyncTimer = null;
-    let cloudSyncInFlight = false;
+    let cloudSyncDueAt = 0;
+      let cloudSyncBannerInterval = null;
+      let cloudSyncBannerHideTimer = null;
+      let cloudSyncBannerDismissed = false;
+      let cloudSyncInFlight = false;
     let cloudDirty = false;
     let passwordDialogResolver = null;
     let pendingAccountRestore = null;
@@ -9004,6 +9279,14 @@
       return Number.isFinite(reverseRate) && reverseRate > 0 ? 1 / reverseRate : null;
     }
 
+    function cachedWalletRateDate(from, to) {
+      const base = String(from || "").toUpperCase();
+      const quote = String(to || "").toUpperCase();
+      if (!base || !quote || base === quote) return todayRateKey();
+      const dates = state.settings.exchangeRateDates || {};
+      return dates[walletRateKey(base, quote)] || dates[walletRateKey(quote, base)] || todayRateKey();
+    }
+
     function convertedCurrencyAmount(amount, from, to) {
       const rate = cachedWalletRate(from, to);
       return rate ? Number(amount || 0) * rate : null;
@@ -9077,6 +9360,9 @@
       state.settings.exchangeRates = state.settings.exchangeRates && typeof state.settings.exchangeRates === "object"
         ? state.settings.exchangeRates
         : {};
+      state.settings.exchangeRateDates = state.settings.exchangeRateDates && typeof state.settings.exchangeRateDates === "object"
+        ? state.settings.exchangeRateDates
+        : {};
       let changed = false;
       await Promise.all(walletCurrencies.map(async (currency) => {
         const key = walletRateKey(currency, baseCurrency);
@@ -9088,6 +9374,7 @@
           const rate = Number(data.rate);
           if (Number.isFinite(rate) && rate > 0) {
             state.settings.exchangeRates[key] = rate;
+            state.settings.exchangeRateDates[key] = /^\d{4}-\d{2}-\d{2}$/.test(String(data.date || "")) ? data.date : todayRateKey();
             changed = true;
           }
         } catch (error) {
@@ -9612,8 +9899,12 @@
     function updateTransactionCurrencyLabels() {
       const incomeLabel = $("incomeAmountCurrencyLabel");
       const expenseLabel = $("expensePriceCurrencyLabel");
-      if (incomeLabel) incomeLabel.textContent = `${t("amount")} (${walletCurrency(controls.incomeWallet.value || defaultWalletName())})`;
-      if (expenseLabel) expenseLabel.textContent = `${t("unitPrice")} (${walletCurrency(controls.expenseWallet.value || defaultWalletName())})`;
+      const incomeCurrency = walletCurrency(controls.incomeWallet.value || defaultWalletName());
+      const expenseCurrency = walletCurrency(controls.expenseWallet.value || defaultWalletName());
+      if (incomeLabel) incomeLabel.textContent = `${t("amount")} (${incomeCurrency})`;
+      if (expenseLabel) expenseLabel.textContent = `${t("unitPrice")} (${expenseCurrency})`;
+      if (controls.incomeAmount) controls.incomeAmount.inputMode = currencyFractionDigits(incomeCurrency) ? "decimal" : "numeric";
+      if (controls.price) controls.price.inputMode = currencyFractionDigits(expenseCurrency) ? "decimal" : "numeric";
       updateEstimate();
     }
 
@@ -10059,11 +10350,27 @@
     }
 
     function formatTransferAmount(value, currency = transferCurrency()) {
+      const fractionDigits = currencyFractionDigits(currency);
+      if (typeof value !== "number") {
+        const normalized = String(value || "").trim().replace(/\s/g, "");
+        if (!normalized) return "";
+        if (fractionDigits > 0) {
+          const lastComma = normalized.lastIndexOf(",");
+          const integerSource = lastComma >= 0 ? normalized.slice(0, lastComma) : normalized;
+          const integerDigits = integerSource.replace(/\D/g, "") || "0";
+          const formattedInteger = new Intl.NumberFormat("id-ID", { maximumFractionDigits: 0 }).format(Number(integerDigits));
+          if (lastComma >= 0) {
+            const decimalDigits = normalized.slice(lastComma + 1).replace(/\D/g, "").slice(0, fractionDigits);
+            return `${formattedInteger},${decimalDigits}`;
+          }
+          return formattedInteger;
+        }
+      }
       const amount = typeof value === "number" ? value : parseTransferAmount(value, currency);
       if (!Number.isFinite(amount)) return "";
       return new Intl.NumberFormat("id-ID", {
         minimumFractionDigits: 0,
-        maximumFractionDigits: currencyFractionDigits(currency)
+        maximumFractionDigits: fractionDigits
       }).format(amount);
     }
 
@@ -10321,8 +10628,8 @@
         }
         if (type === "income") {
           controls.incomeDate.value = draft.date || todayISO();
-          controls.incomeAmount.value = formatCurrencyInput(draft.amount);
           controls.incomeWallet.value = normalizeWalletName(draft.wallet || defaultWalletName());
+          controls.incomeAmount.value = formatTransferAmount(draft.amount, walletCurrency(controls.incomeWallet.value));
           controls.incomeSource.value = capitalizeText(draft.source);
           controls.incomeAuto.checked = Boolean(draft.auto);
           controls.incomeAutoFrequency.value = ["daily", "weekly", "monthly"].includes(draft.autoFrequency) ? draft.autoFrequency : "monthly";
@@ -10366,7 +10673,7 @@
           controls.expenseWallet.value = normalizeWalletName(draft.wallet || defaultWalletName());
           controls.category.value = capitalizeText(draft.category);
           controls.item.value = capitalizeText(draft.item);
-          controls.price.value = formatCurrencyInput(draft.price);
+          controls.price.value = formatTransferAmount(draft.price, walletCurrency(controls.expenseWallet.value));
           controls.qty.value = draft.qty || "1";
           controls.note.value = capitalizeText(draft.note);
         }
@@ -10407,7 +10714,7 @@
       state.spendingBudgets = [];
       state.obligations = [];
       state.wallets = [];
-      state.settings = { theme: "system", language: defaultLanguage(), currency: defaultCurrency(), defaultWallet: "Cash", onboardingComplete: false, walletCurrencies: {}, exchangeRates: {} };
+      state.settings = { theme: "system", language: defaultLanguage(), currency: defaultCurrency(), defaultWallet: "Cash", onboardingComplete: false, walletCurrencies: {}, exchangeRates: {}, exchangeRateDates: {} };
       state.mode = "monthly";
       state.view = "home";
       state.editingEntryId = null;
@@ -10973,6 +11280,203 @@
       }
     }
 
+    function cloudRecordCursorKey(account = currentUser) {
+      const accountId = account?.cloudUserId || account?.id || "anonymous";
+      return `belanjatrack:record-cursor:${accountId}:v1`;
+    }
+
+    function cloudRecordShadowKey(account = currentUser) {
+      const accountId = account?.cloudUserId || account?.id || "anonymous";
+      return `belanjatrack:record-shadow:${accountId}:v1`;
+    }
+
+    function cloudRecordModeKey(account = currentUser) {
+      const accountId = account?.cloudUserId || account?.id || "anonymous";
+      return `belanjatrack:record-mode:${accountId}:v1`;
+    }
+
+    function readCloudRecordShadow(account = currentUser) {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(cloudRecordShadowKey(account)) || "{}");
+        return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function writeCloudRecordShadow(shadow, account = currentUser) {
+      localStorage.setItem(cloudRecordShadowKey(account), JSON.stringify(shadow || {}));
+    }
+
+    function cloudRecordKey(collection, recordId) {
+      return `${collection}:${recordId}`;
+    }
+
+    function ensureCloudRecordIds() {
+      CLOUD_RECORD_COLLECTIONS.forEach((collection) => {
+        state[collection] = (Array.isArray(state[collection]) ? state[collection] : []).map((record) => (
+          record?.id ? record : { ...record, id: createId() }
+        ));
+      });
+    }
+
+    function currentCloudRecordMap() {
+      ensureCloudRecordIds();
+      const records = {};
+      CLOUD_RECORD_COLLECTIONS.forEach((collection) => {
+        state[collection].forEach((record) => {
+          records[cloudRecordKey(collection, record.id)] = { collection, recordId: String(record.id), data: record };
+        });
+      });
+      records[cloudRecordKey("settings", "singleton")] = { collection: "settings", recordId: "singleton", data: state.settings };
+      records[cloudRecordKey("wallets", "singleton")] = { collection: "wallets", recordId: "singleton", data: state.wallets };
+      return records;
+    }
+
+    function cloudRecordFingerprint(data) {
+      return JSON.stringify(data ?? null);
+    }
+
+    function changedCloudRecords(account = currentUser) {
+      const current = currentCloudRecordMap();
+      const shadow = readCloudRecordShadow(account);
+      const changed = [];
+      const changedAt = new Date().toISOString();
+      Object.entries(current).forEach(([key, record]) => {
+        const fingerprint = cloudRecordFingerprint(record.data);
+        if (shadow[key] !== fingerprint) {
+          changed.push({ ...record, deleted: false, clientUpdatedAt: changedAt });
+        }
+      });
+      Object.keys(shadow).forEach((key) => {
+        if (key in current || shadow[key] === null) return;
+        const separator = key.indexOf(":");
+        if (separator < 1) return;
+        changed.push({
+          collection: key.slice(0, separator),
+          recordId: key.slice(separator + 1),
+          data: null,
+          deleted: true,
+          clientUpdatedAt: changedAt
+        });
+      });
+      return { current, shadow, changed };
+    }
+
+    function applyCloudRecordRows(rows, account = currentUser) {
+      if (!Array.isArray(rows) || !rows.length) return false;
+      const shadow = readCloudRecordShadow(account);
+      let changed = false;
+      rows.forEach((row) => {
+        const collection = row.collection;
+        const recordId = String(row.record_id || "");
+        const key = cloudRecordKey(collection, recordId);
+        if (collection === "settings" && recordId === "singleton") {
+          if (!row.deleted && row.data && typeof row.data === "object") {
+            state.settings = { ...state.settings, ...row.data };
+            changed = true;
+          }
+        } else if (collection === "wallets" && recordId === "singleton") {
+          if (!row.deleted && Array.isArray(row.data)) {
+            state.wallets = row.data.map(normalizeWalletName);
+            changed = true;
+          }
+        } else if (CLOUD_RECORD_COLLECTIONS.includes(collection)) {
+          const records = Array.isArray(state[collection]) ? state[collection] : [];
+          const index = records.findIndex((record) => String(record?.id || "") === recordId);
+          if (row.deleted) {
+            if (index >= 0) records.splice(index, 1);
+          } else if (row.data && typeof row.data === "object") {
+            const nextRecord = { ...row.data, id: row.data.id || recordId };
+            if (index >= 0) records[index] = nextRecord;
+            else records.push(nextRecord);
+          }
+          state[collection] = records;
+          changed = true;
+        }
+        shadow[key] = row.deleted ? null : cloudRecordFingerprint(row.data);
+      });
+      writeCloudRecordShadow(shadow, account);
+      ensureWallets();
+      ensureWalletCurrencies();
+      return changed;
+    }
+
+    function isMissingCloudRecordsTable(error) {
+      const message = String(error?.message || error || "").toLowerCase();
+      return message.includes("app_records") && (
+        message.includes("does not exist") || message.includes("schema cache") || message.includes("pgrst205")
+      );
+    }
+
+    async function pullCloudRecordChanges(account, { full = false } = {}) {
+      if (!supabaseConfigured() || !account?.cloudAccessToken || !account?.cloudUserId) return { status: "skipped", changed: false };
+      const cursor = full ? "" : localStorage.getItem(cloudRecordCursorKey(account)) || "";
+      let offset = 0;
+      let newestCursor = cursor;
+      let anyChanged = false;
+      let rowCount = 0;
+      try {
+        while (true) {
+          const cursorFilter = cursor ? `&updated_at=gt.${encodeURIComponent(cursor)}` : "";
+          const rows = await supabaseRequest(
+            `/rest/v1/app_records?user_id=eq.${encodeURIComponent(account.cloudUserId)}${cursorFilter}` +
+            `&select=collection,record_id,data,deleted,updated_at&order=updated_at.asc,collection.asc,record_id.asc` +
+            `&limit=${CLOUD_RECORD_PAGE_SIZE}&offset=${offset}`,
+            { token: account.cloudAccessToken }
+          );
+          const page = Array.isArray(rows) ? rows : [];
+          rowCount += page.length;
+          if (page.length) {
+            anyChanged = applyCloudRecordRows(page, account) || anyChanged;
+            page.forEach((row) => {
+              if (!newestCursor || String(row.updated_at || "") > newestCursor) newestCursor = String(row.updated_at || newestCursor);
+            });
+          }
+          if (page.length < CLOUD_RECORD_PAGE_SIZE) break;
+          offset += CLOUD_RECORD_PAGE_SIZE;
+        }
+        if (newestCursor) localStorage.setItem(cloudRecordCursorKey(account), newestCursor);
+        if (rowCount) localStorage.setItem(cloudRecordModeKey(account), "1");
+        return { status: "ok", changed: anyChanged, count: rowCount };
+      } catch (error) {
+        if (isMissingCloudRecordsTable(error)) return { status: "missing-table", changed: false };
+        throw error;
+      }
+    }
+
+    async function pushCloudRecordChanges(account = currentUser) {
+      const delta = changedCloudRecords(account);
+      if (!delta.changed.length) return { status: "ok", count: 0 };
+      const rows = delta.changed.map((record) => ({
+        user_id: account.cloudUserId,
+        collection: record.collection,
+        record_id: record.recordId,
+        data: record.data,
+        deleted: record.deleted,
+        client_updated_at: record.clientUpdatedAt
+      }));
+      try {
+        await supabaseRequest("/rest/v1/app_records?on_conflict=user_id,collection,record_id", {
+          method: "POST",
+          token: account.cloudAccessToken,
+          headers: { Prefer: "resolution=merge-duplicates" },
+          body: rows
+        });
+        const nextShadow = { ...delta.shadow };
+        delta.changed.forEach((record) => {
+          nextShadow[cloudRecordKey(record.collection, record.recordId)] = record.deleted
+            ? null
+            : cloudRecordFingerprint(record.data);
+        });
+        writeCloudRecordShadow(nextShadow, account);
+        return { status: "ok", count: rows.length };
+      } catch (error) {
+        if (isMissingCloudRecordsTable(error)) return { status: "missing-table", count: 0 };
+        throw error;
+      }
+    }
+
     async function loadCloudPayload(account) {
       if (!supabaseConfigured() || !account?.cloudAccessToken || !account?.cloudUserId) return null;
       const rows = await supabaseRequest(
@@ -10987,8 +11491,33 @@
       return Number.isFinite(time) ? time : 0;
     }
 
+    function cloudPullCacheKey(account = currentUser) {
+      const accountId = account?.cloudUserId || account?.id || "anonymous";
+      return `belanjatrack:cloud-pull:${accountId}`;
+    }
+
+    function cloudPullIsDue(account = currentUser) {
+      const lastCheckedAt = Number(localStorage.getItem(cloudPullCacheKey(account)) || 0);
+      return !lastCheckedAt || Date.now() - lastCheckedAt >= CLOUD_PULL_CACHE_MS;
+    }
+
+    function markCloudPullChecked(account = currentUser) {
+      localStorage.setItem(cloudPullCacheKey(account), String(Date.now()));
+    }
+
     async function pullCloudIfNewer(account) {
+      markCloudPullChecked(account);
       try {
+        const needsFullRecordPull = !currentUser || currentUser.id !== account.id;
+        const recordPull = await pullCloudRecordChanges(account, { full: needsFullRecordPull });
+        const recordModeActive = localStorage.getItem(cloudRecordModeKey(account)) === "1";
+        if (recordPull.status === "ok" && (recordPull.count > 0 || recordModeActive)) {
+          if (recordPull.changed) {
+            localStorage.setItem(userDataKey(account.id), JSON.stringify(currentDataPayload()));
+            return "updated";
+          }
+          return "unchanged";
+        }
         const cloudPayload = await loadCloudPayload(account);
         if (!cloudPayload) return "missing";
         let localPayload = null;
@@ -11007,8 +11536,9 @@
       return "unchanged";
     }
 
-    async function refreshCurrentUserFromCloud({ quiet = true } = {}) {
+    async function refreshCurrentUserFromCloud({ quiet = true, force = false } = {}) {
       if (!currentUser?.cloudAccessToken || !currentUser?.cloudUserId || cloudDirty) return "skipped";
+      if (!force && !cloudPullIsDue(currentUser)) return "cached";
       try {
         setSyncStatus("syncing");
         currentUser = await refreshCloudSession(currentUser);
@@ -11192,11 +11722,13 @@
       }
     }
 
-    function scheduleCloudSync(delay = CLOUD_SYNC_DEBOUNCE_MS) {
-      if (!supabaseConfigured() || !currentUser?.cloudAccessToken) return;
-      cloudDirty = true;
-      setSyncStatus("queued");
+      function scheduleCloudSync(delay = CLOUD_SYNC_DEBOUNCE_MS) {
+        if (!supabaseConfigured() || !currentUser?.cloudAccessToken) return;
+        cloudSyncBannerDismissed = false;
+        cloudDirty = true;
       window.clearTimeout(cloudSyncTimer);
+      cloudSyncDueAt = Date.now() + Math.max(0, Number(delay) || 0);
+      setSyncStatus("queued");
       cloudSyncTimer = window.setTimeout(() => {
         syncCloudNow();
       }, delay);
@@ -11211,17 +11743,22 @@
         currentUser = await refreshCloudSession(currentUser);
         if (!currentUser?.cloudAccessToken || !currentUser?.cloudUserId) return false;
         const payload = currentDataPayload();
-        await supabaseRequest("/rest/v1/user_app_data?on_conflict=user_id", {
-          method: "POST",
-          token: currentUser.cloudAccessToken,
-          headers: { Prefer: "resolution=merge-duplicates" },
-          body: {
-            user_id: currentUser.cloudUserId,
-            app_version: 2,
-            payload,
-            payload_updated_at: payload.exportedAt
-          }
-        });
+        const recordPush = await pushCloudRecordChanges(currentUser);
+        if (recordPush.status === "ok") {
+          localStorage.setItem(cloudRecordModeKey(currentUser), "1");
+        } else {
+          await supabaseRequest("/rest/v1/user_app_data?on_conflict=user_id", {
+            method: "POST",
+            token: currentUser.cloudAccessToken,
+            headers: { Prefer: "resolution=merge-duplicates" },
+            body: {
+              user_id: currentUser.cloudUserId,
+              app_version: 2,
+              payload,
+              payload_updated_at: payload.exportedAt
+            }
+          });
+        }
         await upsertCloudProfile(currentUser);
         saveUpdatedAccount({ ...currentUser, cloudSyncedAt: payload.exportedAt });
         cloudDirty = false;
@@ -11244,6 +11781,14 @@
         method: "DELETE",
         token
       });
+      try {
+        await supabaseRequest(`/rest/v1/app_records?user_id=eq.${userId}`, {
+          method: "DELETE",
+          token
+        });
+      } catch (error) {
+        if (!isMissingCloudRecordsTable(error)) throw error;
+      }
       await supabaseRequest(`/rest/v1/profiles?id=eq.${userId}`, {
         method: "DELETE",
         token
@@ -12107,6 +12652,8 @@
       updateGreeting();
       $("authScreen").hidden = false;
       $("syncFooter").hidden = true;
+      clearCloudSyncBannerTimers({ clearDueAt: true });
+      if ($("cloudSyncBanner")) $("cloudSyncBanner").hidden = true;
       updateHeaderNotificationButton();
       document.body.classList.add("auth-locked");
       document.body.classList.remove("app-ready");
@@ -12181,6 +12728,9 @@
         window.setTimeout(() => {
           refreshCurrentUserFromCloud({ quiet: true });
         }, 450);
+        if (localStorage.getItem(cloudRecordModeKey(currentUser)) !== "1") {
+          window.setTimeout(() => scheduleCloudSync(1000), 1400);
+        }
       }
       window.setTimeout(() => safeAccountStep("obligation reminders", checkObligationReminders), 300);
       safeAccountStep("startup notifications", requestStartupNotifications);
@@ -12253,7 +12803,8 @@
           defaultWallet: normalizeName(String(savedSettings.defaultWallet || "")) || "Cash",
           onboardingComplete: savedSettings.onboardingComplete === true,
           walletCurrencies: savedSettings.walletCurrencies && typeof savedSettings.walletCurrencies === "object" && !Array.isArray(savedSettings.walletCurrencies) ? savedSettings.walletCurrencies : {},
-          exchangeRates: savedSettings.exchangeRates && typeof savedSettings.exchangeRates === "object" && !Array.isArray(savedSettings.exchangeRates) ? savedSettings.exchangeRates : {}
+          exchangeRates: savedSettings.exchangeRates && typeof savedSettings.exchangeRates === "object" && !Array.isArray(savedSettings.exchangeRates) ? savedSettings.exchangeRates : {},
+          exchangeRateDates: savedSettings.exchangeRateDates && typeof savedSettings.exchangeRateDates === "object" && !Array.isArray(savedSettings.exchangeRateDates) ? savedSettings.exchangeRateDates : {}
         };
         state.wallets = Array.isArray(parsed.wallets) ? parsed.wallets.map(normalizeWalletName) : [];
         ensureWallets();
@@ -12262,6 +12813,39 @@
         toast(t("localDataError"));
       }
     }
+
+    function clearCloudSyncBannerTimers({ clearDueAt = false } = {}) {
+      window.clearInterval(cloudSyncBannerInterval);
+      window.clearTimeout(cloudSyncBannerHideTimer);
+      cloudSyncBannerInterval = null;
+      cloudSyncBannerHideTimer = null;
+      if (clearDueAt) cloudSyncDueAt = 0;
+    }
+
+    function cloudSyncEtaText() {
+      const remainingSeconds = Math.max(1, Math.ceil((cloudSyncDueAt - Date.now()) / 1000));
+      if (remainingSeconds < 60) {
+        return remainingSeconds === 1 ? t("etaSecond") : t("etaSeconds", { count: remainingSeconds });
+      }
+      const minutes = Math.ceil(remainingSeconds / 60);
+      return minutes === 1 ? t("etaMinute") : t("etaMinutes", { count: minutes });
+    }
+
+    function updateCloudSyncEta() {
+      const banner = $("cloudSyncBanner");
+      const bannerText = $("cloudSyncBannerText");
+      if (!banner || !bannerText || banner.dataset.syncState !== "queued" || !cloudSyncDueAt) return;
+      bannerText.textContent = t("cloudUploadQueued", { eta: cloudSyncEtaText() });
+    }
+
+    function dismissCloudSyncBanner() {
+      cloudSyncBannerDismissed = true;
+      clearCloudSyncBannerTimers();
+      const banner = $("cloudSyncBanner");
+      if (banner) banner.hidden = true;
+    }
+
+    window.dismissCloudSyncBanner = dismissCloudSyncBanner;
 
     function setSyncStatus(status) {
       const statusKey = {
@@ -12276,6 +12860,39 @@
       if (footerStatus) {
         footerStatus.textContent = text;
         footerStatus.dataset.syncState = status;
+      }
+      const banner = $("cloudSyncBanner");
+      const bannerText = $("cloudSyncBannerText");
+      if (banner && bannerText) {
+        const previousStatus = banner.dataset.syncState;
+        const bannerKey = {
+          local: "cloudLocalPending",
+          queued: "cloudUploadQueued",
+          syncing: "cloudUploadActive",
+          synced: "cloudUploadSaved",
+          error: "cloudUploadError"
+        }[status];
+        const showSaved = status === "synced" && ["queued", "syncing"].includes(previousStatus);
+            const canShow = Boolean(!cloudSyncBannerDismissed && currentUser?.cloudAccessToken && supabaseConfigured() && bannerKey && (status !== "synced" || showSaved));
+        clearCloudSyncBannerTimers();
+        banner.hidden = !canShow;
+        banner.dataset.syncState = status;
+        if (canShow) {
+          bannerText.textContent = status === "queued"
+            ? t(bannerKey, { eta: cloudSyncEtaText() })
+            : t(bannerKey);
+          if (status === "queued") {
+            cloudSyncBannerInterval = window.setInterval(updateCloudSyncEta, 1000);
+              } else if (status === "synced" || status === "error") {
+                cloudSyncDueAt = 0;
+                cloudSyncBannerHideTimer = window.setTimeout(() => {
+                  banner.hidden = true;
+              cloudSyncBannerHideTimer = null;
+            }, 5000);
+          } else if (status !== "local") {
+            cloudSyncDueAt = 0;
+          }
+        }
       }
       const legacyStatus = $("storageStatus");
       if (legacyStatus) legacyStatus.textContent = text;
@@ -12981,15 +13598,17 @@
     function addEntry(event) {
       event.preventDefault();
       const qty = Number(controls.qty.value);
-      const unitPrice = parseCurrencyInput(controls.price.value);
+      const wallet = normalizeWalletName(controls.expenseWallet.value);
+      const currency = walletCurrency(wallet);
+      const unitPrice = parseTransferAmount(controls.price.value, currency);
       if (!Number.isFinite(qty) || qty <= 0) {
         toast(t("quantityPositive"));
         controls.qty.focus();
         return;
       }
       const editingIndex = state.entries.findIndex((item) => item.id === state.editingEntryId);
-      const wallet = normalizeWalletName(controls.expenseWallet.value);
-      const currencyMeta = transactionCurrencyMeta(wallet, Math.round(qty * unitPrice));
+      const total = roundCurrencyAmount(qty * unitPrice, currency);
+      const currencyMeta = transactionCurrencyMeta(wallet, total);
       const entry = {
         id: editingIndex >= 0 ? state.entries[editingIndex].id : createId(),
         date: controls.date.value,
@@ -12998,7 +13617,7 @@
         wallet,
         qty,
         unitPrice,
-        total: Math.round(qty * unitPrice),
+        total,
         ...currencyMeta,
         note: capitalizeText(controls.note.value.trim())
       };
@@ -13027,7 +13646,7 @@
       controls.category.value = entry.category;
       controls.expenseWallet.value = normalizeWalletName(entry.wallet || defaultWalletName());
       controls.qty.value = String(entry.qty);
-      controls.price.value = formatCurrencyInput(entry.unitPrice);
+      controls.price.value = formatTransferAmount(entry.unitPrice, walletCurrency(controls.expenseWallet.value));
       controls.note.value = entry.note || "";
       $("entryFormTitle").textContent = t("editTransaction");
       controls.saveEntry.textContent = t("saveChanges");
@@ -13475,6 +14094,8 @@
         downPaymentEntryId: controls.obligationType.value === "debt" ? controls.obligationDownPaymentEntry.value : "",
         paidAmount: controls.obligationType.value === "debt" ? downPaymentAmount : 0,
         receivedAmount: 0,
+        payments: [],
+        autoPay: false,
         note: capitalizeText(controls.obligationNote.value.trim()),
         active: true,
         status: "unpaid",
@@ -13508,6 +14129,86 @@
       renderObligations();
       renderHomeObligationSummary();
       if (enabled) enableObligationNotifications();
+    }
+
+    function toggleBillAutoPay(id, enabled) {
+      const item = state.obligations.find((obligation) => obligation.id === id && obligation.type === "bill");
+      if (!item) return;
+      item.autoPay = Boolean(enabled);
+      persist();
+      applyAutomaticBillPayments();
+      renderObligations();
+      renderHomeObligationSummary();
+    }
+
+    function recordAutomaticBillPayment(item, paymentDate = todayISO()) {
+      const wallet = normalizeWalletName(item.wallet || defaultWalletName());
+      const amount = Number(item.amount || 0);
+      if (!item || amount <= 0 || walletBalance(wallet) < amount) return false;
+      const expenseId = createId();
+      state.entries.unshift({
+        id: expenseId,
+        date: paymentDate,
+        item: normalizeName(item.name || t("bill")),
+        category: normalizeName(item.category || "") || t("billCategoryDefault"),
+        wallet,
+        qty: 1,
+        unitPrice: amount,
+        total: amount,
+        ...transactionCurrencyMeta(wallet, amount),
+        note: `Pembayaran otomatis · ${item.name}`,
+        obligationId: item.id
+      });
+      if (!Array.isArray(item.payments)) item.payments = [];
+      item.payments.push({ id: createId(), entryId: expenseId, date: paymentDate, amount, wallet, automatic: true });
+      item.status = "paid";
+      item.lastPaidDate = paymentDate;
+      item.lastPaymentEntryId = expenseId;
+      return true;
+    }
+
+    function latestScheduledBillDate(item, referenceDate = todayISO()) {
+      if (!item || !item.dueDate) return "";
+      const start = new Date(`${item.dueDate}T00:00:00`);
+      const reference = new Date(`${referenceDate}T00:00:00`);
+      if (Number.isNaN(start.getTime()) || Number.isNaN(reference.getTime()) || reference < start) return "";
+      const frequency = item.frequency || "none";
+      let due = new Date(reference);
+      if (frequency === "none") due = start;
+      if (frequency === "weekly") due.setDate(reference.getDate() - ((reference.getDay() - start.getDay() + 7) % 7));
+      if (frequency === "monthly") {
+        const day = Math.min(31, Math.max(1, Number(item.paymentDay || start.getDate())));
+        due.setDate(1);
+        due.setDate(Math.min(day, new Date(due.getFullYear(), due.getMonth() + 1, 0).getDate()));
+        if (due > reference) {
+          due.setMonth(due.getMonth() - 1, 1);
+          due.setDate(Math.min(day, new Date(due.getFullYear(), due.getMonth() + 1, 0).getDate()));
+        }
+      }
+      if (frequency === "yearly") {
+        const day = Math.min(Number(item.paymentDay || start.getDate()), new Date(reference.getFullYear(), start.getMonth() + 1, 0).getDate());
+        due = new Date(reference.getFullYear(), start.getMonth(), day);
+        if (due > reference) due.setFullYear(due.getFullYear() - 1);
+      }
+      const result = toISODate(due);
+      if (result < item.dueDate || item.endDate && result > item.endDate) return "";
+      return result;
+    }
+
+    function applyAutomaticBillPayments() {
+      const today = todayISO();
+      let changed = false;
+      state.obligations.forEach((item) => {
+        if (item.type !== "bill" || item.active === false || item.autoPay !== true) return;
+        const scheduledDate = latestScheduledBillDate(item, today);
+        if (!scheduledDate || String(item.lastPaidDate || "") >= scheduledDate) return;
+        if ((!item.frequency || item.frequency === "none") && item.status === "paid") return;
+        if (recordAutomaticBillPayment(item, scheduledDate)) changed = true;
+      });
+      if (!changed) return;
+      state.entries.sort((a, b) => b.date.localeCompare(a.date));
+      persist();
+      setupFilterOptions();
     }
 
     function saveObligationCategory(id, nextValue) {
@@ -13556,7 +14257,9 @@
         ? (item.installmentAmount || Math.max(0, item.amount - (item.paidAmount || 0)))
         : item.type === "receivable"
           ? (item.installmentAmount || Math.max(0, item.amount - (item.receivedAmount || 0)))
-          : item.amount;
+          : (Array.isArray(item.payments) && item.payments.length
+            ? Number(item.payments[item.payments.length - 1].amount || item.amount)
+            : item.amount);
       controls.obligationPaymentAmount.value = formatCurrencyInput(suggestedAmount);
       $("obligationPaymentSummary").textContent = `${item.name} · ${t("estimatedBillAmount", { amount: rupiah.format(Number(item.amount || 0)) })}`;
       updateObligationPaymentWalletPreview();
@@ -13647,6 +14350,14 @@
       item.status = "paid";
       item.lastPaidDate = paymentDate;
       item.lastPaymentEntryId = expenseId;
+      if (!Array.isArray(item.payments)) item.payments = [];
+      item.payments.push({
+        id: createId(),
+        entryId: expenseId,
+        date: paymentDate,
+        amount,
+        wallet
+      });
       if (item.type === "debt") {
         item.paidAmount = Math.min(Number(item.amount || 0), Number(item.paidAmount || 0) + amount);
         item.status = item.paidAmount >= Number(item.amount || 0) ? "paid" : "unpaid";
@@ -13741,6 +14452,36 @@
       return today === item.dueDate;
     }
 
+    function nextObligationDueDate(item, referenceDate = todayISO()) {
+      if (!item || !item.dueDate) return "";
+      const start = new Date(`${item.dueDate}T00:00:00`);
+      const reference = new Date(`${referenceDate}T00:00:00`);
+      if (Number.isNaN(start.getTime()) || Number.isNaN(reference.getTime())) return "";
+      const frequency = item.frequency || "none";
+      if (frequency === "none") return item.status === "paid" ? "" : item.dueDate;
+      let candidate = new Date(Math.max(start.getTime(), reference.getTime()));
+      if (frequency === "daily") {
+        if (item.lastPaidDate === referenceDate) candidate.setDate(candidate.getDate() + 1);
+      } else if (frequency === "weekly") {
+        const offset = (start.getDay() - candidate.getDay() + 7) % 7;
+        candidate.setDate(candidate.getDate() + offset);
+        if (item.lastPaidDate === toISODate(candidate)) candidate.setDate(candidate.getDate() + 7);
+      } else if (frequency === "monthly") {
+        const day = Math.min(31, Math.max(1, Number(item.paymentDay || start.getDate())));
+        candidate.setDate(1);
+        candidate.setDate(Math.min(day, new Date(candidate.getFullYear(), candidate.getMonth() + 1, 0).getDate()));
+        if (candidate < reference || item.lastPaidDate === toISODate(candidate)) {
+          candidate.setMonth(candidate.getMonth() + 1, 1);
+          candidate.setDate(Math.min(day, new Date(candidate.getFullYear(), candidate.getMonth() + 1, 0).getDate()));
+        }
+      } else if (frequency === "yearly") {
+        candidate = new Date(reference.getFullYear(), start.getMonth(), Math.min(Number(item.paymentDay || start.getDate()), new Date(reference.getFullYear(), start.getMonth() + 1, 0).getDate()));
+        if (candidate < reference || item.lastPaidDate === toISODate(candidate)) candidate.setFullYear(candidate.getFullYear() + 1);
+      }
+      const result = toISODate(candidate);
+      return item.endDate && result > item.endDate ? "" : result;
+    }
+
     async function showObligationNotification(item) {
       const title = t("obligationReminderTitle", { type: t(item.type || "bill") });
       const body = t("obligationReminderBody", {
@@ -13831,7 +14572,15 @@
     }
 
     function averagePriceChangeForRange(startDate, endDate, requirePriorBeforeStart = false) {
+      const recurringBillIds = new Set(
+        state.obligations
+          .filter((item) => item.type === "bill")
+          .map((item) => item.id)
+      );
       const grouped = state.entries.reduce((items, entry) => {
+        // Recurring bills have their own same-bill comparison and must not be
+        // counted again as ordinary item-price inflation.
+        if (entry.obligationId && recurringBillIds.has(entry.obligationId)) return items;
         if (!entry.item || !Number(entry.unitPrice)) return items;
         const itemKey = normalizeName(entry.item).toLocaleLowerCase("id-ID");
         if (!items[itemKey]) items[itemKey] = [];
@@ -13851,6 +14600,48 @@
       }).filter((value) => value !== null);
       if (!changes.length) return null;
       return changes.reduce((total, value) => total + value, 0) / changes.length;
+    }
+
+    function recurringBillInflationForRange(startDate, endDate) {
+      const billIds = new Set(
+        state.obligations
+          .filter((item) => item.type === "bill")
+          .map((item) => item.id)
+      );
+      const grouped = state.entries.reduce((items, entry) => {
+        if (!entry.obligationId || !billIds.has(entry.obligationId) || Number(entry.total || 0) <= 0) return items;
+        if (!items[entry.obligationId]) items[entry.obligationId] = [];
+        items[entry.obligationId].push(entry);
+        return items;
+      }, {});
+      const comparisons = Object.values(grouped).map((entries) => {
+        const sorted = entries.slice().sort((a, b) => a.date.localeCompare(b.date));
+        const current = sorted.filter((entry) => entry.date >= startDate && entry.date <= endDate).pop();
+        const previous = sorted.filter((entry) => entry.date < startDate).pop();
+        if (!current || !previous || Number(previous.total || 0) <= 0) return null;
+        const previousAmount = transactionBaseAmount(previous, "expense");
+        const currentAmount = transactionBaseAmount(current, "expense");
+        return {
+          weight: previousAmount,
+          percent: ((currentAmount - previousAmount) / previousAmount) * 100
+        };
+      }).filter(Boolean);
+      if (!comparisons.length) return null;
+      const totalWeight = comparisons.reduce((total, item) => total + item.weight, 0);
+      return totalWeight > 0
+        ? comparisons.reduce((total, item) => total + (item.percent * item.weight), 0) / totalWeight
+        : null;
+    }
+
+    function combinedLivingCostInflation(itemInflation, billInflation, itemWeight, billWeight) {
+      const available = [
+        { value: itemInflation, weight: Math.max(0, Number(itemWeight || 0)) },
+        { value: billInflation, weight: Math.max(0, Number(billWeight || 0)) }
+      ].filter((item) => item.value !== null && Number.isFinite(item.value));
+      if (!available.length) return null;
+      const totalWeight = available.reduce((total, item) => total + item.weight, 0);
+      if (totalWeight <= 0) return available.reduce((total, item) => total + item.value, 0) / available.length;
+      return available.reduce((total, item) => total + (item.value * item.weight), 0) / totalWeight;
     }
 
     function formatPriceChange(value) {
@@ -14276,13 +15067,38 @@
 
     function updateEstimate() {
       const estimate = $("estimateTotal");
+      const localEquivalent = $("estimateLocalEquivalent");
+      const exchangeRateInfo = $("estimateExchangeRate");
       if (!estimate) return;
       const qty = Number(controls.qty.value || 0);
-      const price = parseCurrencyInput(controls.price.value);
-      estimate.textContent = formatCurrencyAmount(
-        Math.round(qty * price),
-        walletCurrency(controls.expenseWallet.value || defaultWalletName())
-      );
+      const currency = walletCurrency(controls.expenseWallet.value || defaultWalletName());
+      const baseCurrency = currentCurrency();
+      const price = parseTransferAmount(controls.price.value, currency);
+      const total = roundCurrencyAmount(qty * price, currency);
+      estimate.textContent = formatCurrencyAmount(total, currency);
+      if (!localEquivalent || !exchangeRateInfo) return;
+      if (currency === baseCurrency) {
+        localEquivalent.hidden = true;
+        exchangeRateInfo.hidden = true;
+        return;
+      }
+      const rate = cachedWalletRate(currency, baseCurrency);
+      if (!rate) {
+        localEquivalent.hidden = true;
+        exchangeRateInfo.hidden = false;
+        exchangeRateInfo.textContent = t("exchangeRateUpdating", { from: currency, to: baseCurrency });
+        return;
+      }
+      localEquivalent.hidden = false;
+      exchangeRateInfo.hidden = false;
+      localEquivalent.textContent = t("estimatedLocalEquivalent", {
+        amount: formatCurrencyAmount(total * rate, baseCurrency)
+      });
+      exchangeRateInfo.textContent = t("exchangeRateInfo", {
+        from: currency,
+        rate: formatCurrencyAmount(rate, baseCurrency),
+        date: formatDate(cachedWalletRateDate(currency, baseCurrency))
+      });
     }
 
     function renderIncomeUsage() {
@@ -14606,7 +15422,9 @@
         const endLabel = item.endDate ? formatDate(item.endDate) : t("noEndDate");
         const wallet = normalizeWalletName(item.wallet || defaultWalletName());
         const active = item.active !== false;
-        const canPayToday = active && item.type === "bill" && obligationTriggersToday(item) && item.lastPaidDate !== todayISO();
+        const canPay = active && item.type === "bill" && item.autoPay !== true && !(
+          (!item.frequency || item.frequency === "none") && item.status === "paid"
+        );
         const canReceive = active && item.type === "receivable" && Number(item.receivedAmount || 0) < Number(item.amount || 0);
         return `
           <article class="obligation-item ${done ? "done" : ""} ${active ? "" : "inactive"}">
@@ -14631,10 +15449,15 @@
                 <input type="checkbox" data-obligation-active="${escapeHtml(item.id)}" ${active ? "checked" : ""}>
                 <span>${escapeHtml(t("obligationActiveStatus"))}: ${escapeHtml(t(active ? "notificationOn" : "notificationOff"))}</span>
               </label>
+              <label class="obligation-reminder-toggle">
+                <input type="checkbox" data-bill-auto-pay="${escapeHtml(item.id)}" ${item.autoPay === true ? "checked" : ""}>
+                <span>${escapeHtml(t("autoPayment"))}</span>
+              </label>
+              ${item.autoPay === true ? `<small>${escapeHtml(t(walletBalance(wallet) >= Number(item.amount || 0) ? "autoPaymentInfo" : "autoPaymentInsufficient", { wallet }))}</small>` : ""}
             </span>
             <span class="obligation-actions">
               <b>${rupiah.format(Number(item.amount || 0))}</b>
-              ${canPayToday ? `<button type="button" data-pay-obligation="${escapeHtml(item.id)}">${t("payNow")}</button>` : ""}
+              ${canPay ? `<button type="button" data-pay-obligation="${escapeHtml(item.id)}">${t("payBill")}</button>` : ""}
               ${canReceive ? `<button type="button" data-pay-obligation="${escapeHtml(item.id)}">${t("receiveReceivable")}</button>` : ""}
               <button type="button" class="danger" data-delete-obligation="${escapeHtml(item.id)}">${t("delete")}</button>
             </span>
@@ -14737,7 +15560,9 @@
     function renderHomeObligationSummary() {
       const mount = $("homeObligationSummary");
       if (!mount) return;
-      const bills = state.obligations.filter((item) => item.type === "bill" && item.active !== false && item.status !== "paid");
+      const bills = state.obligations.filter((item) =>
+        item.type === "bill" && item.active !== false && ((item.frequency && item.frequency !== "none") || item.status !== "paid")
+      );
       const debts = state.obligations.filter((item) =>
         item.type === "debt" && Number(item.paidAmount || 0) < Number(item.amount || 0)
       );
@@ -14752,9 +15577,10 @@
       const receivableRemaining = receivables.reduce((total, item) => total + Math.max(0, Number(item.amount || 0) - Number(item.receivedAmount || 0)), 0);
       const billTotal = bills.reduce((total, item) => total + Number(item.amount || 0), 0);
       const nextBill = bills
-        .filter((item) => item.dueDate)
-        .slice()
-        .sort((a, b) => String(a.dueDate).localeCompare(String(b.dueDate)))[0];
+        .map((item) => ({ item, nextDate: nextObligationDueDate(item) }))
+        .filter((row) => row.nextDate)
+        .sort((a, b) => rowDate(a).localeCompare(rowDate(b)))[0];
+      function rowDate(row) { return String(row.nextDate || ""); }
       const cardData = [
         {
           type: "debt",
@@ -14775,9 +15601,15 @@
         {
           type: "bill",
           title: t("homeBillsTitle"),
-          amount: rupiah.format(billTotal),
-          meta: nextBill ? t("nextDueShort", { date: formatDate(nextBill.dueDate) }) : t("activeRecords", { count: bills.length }),
-          icon: obligationIcon("bill")
+          amount: rupiah.format(nextBill ? Number(nextBill.item.amount || 0) : billTotal),
+          meta: nextBill
+            ? (nextBill.nextDate === todayISO()
+              ? `${nextBill.item.name} · ${t("dueBillToday")}`
+              : t("upcomingBill", { name: nextBill.item.name, date: formatDate(nextBill.nextDate) }))
+            : t("activeRecords", { count: bills.length }),
+          icon: obligationIcon("bill"),
+          nextBill: nextBill ? nextBill.item : null,
+          nextDate: nextBill ? nextBill.nextDate : ""
         }
       ];
       mount.innerHTML = cardData.map((card) => `
@@ -14800,6 +15632,16 @@
               </div>
             </div>
           ` : ""}
+          ${card.type === "bill" && card.nextBill ? (
+            card.nextBill.autoPay === true
+              ? `<small class="home-bill-auto-info">${escapeHtml(t(
+                walletBalance(normalizeWalletName(card.nextBill.wallet || defaultWalletName())) >= Number(card.nextBill.amount || 0)
+                  ? "autoPaymentInfo"
+                  : "autoPaymentInsufficient",
+                { wallet: normalizeWalletName(card.nextBill.wallet || defaultWalletName()) }
+              ))}</small>`
+              : `<button type="button" data-pay-home-bill="${escapeHtml(card.nextBill.id)}">${escapeHtml(t("payBill"))}</button>`
+          ) : ""}
         </article>
       `).join("");
     }
@@ -14847,7 +15689,12 @@
       const previousIncome = sumIncome(state.incomes.filter((entry) => monthKey(entry.date) === previousKey));
       const currentBalance = currentIncome - currentExpenses;
       const previousBalance = previousIncome - previousExpenses;
-      const inflation = averagePriceChangeForRange(`${currentKey}-01`, `${currentKey}-31`, true);
+      const itemInflation = averagePriceChangeForRange(`${currentKey}-01`, `${currentKey}-31`, true);
+      const billInflation = recurringBillInflationForRange(`${currentKey}-01`, `${currentKey}-31`);
+      const billIds = new Set(state.obligations.filter((item) => item.type === "bill").map((item) => item.id));
+      const previousBillSpend = sum(previousExpenseRows.filter((entry) => billIds.has(entry.obligationId)));
+      const previousItemSpend = sum(previousExpenseRows.filter((entry) => !billIds.has(entry.obligationId)));
+      const inflation = combinedLivingCostInflation(itemInflation, billInflation, previousItemSpend, previousBillSpend);
       const knownItems = new Set(
         state.entries
           .filter((entry) => entry.date < `${currentKey}-01`)
@@ -14889,6 +15736,10 @@
       inflationElement.className = inflation === null || inflation === 0
         ? "neutral"
         : inflation > 0 ? "bad" : "good";
+      $("growthInflationBreakdown").textContent = t("billInflationBreakdown", {
+        items: signedPercent(itemInflation),
+        bills: signedPercent(billInflation)
+      });
 
       const realIncomeGrowth = incomeChange.percent === null || inflation === null
         ? null
@@ -15980,6 +16831,14 @@
         downPaymentEntryId: item.downPaymentEntryId || item.dpEntryId || "",
         paidAmount: Math.max(Number(item.paidAmount || item.sudahDibayar || 0), Number(item.downPaymentAmount || item.dp || item.uangMuka || 0)),
         receivedAmount: Number(item.receivedAmount || item.sudahDiterima || 0),
+        autoPay: item.autoPay === true,
+        payments: Array.isArray(item.payments) ? item.payments.map((payment) => ({
+          id: payment.id || createId(),
+          entryId: payment.entryId || "",
+          date: payment.date || payment.tanggal || todayISO(),
+          amount: Number(payment.amount || payment.nominal || 0),
+          wallet: normalizeWalletName(payment.wallet || item.wallet || defaultWalletName())
+        })) : [],
         active: item.active !== false && item.notificationEnabled !== false,
         note: item.note || item.catatan || "",
         status: item.status === "paid" || item.lunas === true ? "paid" : "unpaid",
@@ -16023,7 +16882,8 @@
           defaultWallet: normalizeName(String(importedSettings.defaultWallet || "")) || state.settings.defaultWallet || "Cash",
           onboardingComplete: importedSettings.onboardingComplete === true,
           walletCurrencies: importedSettings.walletCurrencies && typeof importedSettings.walletCurrencies === "object" && !Array.isArray(importedSettings.walletCurrencies) ? importedSettings.walletCurrencies : {},
-          exchangeRates: importedSettings.exchangeRates && typeof importedSettings.exchangeRates === "object" && !Array.isArray(importedSettings.exchangeRates) ? importedSettings.exchangeRates : {}
+          exchangeRates: importedSettings.exchangeRates && typeof importedSettings.exchangeRates === "object" && !Array.isArray(importedSettings.exchangeRates) ? importedSettings.exchangeRates : {},
+          exchangeRateDates: importedSettings.exchangeRateDates && typeof importedSettings.exchangeRateDates === "object" && !Array.isArray(importedSettings.exchangeRateDates) ? importedSettings.exchangeRateDates : {}
         },
         wallets,
         entries,
@@ -16243,6 +17103,7 @@
       };
       ensurePeriodControls();
       safeRender("recurring incomes", applyRecurringIncomes);
+      safeRender("automatic bill payments", applyAutomaticBillPayments);
       safeRender("month navigator", syncMonthNavigator);
       safeRender("custom selects", syncAllCustomSelects);
       const rows = periodEntries();
@@ -16649,6 +17510,11 @@
         }, 180);
       });
       $("homeObligationSummary").addEventListener("click", (event) => {
+        const payButton = event.target.closest("[data-pay-home-bill]");
+        if (payButton) {
+          openObligationPaymentDialog(payButton.dataset.payHomeBill);
+          return;
+        }
         const detailButton = event.target.closest("[data-open-bills-view]");
         if (!detailButton) return;
         const billsButton = bottomNavButtons.find((button) => button.dataset.bottomTarget === "bills");
@@ -16870,7 +17736,8 @@
       });
       controls.qty.addEventListener("input", updateEstimate);
       controls.price.addEventListener("input", () => {
-        formatCurrencyField(controls.price);
+        const currency = walletCurrency(controls.expenseWallet.value || defaultWalletName());
+        controls.price.value = formatTransferAmount(controls.price.value, currency);
         updateEstimate();
       });
       controls.incomeAmount.addEventListener("input", () => {
@@ -16892,7 +17759,11 @@
         updateTransactionCurrencyLabels();
         saveDraft("income");
       });
-      controls.expenseWallet.addEventListener("change", updateTransactionCurrencyLabels);
+      controls.expenseWallet.addEventListener("change", () => {
+        controls.price.value = "";
+        updateTransactionCurrencyLabels();
+        refreshWalletExchangeRates();
+      });
       controls.incomeSource.addEventListener("input", () => {
         capitalizeTextField(controls.incomeSource);
         saveDraft("income");
@@ -17130,6 +18001,11 @@
         if (deleteButton) deleteObligation(deleteButton.dataset.deleteObligation);
       });
       $("obligationList").addEventListener("change", (event) => {
+        const autoPayToggle = event.target.closest("[data-bill-auto-pay]");
+        if (autoPayToggle) {
+          toggleBillAutoPay(autoPayToggle.dataset.billAutoPay, autoPayToggle.checked);
+          return;
+        }
         const toggle = event.target.closest("[data-obligation-active]");
         if (toggle) toggleObligationActive(toggle.dataset.obligationActive, toggle.checked);
       });
@@ -17535,7 +18411,7 @@
           if (cloudDirty) {
             scheduleCloudSync(1000);
           } else {
-            refreshCurrentUserFromCloud({ quiet: true });
+            refreshCurrentUserFromCloud({ quiet: true, force: true });
           }
         });
         window.addEventListener("beforeunload", () => {
