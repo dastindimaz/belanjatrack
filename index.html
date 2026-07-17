@@ -7417,7 +7417,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-      <small id="appVersionBadge">v273</small>
+      <small id="appVersionBadge">v274</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -9611,6 +9611,9 @@
       let cloudSyncBannerDismissed = false;
       let cloudSyncRetryTimer = null;
       let lastCloudSyncError = null;
+      let lastCloudSessionError = null;
+      let cloudReauthInFlight = false;
+      let cloudReauthDismissedUntil = 0;
       let cloudSyncInFlight = false;
       let desktopNotificationBannerDismissed = false;
     let cloudDirty = false;
@@ -11751,6 +11754,7 @@
       let account = currentUser;
       let stored = readCloudAuthSession();
       try {
+        lastCloudSessionError = null;
         if (stored) {
           stored = await refreshStoredCloudSession(stored, forceRefresh);
           account = applyCloudSession(saveUpdatedAccount({
@@ -11766,8 +11770,46 @@
         rememberAccountSession(currentUser);
         return Boolean(currentUser.cloudAccessToken && currentUser.cloudUserId);
       } catch (error) {
+        lastCloudSessionError = error;
         console.warn("Sesi cloud belum bisa dipulihkan:", error);
         return false;
+      }
+    }
+
+    async function reauthenticateCloudSession() {
+      if (cloudReauthInFlight || !currentUser || document.visibilityState === "hidden") return false;
+      if (Date.now() < cloudReauthDismissedUntil) return false;
+      cloudReauthInFlight = true;
+      try {
+        const language = state.settings.language || defaultLanguage();
+        const password = await requestPassword(
+          language === "id" ? "Perbarui sesi cloud" : "Refresh cloud session",
+          language === "id"
+            ? "Masukkan password untuk menyambungkan kembali akun ke cloud. Data di perangkat tetap aman."
+            : "Enter your password to reconnect this account to the cloud. Your device data remains safe."
+        );
+        if (!password) {
+          cloudReauthDismissedUntil = Date.now() + 5 * 60 * 1000;
+          return false;
+        }
+        const localAccount = await authenticateLocalAccount(currentUser.usernameKey || currentUser.username, password);
+        if (!localAccount) {
+          toast(language === "id" ? "Password tidak sesuai." : "Incorrect password.");
+          cloudReauthDismissedUntil = Date.now() + 60 * 1000;
+          return false;
+        }
+        const authData = await signInCloud(currentUser.usernameKey || currentUser.username, password);
+        currentUser = normalizeAccountDisplayName(applyCloudSession(currentUser, authData));
+        rememberAccountSession(currentUser);
+        lastCloudSessionError = null;
+        cloudReauthDismissedUntil = 0;
+        return true;
+      } catch (error) {
+        lastCloudSessionError = error;
+        console.warn("Login ulang cloud gagal:", error);
+        return false;
+      } finally {
+        cloudReauthInFlight = false;
       }
     }
 
@@ -12378,9 +12420,9 @@
       try {
         const sessionReady = await ensureCurrentCloudSession();
         if (!sessionReady) {
-          const sessionError = new Error("Cloud session could not be restored");
-          sessionError.status = 401;
-          sessionError.code = "SESSION_EXPIRED";
+          const sessionError = lastCloudSessionError || new Error("Cloud session could not be restored");
+          sessionError.status = Number(sessionError.status || 401);
+          sessionError.code = sessionError.code || "SESSION_EXPIRED";
           throw sessionError;
         }
         const payload = currentDataPayload();
@@ -12419,6 +12461,13 @@
         if (!authRetry && [401, 403].includes(Number(error?.status || 0)) && (currentUser?.cloudRefreshToken || storedRefreshToken)) {
           const sessionRecovered = await ensureCurrentCloudSession({ forceRefresh: true });
           if (sessionRecovered) {
+            cloudSyncInFlight = false;
+            return syncCloudNow({ force: true, authRetry: true });
+          }
+        }
+        if (!authRetry && [401, 403].includes(Number(error?.status || 0))) {
+          const signedInAgain = await reauthenticateCloudSession();
+          if (signedInAgain) {
             cloudSyncInFlight = false;
             return syncCloudNow({ force: true, authRetry: true });
           }
