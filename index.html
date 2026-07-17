@@ -7417,7 +7417,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-      <small id="appVersionBadge">v274</small>
+      <small id="appVersionBadge">v275</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -9614,6 +9614,7 @@
       let lastCloudSessionError = null;
       let cloudReauthInFlight = false;
       let cloudReauthDismissedUntil = 0;
+      let cloudTokenRefreshPromise = null;
       let cloudSyncInFlight = false;
       let desktopNotificationBannerDismissed = false;
     let cloudDirty = false;
@@ -11728,13 +11729,37 @@
       );
     }
 
+    async function exchangeCloudRefreshToken(refreshToken) {
+      if (!refreshToken) throw new Error("Missing cloud refresh token");
+      if (cloudTokenRefreshPromise) return cloudTokenRefreshPromise;
+      const refreshOnce = async () => {
+        const latest = readCloudAuthSession();
+        if (
+          latest?.refresh_token &&
+          latest.refresh_token !== refreshToken &&
+          Number(latest.expires_at || 0) > Date.now() + 60 * 1000
+        ) {
+          return latest;
+        }
+        return supabaseRequest("/auth/v1/token?grant_type=refresh_token", {
+          method: "POST",
+          body: { refresh_token: latest?.refresh_token || refreshToken }
+        });
+      };
+      cloudTokenRefreshPromise = (navigator.locks?.request
+        ? navigator.locks.request("belanjatrack-cloud-token-refresh", refreshOnce)
+        : refreshOnce());
+      try {
+        return await cloudTokenRefreshPromise;
+      } finally {
+        cloudTokenRefreshPromise = null;
+      }
+    }
+
     async function refreshCloudSession(account = currentUser) {
       if (!supabaseConfigured() || !account || cloudSessionActive(account)) return account;
       if (!account.cloudRefreshToken) return account;
-      const data = await supabaseRequest("/auth/v1/token?grant_type=refresh_token", {
-        method: "POST",
-        body: { refresh_token: account.cloudRefreshToken }
-      });
+      const data = await exchangeCloudRefreshToken(account.cloudRefreshToken);
       return applyCloudSession(account, data);
     }
 
@@ -11816,15 +11841,12 @@
     async function refreshStoredCloudSession(session, forceRefresh = false) {
       if (!supabaseConfigured() || !session?.refresh_token) return session;
       if (!forceRefresh && Number(session.expires_at || 0) > Date.now() + 60 * 1000) return session;
-      const refreshed = await supabaseRequest("/auth/v1/token?grant_type=refresh_token", {
-        method: "POST",
-        body: { refresh_token: session.refresh_token }
-      });
+      const refreshed = await exchangeCloudRefreshToken(session.refresh_token);
       persistCloudAuthSession(refreshed);
       return {
         access_token: refreshed.access_token,
         refresh_token: refreshed.refresh_token || session.refresh_token,
-        expires_at: Date.now() + Math.max(60, Number(refreshed.expires_in || 3600) - 30) * 1000,
+        expires_at: Number(refreshed.expires_at || 0) || Date.now() + Math.max(60, Number(refreshed.expires_in || 3600) - 30) * 1000,
         user: refreshed.user || session.user || null
       };
     }
