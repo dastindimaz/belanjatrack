@@ -7417,7 +7417,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-      <small id="appVersionBadge">v271</small>
+      <small id="appVersionBadge">v273</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -9609,6 +9609,8 @@
       let cloudSyncBannerInterval = null;
       let cloudSyncBannerHideTimer = null;
       let cloudSyncBannerDismissed = false;
+      let cloudSyncRetryTimer = null;
+      let lastCloudSyncError = null;
       let cloudSyncInFlight = false;
       let desktopNotificationBannerDismissed = false;
     let cloudDirty = false;
@@ -11681,10 +11683,18 @@
         ...(body ? { body: JSON.stringify(body) } : {})
       });
       const text = await response.text();
-      const data = text ? JSON.parse(text) : null;
+      let data = null;
+      try {
+        data = text ? JSON.parse(text) : null;
+      } catch (error) {
+        data = text || null;
+      }
       if (!response.ok) {
-        const message = data && (data.msg || data.message || data.error_description || data.error);
-        throw new Error(message || `Cloud error ${response.status}`);
+        const message = data && typeof data === "object" && (data.msg || data.message || data.error_description || data.error);
+        const cloudError = new Error(message || `Cloud error ${response.status}`);
+        cloudError.status = response.status;
+        cloudError.code = response.headers.get("sb-error-code") || "";
+        throw cloudError;
       }
       return data;
     }
@@ -11736,13 +11746,13 @@
       );
     }
 
-    async function ensureCurrentCloudSession() {
+    async function ensureCurrentCloudSession({ forceRefresh = false } = {}) {
       if (!supabaseConfigured() || !currentUser) return false;
       let account = currentUser;
       let stored = readCloudAuthSession();
       try {
         if (stored) {
-          stored = await refreshStoredCloudSession(stored);
+          stored = await refreshStoredCloudSession(stored, forceRefresh);
           account = applyCloudSession(saveUpdatedAccount({
             ...account,
             cloudUserId: account.cloudUserId || stored?.user?.id || "",
@@ -11750,6 +11760,7 @@
             cloudRefreshToken: account.cloudRefreshToken || stored?.refresh_token || ""
           }), stored);
         }
+        if (forceRefresh) account = { ...account, cloudTokenExpiresAt: 0 };
         account = await refreshCloudSession(account);
         currentUser = normalizeAccountDisplayName(account);
         rememberAccountSession(currentUser);
@@ -11760,9 +11771,9 @@
       }
     }
 
-    async function refreshStoredCloudSession(session) {
+    async function refreshStoredCloudSession(session, forceRefresh = false) {
       if (!supabaseConfigured() || !session?.refresh_token) return session;
-      if (Number(session.expires_at || 0) > Date.now() + 60 * 1000) return session;
+      if (!forceRefresh && Number(session.expires_at || 0) > Date.now() + 60 * 1000) return session;
       const refreshed = await supabaseRequest("/auth/v1/token?grant_type=refresh_token", {
         method: "POST",
         body: { refresh_token: session.refresh_token }
@@ -12355,7 +12366,7 @@
       }, delay);
     }
 
-    async function syncCloudNow({ force = false } = {}) {
+    async function syncCloudNow({ force = false, authRetry = false } = {}) {
       if (samplePreviewActive) {
         setSyncStatus("preview");
         return false;
@@ -12367,8 +12378,10 @@
       try {
         const sessionReady = await ensureCurrentCloudSession();
         if (!sessionReady) {
-          setSyncStatus("error");
-          return false;
+          const sessionError = new Error("Cloud session could not be restored");
+          sessionError.status = 401;
+          sessionError.code = "SESSION_EXPIRED";
+          throw sessionError;
         }
         const payload = currentDataPayload();
         const recordPush = await pushCloudRecordChanges(currentUser);
@@ -12395,11 +12408,31 @@
         }
         saveUpdatedAccount({ ...currentUser, cloudSyncedAt: payload.exportedAt });
         cloudDirty = false;
+        lastCloudSyncError = null;
+        window.clearTimeout(cloudSyncRetryTimer);
+        cloudSyncRetryTimer = null;
         setSyncStatus("synced");
         return true;
       } catch (error) {
         console.warn("Cloud sync gagal:", error);
+        const storedRefreshToken = readCloudAuthSession()?.refresh_token || "";
+        if (!authRetry && [401, 403].includes(Number(error?.status || 0)) && (currentUser?.cloudRefreshToken || storedRefreshToken)) {
+          const sessionRecovered = await ensureCurrentCloudSession({ forceRefresh: true });
+          if (sessionRecovered) {
+            cloudSyncInFlight = false;
+            return syncCloudNow({ force: true, authRetry: true });
+          }
+        }
+        lastCloudSyncError = {
+          status: Number(error?.status || 0),
+          code: String(error?.code || ""),
+          message: String(error?.message || "Cloud sync failed")
+        };
         setSyncStatus("error");
+        window.clearTimeout(cloudSyncRetryTimer);
+        cloudSyncRetryTimer = window.setTimeout(() => {
+          if (cloudDirty && navigator.onLine) syncCloudNow({ force: true });
+        }, 30000);
         return false;
       } finally {
         cloudSyncInFlight = false;
@@ -13632,9 +13665,12 @@
         banner.hidden = !canShow;
         banner.dataset.syncState = status;
         if (canShow) {
+          const errorCode = status === "error" && lastCloudSyncError
+            ? (lastCloudSyncError.code || lastCloudSyncError.status || "retry")
+            : "";
           bannerText.textContent = status === "queued"
             ? t(bannerKey, { eta: cloudSyncEtaText() })
-            : t(bannerKey);
+            : `${t(bannerKey)}${errorCode ? ` · ${errorCode}` : ""}`;
           if (status === "queued") {
             cloudSyncBannerInterval = window.setInterval(updateCloudSyncEta, 1000);
               } else if (status === "synced" || status === "error") {
@@ -19788,10 +19824,13 @@
         }, CLOUD_SYNC_INTERVAL_MS);
         window.addEventListener("online", () => {
           if (cloudDirty) {
-            scheduleCloudSync(1000);
+            syncCloudNow({ force: true });
           } else {
             refreshCurrentUserFromCloud({ quiet: true, force: true });
           }
+        });
+        window.addEventListener("focus", () => {
+          if (cloudDirty) syncCloudNow({ force: true });
         });
         window.addEventListener("beforeunload", () => {
           if (currentUser) rememberAccountSession(currentUser);
@@ -19799,6 +19838,8 @@
         document.addEventListener("visibilitychange", () => {
           if (document.visibilityState === "hidden") {
             if (currentUser) rememberAccountSession(currentUser);
+            syncCloudNow({ force: true });
+          } else if (cloudDirty) {
             syncCloudNow({ force: true });
           }
         });
