@@ -7417,7 +7417,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-<small id="appVersionBadge">v268</small>
+<small id="appVersionBadge">v270</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -11725,6 +11725,41 @@
       return applyCloudSession(account, data);
     }
 
+    function cloudSessionRecoverable(account = currentUser) {
+      if (!supabaseConfigured() || !account) return false;
+      const stored = readCloudAuthSession();
+      return Boolean(
+        account.cloudAccessToken ||
+        account.cloudRefreshToken ||
+        stored?.access_token ||
+        stored?.refresh_token
+      );
+    }
+
+    async function ensureCurrentCloudSession() {
+      if (!supabaseConfigured() || !currentUser) return false;
+      let account = currentUser;
+      let stored = readCloudAuthSession();
+      try {
+        if (stored) {
+          stored = await refreshStoredCloudSession(stored);
+          account = applyCloudSession(saveUpdatedAccount({
+            ...account,
+            cloudUserId: account.cloudUserId || stored?.user?.id || "",
+            cloudAccessToken: account.cloudAccessToken || stored?.access_token || "",
+            cloudRefreshToken: account.cloudRefreshToken || stored?.refresh_token || ""
+          }), stored);
+        }
+        account = await refreshCloudSession(account);
+        currentUser = normalizeAccountDisplayName(account);
+        rememberAccountSession(currentUser);
+        return Boolean(currentUser.cloudAccessToken && currentUser.cloudUserId);
+      } catch (error) {
+        console.warn("Sesi cloud belum bisa dipulihkan:", error);
+        return false;
+      }
+    }
+
     async function refreshStoredCloudSession(session) {
       if (!supabaseConfigured() || !session?.refresh_token) return session;
       if (Number(session.expires_at || 0) > Date.now() + 60 * 1000) return session;
@@ -12308,7 +12343,7 @@
           setSyncStatus("preview");
           return;
         }
-        if (!supabaseConfigured() || !currentUser?.cloudAccessToken) return;
+        if (!cloudSessionRecoverable()) return;
         cloudSyncBannerDismissed = false;
         cloudDirty = true;
       window.clearTimeout(cloudSyncTimer);
@@ -12324,13 +12359,16 @@
         setSyncStatus("preview");
         return false;
       }
-      if (!supabaseConfigured() || !currentUser?.cloudAccessToken || cloudSyncInFlight) return false;
+      if (!supabaseConfigured() || !currentUser || !cloudSessionRecoverable(currentUser) || cloudSyncInFlight) return false;
       if (!force && !cloudDirty) return false;
       cloudSyncInFlight = true;
       setSyncStatus("syncing");
       try {
-        currentUser = await refreshCloudSession(currentUser);
-        if (!currentUser?.cloudAccessToken || !currentUser?.cloudUserId) return false;
+        const sessionReady = await ensureCurrentCloudSession();
+        if (!sessionReady) {
+          setSyncStatus("error");
+          return false;
+        }
         const payload = currentDataPayload();
         const recordPush = await pushCloudRecordChanges(currentUser);
         if (recordPush.status === "ok") {
@@ -13343,13 +13381,24 @@
       safeAccountStep("header notification", updateHeaderNotificationButton);
       safeAccountStep("render", render);
       window.setTimeout(() => safeAccountStep("wallet exchange rates", refreshWalletExchangeRates), 800);
-      if (currentUser?.cloudAccessToken) {
-        window.setTimeout(() => {
-          refreshCurrentUserFromCloud({ quiet: true });
+      if (cloudSessionRecoverable(currentUser)) {
+        window.setTimeout(async () => {
+          const sessionReady = await ensureCurrentCloudSession();
+          if (!sessionReady) {
+            setSyncStatus("error");
+            return;
+          }
+          const recordModeActive = localStorage.getItem(cloudRecordModeKey(currentUser)) === "1";
+          const hasPendingLocalChanges = recordModeActive && changedCloudRecords(currentUser).changed.length > 0;
+          if (hasPendingLocalChanges) {
+            scheduleCloudSync(1000);
+            return;
+          }
+          await refreshCurrentUserFromCloud({ quiet: true });
+          if (localStorage.getItem(cloudRecordModeKey(currentUser)) !== "1") {
+            scheduleCloudSync(1000);
+          }
         }, 450);
-        if (localStorage.getItem(cloudRecordModeKey(currentUser)) !== "1") {
-          window.setTimeout(() => scheduleCloudSync(1000), 1400);
-        }
       }
       window.setTimeout(() => safeAccountStep("obligation reminders", checkObligationReminders), 300);
       safeAccountStep("startup notifications", requestStartupNotifications);
@@ -13571,7 +13620,7 @@
           error: "cloudUploadError"
         }[status];
         const showSaved = status === "synced" && ["queued", "syncing"].includes(previousStatus);
-            const canShow = Boolean(status !== "preview" && !cloudSyncBannerDismissed && currentUser?.cloudAccessToken && supabaseConfigured() && bannerKey && (status !== "synced" || showSaved));
+            const canShow = Boolean(status !== "preview" && !cloudSyncBannerDismissed && cloudSessionRecoverable() && bannerKey && (status !== "synced" || showSaved));
         clearCloudSyncBannerTimers();
         banner.hidden = !canShow;
         banner.dataset.syncState = status;
@@ -15376,12 +15425,11 @@
           window.OneSignalDeferred.push(async (oneSignal) => {
             try {
               if (!oneSignalReady) {
-                const appBasePath = new URL("./", window.location.href).pathname;
                 await oneSignal.init({
                   appId: ONESIGNAL_CONFIG.appId,
                   allowLocalhostAsSecureOrigin: true,
-                  serviceWorkerPath: `${appBasePath}push/onesignal/OneSignalSDKWorker.js`.replace(/^\/+/, ""),
-                  serviceWorkerParam: { scope: `${appBasePath}push/onesignal/` }
+                  serviceWorkerPath: "push/onesignal/OneSignalSDKWorker.js",
+                  serviceWorkerParam: { scope: "push/onesignal/" }
                 });
                 oneSignalReady = true;
               }
