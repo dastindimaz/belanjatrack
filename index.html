@@ -7417,7 +7417,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-<small id="appVersionBadge">v270</small>
+      <small id="appVersionBadge">v271</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -9029,7 +9029,7 @@
         cloudUploadQueued: "Sinkronisasi ke cloud · ETA {eta}",
         cloudUploadActive: "Sinkronisasi ke cloud...",
         cloudUploadSaved: "Tersinkron ke cloud",
-        cloudUploadError: "Data tersimpan di perangkat ini · Cloud akan mencoba sinkron lagi saat online",
+        cloudUploadError: "Data aman di perangkat · Sinkronisasi cloud belum berhasil dan akan dicoba lagi",
         etaMinute: "1 menit", etaMinutes: "{count} menit", etaSecond: "1 detik", etaSeconds: "{count} detik",
         cloudUnavailable: "Cloud belum siap, data tetap tersimpan lokal.",
         cloudRegisterRequired: "Daftar akun membutuhkan cloud. Coba lagi saat internet stabil.",
@@ -9393,7 +9393,7 @@
         cloudUploadQueued: "Syncing to cloud · ETA {eta}",
         cloudUploadActive: "Syncing to cloud...",
         cloudUploadSaved: "Synced to cloud",
-        cloudUploadError: "Data is saved on this device · Cloud sync will retry when you're online",
+        cloudUploadError: "Data is safe on this device · Cloud sync has not completed and will retry",
         etaMinute: "1 minute", etaMinutes: "{count} minutes", etaSecond: "1 second", etaSeconds: "{count} seconds",
         cloudUnavailable: "Cloud is not ready yet, data is still saved locally.",
         cloudRegisterRequired: "Account registration needs cloud access. Try again with a stable connection.",
@@ -12076,7 +12076,8 @@
         return { status: "ok", count: rows.length };
       } catch (error) {
         if (isMissingCloudRecordsTable(error)) return { status: "missing-table", count: 0 };
-        throw error;
+        console.warn("Sinkronisasi per record belum tersedia, memakai backup payload:", error);
+        return { status: "fallback", count: 0, error };
       }
     }
 
@@ -12386,12 +12387,18 @@
             }
           });
         }
-        await upsertCloudProfile(currentUser);
+        try {
+          await upsertCloudProfile(currentUser);
+        } catch (profileError) {
+          // Profile metadata must never make an otherwise successful data backup look failed.
+          console.warn("Metadata profil belum bisa diperbarui, tetapi data aplikasi sudah tersinkron:", profileError);
+        }
         saveUpdatedAccount({ ...currentUser, cloudSyncedAt: payload.exportedAt });
         cloudDirty = false;
         setSyncStatus("synced");
         return true;
       } catch (error) {
+        console.warn("Cloud sync gagal:", error);
         setSyncStatus("error");
         return false;
       } finally {
