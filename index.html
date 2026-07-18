@@ -7417,7 +7417,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-      <small id="appVersionBadge">v280</small>
+      <small id="appVersionBadge">v281</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -11594,13 +11594,20 @@
       return validEmail(identifier) ? identifier : `${normalizeUsername(username)}@belanjatrack.local`;
     }
 
+    function storedCloudSessionBelongsToAccount(storedSession, account = currentUser) {
+      if (!storedSession?.user || !account) return false;
+      if (storedSession.user.id && account.cloudUserId && storedSession.user.id === account.cloudUserId) return true;
+      const storedEmail = normalizeEmail(storedSession.user.email || "");
+      if (!storedEmail) return false;
+      return [account.cloudEmail, account.email, account.username, account.usernameKey]
+        .map((value) => normalizeEmail(value || ""))
+        .filter(validEmail)
+        .includes(storedEmail);
+    }
+
     function cloudEmailForAccount(account = currentUser) {
       const storedSession = readCloudAuthSession();
-      const storedBelongsToAccount = Boolean(
-        storedSession?.user?.id &&
-        account?.cloudUserId &&
-        storedSession.user.id === account.cloudUserId
-      );
+      const storedBelongsToAccount = storedCloudSessionBelongsToAccount(storedSession, account);
       const storedEmail = storedBelongsToAccount
         ? normalizeEmail(storedSession.user.email || "")
         : "";
@@ -11816,11 +11823,7 @@
       let stored = readCloudAuthSession();
       try {
         lastCloudSessionError = null;
-        if (
-          stored?.user?.id &&
-          account.cloudUserId &&
-          stored.user.id !== account.cloudUserId
-        ) {
+        if (stored && !storedCloudSessionBelongsToAccount(stored, account)) {
           clearCloudAuthSession();
           stored = null;
         }
@@ -11828,9 +11831,9 @@
           stored = await refreshStoredCloudSession(stored, forceRefresh);
           account = applyCloudSession(saveUpdatedAccount({
             ...account,
-            cloudUserId: account.cloudUserId || stored?.user?.id || "",
-            cloudAccessToken: account.cloudAccessToken || stored?.access_token || "",
-            cloudRefreshToken: account.cloudRefreshToken || stored?.refresh_token || ""
+            cloudUserId: stored?.user?.id || account.cloudUserId || "",
+            cloudAccessToken: stored?.access_token || account.cloudAccessToken || "",
+            cloudRefreshToken: stored?.refresh_token || account.cloudRefreshToken || ""
           }), stored);
         } else {
           if (forceRefresh) account = { ...account, cloudTokenExpiresAt: 0 };
