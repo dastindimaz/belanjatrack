@@ -7417,7 +7417,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-      <small id="appVersionBadge">v276</small>
+      <small id="appVersionBadge">v277</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -11579,6 +11579,18 @@
       return validEmail(identifier) ? identifier : `${normalizeUsername(username)}@belanjatrack.local`;
     }
 
+    function cloudEmailForAccount(account = currentUser) {
+      const storedEmail = normalizeEmail(readCloudAuthSession()?.user?.email || "");
+      const candidates = [
+        storedEmail,
+        account?.cloudEmail,
+        account?.email,
+        account?.username,
+        account?.usernameKey
+      ].map((value) => normalizeEmail(value || ""));
+      return candidates.find(validEmail) || "";
+    }
+
     function persistCloudAuthSession(authData) {
       if (!authData?.access_token) return;
       const expiresIn = Number(authData.expires_in || 3600);
@@ -11711,6 +11723,7 @@
       return saveUpdatedAccount({
         ...account,
         displayName: bestCloudDisplayName({ user, existing: account, fallback: account.username }),
+        cloudEmail: normalizeEmail(user.email || account.cloudEmail || cloudEmailForAccount(account)),
         cloudEnabled: true,
         cloudUserId: user.id || account.cloudUserId,
         cloudAccessToken: session.access_token || account.cloudAccessToken,
@@ -11817,7 +11830,9 @@
           cloudReauthDismissedUntil = Date.now() + 5 * 60 * 1000;
           return false;
         }
-        const authData = await signInCloud(currentUser.usernameKey || currentUser.username, password);
+        const cloudEmail = cloudEmailForAccount(currentUser);
+        if (!cloudEmail) throw new Error("Cloud account email is unavailable");
+        const authData = await signInCloud(cloudEmail, password);
         const accountWithCurrentPassword = await updateAccountPassword(currentUser, password);
         currentUser = normalizeAccountDisplayName(applyCloudSession(accountWithCurrentPassword, authData));
         rememberAccountSession(currentUser);
