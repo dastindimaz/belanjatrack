@@ -1510,6 +1510,47 @@
       font-size: 12px;
     }
 
+    .cloud-user-id-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      margin: 0 4px 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--soft);
+    }
+
+    .cloud-user-id-copy {
+      display: grid;
+      min-width: 0;
+      gap: 3px;
+    }
+
+    .cloud-user-id-copy > span {
+      color: #8f8f9b;
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .cloud-user-id-copy code {
+      overflow-wrap: anywhere;
+      color: var(--text);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .cloud-user-id-card .icon-button {
+      width: 38px;
+      min-width: 38px;
+      height: 38px;
+      padding: 0;
+      border-radius: 10px;
+    }
+
     .account-name-editor {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
@@ -7417,7 +7458,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-      <small id="appVersionBadge">v282</small>
+      <small id="appVersionBadge">v284</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -7517,6 +7558,15 @@
             <div class="account-summary">
               <strong id="accountDisplayName">Pengguna</strong>
               <small id="accountUsername">@user</small>
+            </div>
+            <div class="cloud-user-id-card">
+              <div class="cloud-user-id-copy">
+                <span data-i18n="cloudUserId">Cloud User ID</span>
+                <code id="accountCloudUserId">Belum terhubung</code>
+              </div>
+              <button class="icon-button" type="button" id="copyCloudUserIdBtn" title="Salin User ID" aria-label="Salin User ID" data-i18n-title="copyUserId" data-i18n-aria="copyUserId">
+                <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M15 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h3"></path></svg>
+              </button>
             </div>
             <div class="account-name-editor">
               <label><span data-i18n="yourName">Nama Anda</span>
@@ -9013,7 +9063,7 @@
         appInstalledHint: "BelanjaTrack sudah berjalan sebagai aplikasi di perangkat ini.",
         pwaUnavailable: "Instalasi PWA belum tersedia pada browser atau alamat ini.",
         localAccountSubtitle: "Akun lokal untuk data belanja Anda", login: "Masuk", register: "Daftar",
-        username: "Nama pengguna", userId: "User ID", email: "Email", password: "Password", displayName: "Nama tampilan", yourName: "Nama Anda",
+        username: "Nama pengguna", userId: "User ID", cloudUserId: "Cloud User ID", copyUserId: "Salin User ID", userIdCopied: "User ID disalin.", notConnected: "Belum terhubung", email: "Email", password: "Password", displayName: "Nama tampilan", yourName: "Nama Anda",
         saveName: "Simpan nama", nameRequired: "Nama Anda belum diisi.", nameSaved: "Nama Anda sudah diperbarui.",
         confirmPassword: "Ulangi password", createAccount: "Buat akun", restoreAccount: "Pulihkan akun dari JSON",
         localAccountNote: "Aplikasi ini tetap bisa berjalan tanpa internet. Saat internet tersedia, data akan dibackup ke cloud otomatis.",
@@ -9377,7 +9427,7 @@
         appInstalledHint: "BelanjaTrack is already running as an installed app on this device.",
         pwaUnavailable: "PWA installation is not available in this browser or at this address.",
         localAccountSubtitle: "A local account for your shopping data", login: "Log in", register: "Register",
-        username: "Username", userId: "User ID", email: "Email", password: "Password", displayName: "Display name", yourName: "Your name",
+        username: "Username", userId: "User ID", cloudUserId: "Cloud User ID", copyUserId: "Copy User ID", userIdCopied: "User ID copied.", notConnected: "Not connected", email: "Email", password: "Password", displayName: "Display name", yourName: "Your name",
         saveName: "Save name", nameRequired: "Enter your name first.", nameSaved: "Your name has been updated.",
         confirmPassword: "Confirm password", createAccount: "Create account", restoreAccount: "Restore account from JSON",
         localAccountNote: "This app can keep working without internet. When internet is available, your data is backed up to the cloud automatically.",
@@ -11786,7 +11836,9 @@
         }
         return supabaseRequest("/auth/v1/token?grant_type=refresh_token", {
           method: "POST",
-          body: { refresh_token: latest?.refresh_token || refreshToken }
+          // The caller owns the active account session. Never let a stale token
+          // from an older login override the newer token passed by that account.
+          body: { refresh_token: refreshToken }
         });
       };
       cloudTokenRefreshPromise = (navigator.locks?.request
@@ -12654,7 +12706,7 @@
       if ($("authScreen").hidden) setMainLocked(false);
     }
 
-    async function copyTextToClipboard(text) {
+    async function copyTextToClipboard(text, successKey = "codeCopied") {
       const code = String(text || "");
       try {
         await navigator.clipboard.writeText(code);
@@ -12673,7 +12725,7 @@
         selection.removeAllRanges();
         scratch.remove();
       }
-      toast(t("codeCopied"));
+      toast(t(successKey));
     }
 
     async function copyRecoveryCode() {
@@ -12859,11 +12911,25 @@
       if (!currentUser) return;
       $("accountDisplayName").textContent = currentUser.displayName;
       $("accountUsername").textContent = currentUser.username;
+      let cloudUserId = String(currentUser.cloudUserId || "").trim();
+      if (!cloudUserId) {
+        try {
+          cloudUserId = String(readCloudAuthSession()?.user?.id || "").trim();
+        } catch (error) {}
+      }
+      if ($("accountCloudUserId")) $("accountCloudUserId").textContent = cloudUserId || t("notConnected");
+      if ($("copyCloudUserIdBtn")) $("copyCloudUserIdBtn").disabled = !cloudUserId;
       if ($("settingsDisplayNameInput")) $("settingsDisplayNameInput").value = currentUser.displayName || "";
       $("manageRecoveryCodeBtn").querySelector("span").textContent = t(
         currentUser.recoveryHash ? "renewRecoveryCode" : "manageRecoveryCode"
       );
       updateGreeting();
+    }
+
+    async function copyCloudUserId() {
+      const cloudUserId = String($("accountCloudUserId")?.textContent || "").trim();
+      if (!cloudUserId || cloudUserId === t("notConnected")) return;
+      await copyTextToClipboard(cloudUserId, "userIdCopied");
     }
 
     async function saveDisplayNameFromSettings() {
@@ -19630,6 +19696,7 @@
       $("exitSamplePreviewBtn").addEventListener("click", exitSamplePreview);
       $("openWalletFormBtn").addEventListener("click", () => openWalletForm());
       $("saveDisplayNameBtn").addEventListener("click", saveDisplayNameFromSettings);
+      $("copyCloudUserIdBtn").addEventListener("click", copyCloudUserId);
       $("settingsDisplayNameInput").addEventListener("keydown", (event) => {
         if (event.key !== "Enter") return;
         event.preventDefault();
