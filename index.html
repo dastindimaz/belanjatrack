@@ -7417,7 +7417,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-      <small id="appVersionBadge">v275</small>
+      <small id="appVersionBadge">v276</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -11817,14 +11817,9 @@
           cloudReauthDismissedUntil = Date.now() + 5 * 60 * 1000;
           return false;
         }
-        const localAccount = await authenticateLocalAccount(currentUser.usernameKey || currentUser.username, password);
-        if (!localAccount) {
-          toast(language === "id" ? "Password tidak sesuai." : "Incorrect password.");
-          cloudReauthDismissedUntil = Date.now() + 60 * 1000;
-          return false;
-        }
         const authData = await signInCloud(currentUser.usernameKey || currentUser.username, password);
-        currentUser = normalizeAccountDisplayName(applyCloudSession(currentUser, authData));
+        const accountWithCurrentPassword = await updateAccountPassword(currentUser, password);
+        currentUser = normalizeAccountDisplayName(applyCloudSession(accountWithCurrentPassword, authData));
         rememberAccountSession(currentUser);
         lastCloudSessionError = null;
         cloudReauthDismissedUntil = 0;
@@ -11832,6 +11827,14 @@
       } catch (error) {
         lastCloudSessionError = error;
         console.warn("Login ulang cloud gagal:", error);
+        const language = state.settings.language || defaultLanguage();
+        const authMessage = String(error?.message || "").toLowerCase();
+        toast(
+          authMessage.includes("invalid login") || authMessage.includes("invalid credentials")
+            ? (language === "id" ? "Email atau password cloud tidak sesuai." : "Incorrect cloud email or password.")
+            : (language === "id" ? "Sesi cloud belum bisa diperbarui. Coba lagi sebentar." : "The cloud session could not be refreshed yet. Please try again shortly.")
+        );
+        cloudReauthDismissedUntil = Date.now() + 60 * 1000;
         return false;
       } finally {
         cloudReauthInFlight = false;
