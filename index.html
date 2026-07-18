@@ -7417,7 +7417,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-      <small id="appVersionBadge">v277</small>
+      <small id="appVersionBadge">v278</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -11801,9 +11801,10 @@
             cloudAccessToken: account.cloudAccessToken || stored?.access_token || "",
             cloudRefreshToken: account.cloudRefreshToken || stored?.refresh_token || ""
           }), stored);
+        } else {
+          if (forceRefresh) account = { ...account, cloudTokenExpiresAt: 0 };
+          account = await refreshCloudSession(account);
         }
-        if (forceRefresh) account = { ...account, cloudTokenExpiresAt: 0 };
-        account = await refreshCloudSession(account);
         currentUser = normalizeAccountDisplayName(account);
         rememberAccountSession(currentUser);
         return Boolean(currentUser.cloudAccessToken && currentUser.cloudUserId);
