@@ -7572,6 +7572,39 @@
       -webkit-text-fill-color: #d0d3dc;
       border-color: #4b505d;
     }
+
+    /* Keep the expense wallet picker legible above every story-form layer. */
+    html[data-resolved-theme="dark"] #expenseEntryDialog .expense-wallet-field.active .custom-select-menu {
+      border-color: rgba(255, 255, 255, .14);
+      background: #1c2027;
+      color: #f5f5f7;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .08),
+        0 20px 46px rgba(0, 0, 0, .48);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+
+    html[data-resolved-theme="dark"] #expenseEntryDialog .expense-wallet-field.active .custom-select-option {
+      background: transparent;
+      color: #f5f5f7;
+      -webkit-text-fill-color: #f5f5f7;
+    }
+
+    html[data-resolved-theme="dark"] #expenseEntryDialog .expense-wallet-field.active .custom-select-option:hover,
+    html[data-resolved-theme="dark"] #expenseEntryDialog .expense-wallet-field.active .custom-select-option[aria-selected="true"] {
+      border-color: rgba(52, 211, 153, .22);
+      background: rgba(15, 118, 110, .28);
+      color: #6ee7b7;
+      -webkit-text-fill-color: #6ee7b7;
+    }
+
+    html[data-resolved-theme="dark"] #expenseEntryDialog .expense-wallet-field.active .custom-select-search {
+      border-color: rgba(255, 255, 255, .14);
+      background: #11151a;
+      color: #f5f5f7;
+      -webkit-text-fill-color: #f5f5f7;
+    }
   </style>
 </head>
 <body class="splash-active">
@@ -7660,7 +7693,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-      <small id="appVersionBadge">v303</small>
+      <small id="appVersionBadge">v304</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -10346,7 +10379,7 @@
       });
       if ("serviceWorker" in navigator && window.location.protocol !== "file:") {
         window.addEventListener("load", () => {
-          navigator.serviceWorker.register("./sw.js?v=303", { updateViaCache: "none" })
+          navigator.serviceWorker.register("./sw.js?v=304", { updateViaCache: "none" })
             .then((registration) => registration.update().catch(() => null))
             .catch((error) => {
               console.error("Service worker gagal didaftarkan:", error);
