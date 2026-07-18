@@ -7417,7 +7417,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-      <small id="appVersionBadge">v281</small>
+      <small id="appVersionBadge">v282</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -11829,6 +11829,15 @@
         }
         if (stored) {
           stored = await refreshStoredCloudSession(stored, forceRefresh);
+          // The authenticated Supabase UUID is authoritative for every cloud row.
+          // Re-read it when older local account data may still point at a replaced user.
+          if (!stored?.user?.id || (account.cloudUserId && stored.user.id !== account.cloudUserId)) {
+            const authenticatedUser = await supabaseRequest("/auth/v1/user", {
+              token: stored.access_token
+            });
+            stored = { ...stored, user: authenticatedUser };
+            persistCloudAuthSession(stored);
+          }
           account = applyCloudSession(saveUpdatedAccount({
             ...account,
             cloudUserId: stored?.user?.id || account.cloudUserId || "",
@@ -12533,14 +12542,14 @@
       } catch (error) {
         console.warn("Cloud sync gagal:", error);
         const storedRefreshToken = readCloudAuthSession()?.refresh_token || "";
-        if (!authRetry && [401, 403].includes(Number(error?.status || 0)) && (currentUser?.cloudRefreshToken || storedRefreshToken)) {
+        if (!authRetry && Number(error?.status || 0) === 401 && (currentUser?.cloudRefreshToken || storedRefreshToken)) {
           const sessionRecovered = await ensureCurrentCloudSession({ forceRefresh: true });
           if (sessionRecovered) {
             cloudSyncInFlight = false;
             return syncCloudNow({ force: true, authRetry: true });
           }
         }
-        if (!authRetry && [401, 403].includes(Number(error?.status || 0))) {
+        if (!authRetry && Number(error?.status || 0) === 401) {
           const signedInAgain = await reauthenticateCloudSession();
           if (signedInAgain) {
             cloudSyncInFlight = false;
