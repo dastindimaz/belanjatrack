@@ -7458,7 +7458,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-      <small id="appVersionBadge">v284</small>
+      <small id="appVersionBadge">v292</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -9638,7 +9638,7 @@
         }
       }
     };
-    const CLOUD_SYNC_DEBOUNCE_MS = 60 * 1000;
+    const CLOUD_SYNC_DEBOUNCE_MS = 0;
     const CLOUD_SYNC_INTERVAL_MS = 30 * 60 * 1000;
     const CLOUD_RECORD_PAGE_SIZE = 500;
     const CLOUD_RECORD_COLLECTIONS = [
@@ -9699,6 +9699,7 @@
     const customSelectRegistry = new Map();
     let syncBottomNavIndicator = () => {};
     let lastCloudAuthError = "";
+    let lastCloudAuthErrorCode = "";
 
     const $ = (id) => document.getElementById(id);
 
@@ -10416,7 +10417,7 @@
     }
 
     function normalizeName(value) {
-      return value.trim().replace(/\s+/g, " ");
+      return String(value ?? "").trim().replace(/\s+/g, " ");
     }
 
     function defaultWalletName() {
@@ -11645,7 +11646,16 @@
     }
 
     function storedCloudSessionBelongsToAccount(storedSession, account = currentUser) {
-      if (!storedSession?.user || !account) return false;
+      if (!storedSession || !account) return false;
+      // A refreshed Supabase session can temporarily arrive without `user`.
+      // Keep it when its rotating tokens belong to the active local account;
+      // ensureCurrentCloudSession will resolve the authoritative user UUID.
+      if (!storedSession.user) {
+        return Boolean(
+          (storedSession.access_token && storedSession.access_token === account.cloudAccessToken) ||
+          (storedSession.refresh_token && storedSession.refresh_token === account.cloudRefreshToken)
+        );
+      }
       if (storedSession.user.id && account.cloudUserId && storedSession.user.id === account.cloudUserId) return true;
       const storedEmail = normalizeEmail(storedSession.user.email || "");
       if (!storedEmail) return false;
@@ -11671,15 +11681,44 @@
       return candidates.find(validEmail) || "";
     }
 
+    function cloudAccessTokenExpiryMs(accessToken) {
+      try {
+        const payloadPart = String(accessToken || "").split(".")[1] || "";
+        if (!payloadPart) return 0;
+        const normalized = payloadPart.replace(/-/g, "+").replace(/_/g, "/");
+        const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
+        const payload = JSON.parse(atob(padded));
+        const expiresAt = Number(payload?.exp || 0);
+        return expiresAt > 0 ? expiresAt * 1000 : 0;
+      } catch (error) {
+        return 0;
+      }
+    }
+
+    function cloudSessionExpiryMs(authData, fallbackExpiresIn = 3600) {
+      // The signed token is authoritative. Older versions could extend the
+      // cached timestamp without actually refreshing this access token.
+      const tokenExpiresAt = cloudAccessTokenExpiryMs(authData?.access_token);
+      if (tokenExpiresAt > 0) return tokenExpiresAt;
+      const rawExpiresAt = Number(authData?.expires_at || 0);
+      if (rawExpiresAt > 0) {
+        // Supabase may return epoch seconds, while our local cache uses milliseconds.
+        return rawExpiresAt < 1e12 ? rawExpiresAt * 1000 : rawExpiresAt;
+      }
+      const expiresIn = Number(authData?.expires_in || fallbackExpiresIn);
+      return Date.now() + Math.max(60, expiresIn - 30) * 1000;
+    }
+
     function persistCloudAuthSession(authData) {
       if (!authData?.access_token) return;
-      const expiresIn = Number(authData.expires_in || 3600);
       try {
+        const previous = readCloudAuthSession();
+        const sameUser = !previous?.user?.id || !authData?.user?.id || previous.user.id === authData.user.id;
         const cloudAuth = JSON.stringify({
           access_token: authData.access_token,
-          refresh_token: authData.refresh_token || "",
-          expires_at: Date.now() + Math.max(60, expiresIn - 30) * 1000,
-          user: authData.user || null
+          refresh_token: authData.refresh_token || (sameUser ? previous?.refresh_token : "") || "",
+          expires_at: cloudSessionExpiryMs(authData),
+          user: authData.user || (sameUser ? previous?.user : null) || null
         });
         localStorage.setItem(CLOUD_AUTH_KEY, cloudAuth);
         sessionStorage.setItem(CLOUD_AUTH_KEY, cloudAuth);
@@ -11789,7 +11828,9 @@
         const message = data && typeof data === "object" && (data.msg || data.message || data.error_description || data.error);
         const cloudError = new Error(message || `Cloud error ${response.status}`);
         cloudError.status = response.status;
-        cloudError.code = response.headers.get("sb-error-code") || "";
+        cloudError.code = response.headers.get("sb-error-code") || (
+          data && typeof data === "object" ? String(data.code || data.error_code || "") : ""
+        );
         throw cloudError;
       }
       return data;
@@ -11798,7 +11839,6 @@
     function applyCloudSession(account, authData) {
       const session = authData || {};
       const user = session.user || {};
-      const expiresIn = Number(session.expires_in || 3600);
       persistCloudAuthSession(session);
       return saveUpdatedAccount({
         ...account,
@@ -11808,7 +11848,7 @@
         cloudUserId: user.id || account.cloudUserId,
         cloudAccessToken: session.access_token || account.cloudAccessToken,
         cloudRefreshToken: session.refresh_token || account.cloudRefreshToken,
-        cloudTokenExpiresAt: Date.now() + Math.max(60, expiresIn - 30) * 1000,
+        cloudTokenExpiresAt: cloudSessionExpiryMs(session),
         cloudUpdatedAt: new Date().toISOString()
       });
     }
@@ -11875,7 +11915,10 @@
       let stored = readCloudAuthSession();
       try {
         lastCloudSessionError = null;
-        if (stored && !storedCloudSessionBelongsToAccount(stored, account)) {
+        // Only discard a session when it contains an explicit user identity
+        // that conflicts with the active account. A session without `user`
+        // can still be recovered and validated through /auth/v1/user.
+        if (stored?.user && !storedCloudSessionBelongsToAccount(stored, account)) {
           clearCloudAuthSession();
           stored = null;
         }
@@ -11887,6 +11930,11 @@
             const authenticatedUser = await supabaseRequest("/auth/v1/user", {
               token: stored.access_token
             });
+            if (!authenticatedUser?.id) {
+              const identityError = new Error("Cloud user identity could not be verified");
+              identityError.code = "CLOUD_IDENTITY_UNAVAILABLE";
+              throw identityError;
+            }
             stored = { ...stored, user: authenticatedUser };
             persistCloudAuthSession(stored);
           }
@@ -11960,7 +12008,7 @@
       return {
         access_token: refreshed.access_token,
         refresh_token: refreshed.refresh_token || session.refresh_token,
-        expires_at: Number(refreshed.expires_at || 0) || Date.now() + Math.max(60, Number(refreshed.expires_in || 3600) - 30) * 1000,
+        expires_at: cloudSessionExpiryMs(refreshed),
         user: refreshed.user || session.user || null
       };
     }
@@ -12506,26 +12554,58 @@
 
     async function authenticateAccount(username, password) {
       lastCloudAuthError = "";
-      let account = await authenticateLocalAccount(username, password);
-      if (account) {
-        account = await ensureCloudAccount(account, password);
-        await pullCloudIfNewer(account);
-        return account;
-      }
-      if (!supabaseConfigured()) return null;
-      try {
-        const authData = await signInCloud(username, password);
-        account = await createLocalAccountFromCloud(username, password, authData);
-        await upsertCloudProfile(account);
-        const cloudPullStatus = await pullCloudIfNewer(account);
-        if (cloudPullStatus === "missing") {
-          account = saveUpdatedAccount({ ...account, needsOnboarding: true });
+      lastCloudAuthErrorCode = "";
+      const identifier = normalizeEmail(username);
+      let cloudError = null;
+
+      // When online, cloud authentication must be authoritative. Previously a
+      // matching local password could open the app even when Supabase rejected
+      // the login, leaving an old refresh token to fail every later sync.
+      if (supabaseConfigured() && validEmail(identifier) && navigator.onLine) {
+        let authData = null;
+        try {
+          clearCloudAuthSession();
+          authData = await signInCloud(identifier, password);
+          persistCloudAuthSession(authData);
+        } catch (error) {
+          cloudError = error;
+          lastCloudAuthError = String(error?.message || "Cloud authentication failed");
+          lastCloudAuthErrorCode = String(error?.code || "").toUpperCase();
+          if (Number(error?.status || 0) > 0) return null;
         }
-        return account;
-      } catch (error) {
-        lastCloudAuthError = String(error?.message || "");
-        return null;
+
+        if (authData) {
+          try {
+          let account = await createLocalAccountFromCloud(identifier, password, authData);
+          // Authentication has already succeeded at this point. Optional
+          // profile metadata must never turn a valid login into an
+          // "incorrect email or password" result when the database schema is
+          // older or temporarily unavailable.
+          try {
+            await upsertCloudProfile(account);
+          } catch (profileError) {
+            console.warn("Login berhasil, metadata profil belum diperbarui:", profileError);
+          }
+          const cloudPullStatus = await pullCloudIfNewer(account);
+          if (cloudPullStatus === "missing") {
+            account = saveUpdatedAccount({ ...account, needsOnboarding: true });
+          }
+          return account;
+          } catch (error) {
+            cloudError = error;
+            lastCloudAuthError = String(error?.message || "Account preparation failed");
+            lastCloudAuthErrorCode = "ACCOUNT_SETUP_FAILED";
+            console.error("Login cloud berhasil, tetapi akun perangkat belum siap:", error);
+            return null;
+          }
+        }
       }
+
+      const localAccount = await authenticateLocalAccount(identifier, password);
+      if (localAccount && (!navigator.onLine || !supabaseConfigured() || cloudError)) {
+        return localAccount;
+      }
+      return null;
     }
 
       function scheduleCloudSync(delay = CLOUD_SYNC_DEBOUNCE_MS) {
@@ -12537,11 +12617,11 @@
         cloudSyncBannerDismissed = false;
         cloudDirty = true;
       window.clearTimeout(cloudSyncTimer);
-      cloudSyncDueAt = Date.now() + Math.max(0, Number(delay) || 0);
-      setSyncStatus("queued");
+      cloudSyncDueAt = 0;
+      setSyncStatus("syncing");
       cloudSyncTimer = window.setTimeout(() => {
         syncCloudNow();
-      }, delay);
+      }, 0);
     }
 
     async function syncCloudNow({ force = false, authRetry = false } = {}) {
@@ -12557,8 +12637,7 @@
         const sessionReady = await ensureCurrentCloudSession();
         if (!sessionReady) {
           const sessionError = lastCloudSessionError || new Error("Cloud session could not be restored");
-          sessionError.status = Number(sessionError.status || 401);
-          sessionError.code = sessionError.code || "SESSION_EXPIRED";
+          sessionError.code = sessionError.code || "CLOUD_SESSION_UNAVAILABLE";
           throw sessionError;
         }
         const payload = currentDataPayload();
@@ -18793,11 +18872,28 @@
         const account = await authenticateAccount(username, password);
         if (!account) {
           const authError = lastCloudAuthError.toLowerCase();
-          setAuthMessage(t(
-            authError.includes("email not confirmed") || authError.includes("not confirmed")
-              ? "emailVerificationRequired"
-              : secureCryptoAvailable() ? "loginInvalid" : "cryptoUnavailable"
-          ));
+          const authCode = lastCloudAuthErrorCode.toLowerCase();
+          if (authError.includes("email not confirmed") || authError.includes("not confirmed") || authCode.includes("email_not_confirmed")) {
+            setAuthMessage(t("emailVerificationRequired"));
+          } else if (!secureCryptoAvailable()) {
+            setAuthMessage(t("cryptoUnavailable"));
+          } else if (authCode === "account_setup_failed") {
+            setAuthMessage(state.settings.language === "id"
+              ? "Login cloud berhasil, tetapi data akun di perangkat belum dapat disiapkan. Muat ulang aplikasi lalu coba lagi."
+              : "Cloud login succeeded, but the account could not be prepared on this device. Reload the app and try again.");
+          } else if (authCode.includes("over_request_rate_limit") || authError.includes("rate limit")) {
+            setAuthMessage(state.settings.language === "id"
+              ? "Terlalu banyak percobaan login. Tunggu sebentar lalu coba lagi."
+              : "Too many login attempts. Wait a moment, then try again.");
+          } else if (authCode.includes("invalid_credentials") || authError.includes("invalid login") || authError.includes("invalid credentials")) {
+            setAuthMessage(t("loginInvalid"));
+          } else if (lastCloudAuthError) {
+            setAuthMessage(state.settings.language === "id"
+              ? `Login cloud belum berhasil: ${lastCloudAuthError}`
+              : `Cloud login did not complete: ${lastCloudAuthError}`);
+          } else {
+            setAuthMessage(t("loginInvalid"));
+          }
           return;
         }
         $("loginForm").reset();
