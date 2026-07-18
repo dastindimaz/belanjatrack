@@ -7417,7 +7417,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-      <small id="appVersionBadge">v278</small>
+      <small id="appVersionBadge">v280</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -10015,6 +10015,15 @@
       return /iphone|ipad|ipod/i.test(window.navigator.userAgent);
     }
 
+    async function lockAppOrientation() {
+      if (!isInstalledApp() || !screen.orientation?.lock) return;
+      try {
+        await screen.orientation.lock("portrait-primary");
+      } catch (error) {
+        // The manifest still enforces portrait on platforms that block this API.
+      }
+    }
+
     function updateInstallControl() {
       const section = $("installAppSection");
       const button = $("installAppBtn");
@@ -10075,7 +10084,12 @@
       window.addEventListener("appinstalled", () => {
         deferredInstallPrompt = null;
         updateInstallControl();
+        lockAppOrientation();
         toast(t("installAccepted"));
+      });
+      window.addEventListener("pageshow", lockAppOrientation);
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") lockAppOrientation();
       });
       if ("serviceWorker" in navigator && window.location.protocol !== "file:") {
         window.addEventListener("load", () => {
@@ -10091,6 +10105,7 @@
           window.location.reload();
         });
       }
+      lockAppOrientation();
       updateInstallControl();
     }
 
@@ -11580,13 +11595,21 @@
     }
 
     function cloudEmailForAccount(account = currentUser) {
-      const storedEmail = normalizeEmail(readCloudAuthSession()?.user?.email || "");
+      const storedSession = readCloudAuthSession();
+      const storedBelongsToAccount = Boolean(
+        storedSession?.user?.id &&
+        account?.cloudUserId &&
+        storedSession.user.id === account.cloudUserId
+      );
+      const storedEmail = storedBelongsToAccount
+        ? normalizeEmail(storedSession.user.email || "")
+        : "";
       const candidates = [
-        storedEmail,
         account?.cloudEmail,
         account?.email,
         account?.username,
-        account?.usernameKey
+        account?.usernameKey,
+        storedEmail
       ].map((value) => normalizeEmail(value || ""));
       return candidates.find(validEmail) || "";
     }
@@ -11793,6 +11816,14 @@
       let stored = readCloudAuthSession();
       try {
         lastCloudSessionError = null;
+        if (
+          stored?.user?.id &&
+          account.cloudUserId &&
+          stored.user.id !== account.cloudUserId
+        ) {
+          clearCloudAuthSession();
+          stored = null;
+        }
         if (stored) {
           stored = await refreshStoredCloudSession(stored, forceRefresh);
           account = applyCloudSession(saveUpdatedAccount({
