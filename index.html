@@ -234,6 +234,85 @@
       outline: none;
     }
 
+    .clearable-field {
+      position: relative;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .clearable-field > input,
+    .clearable-field > textarea {
+      padding-right: 46px;
+    }
+
+    .clearable-field > input[type="search"] {
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .clearable-field > input[type="search"]::-webkit-search-cancel-button {
+      display: none;
+    }
+
+    .text-clear-button {
+      position: absolute;
+      top: 50%;
+      right: 9px;
+      z-index: 4;
+      width: 30px;
+      min-width: 30px;
+      height: 30px;
+      min-height: 30px;
+      padding: 0;
+      transform: translateY(-50%);
+      border: 1px solid transparent;
+      border-radius: 50%;
+      background: transparent;
+      color: var(--muted);
+      font-size: 22px;
+      font-weight: 500;
+      line-height: 1;
+      box-shadow: none;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .16s ease, background .16s ease, color .16s ease, transform .16s ease;
+    }
+
+    .clearable-field.has-textarea .text-clear-button {
+      top: 10px;
+      transform: none;
+    }
+
+    .clearable-field.has-value .text-clear-button {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .text-clear-button:hover,
+    .text-clear-button:focus-visible {
+      background: rgba(102, 112, 133, .12);
+      color: var(--ink);
+      outline: none;
+    }
+
+    .text-clear-button:active {
+      transform: translateY(-50%) scale(.9);
+    }
+
+    .clearable-field.has-textarea .text-clear-button:active {
+      transform: scale(.9);
+    }
+
+    html[data-resolved-theme="dark"] .text-clear-button {
+      color: #b9bdc8;
+    }
+
+    html[data-resolved-theme="dark"] .text-clear-button:hover,
+    html[data-resolved-theme="dark"] .text-clear-button:focus-visible {
+      background: rgba(255, 255, 255, .1);
+      color: #fff;
+    }
+
     input:focus, select:focus, textarea:focus {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px rgba(15, 118, 110, .12);
@@ -5172,6 +5251,31 @@
       order: 20;
     }
 
+    .income-step-mode [data-income-step],
+    .transfer-step-mode [data-transfer-step] {
+      display: none;
+    }
+
+    .income-step-mode [data-income-step].active,
+    .transfer-step-mode [data-transfer-step].active {
+      display: grid;
+      animation: debt-step-in 180ms ease both;
+    }
+
+    .income-step-mode [data-income-step].span-2.active,
+    .transfer-step-mode [data-transfer-step].span-2.active {
+      grid-column: span 2;
+    }
+
+    .transfer-step-mode .transfer-balance-hint.active {
+      display: block;
+    }
+
+    .income-step-mode .form-footer,
+    .transfer-step-mode .form-footer {
+      order: 20;
+    }
+
     #obligationInterestToggleField.active {
       gap: 10px;
       margin-top: 4px;
@@ -7192,6 +7296,59 @@
       transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
     }
 
+    .custom-select-shell.has-clear-control .custom-select-trigger {
+      padding-right: 78px;
+    }
+
+    .custom-select-clear {
+      position: absolute;
+      top: 50%;
+      right: 39px;
+      z-index: 3;
+      display: grid;
+      place-items: center;
+      width: 30px;
+      min-width: 30px;
+      height: 30px;
+      min-height: 30px;
+      padding: 0;
+      transform: translateY(-50%);
+      border: 1px solid transparent;
+      border-radius: 50%;
+      background: transparent;
+      color: var(--muted);
+      font-size: 22px;
+      font-weight: 500;
+      line-height: 1;
+      box-shadow: none;
+      transition: background .16s ease, color .16s ease, transform .16s ease;
+    }
+
+    .custom-select-clear[hidden] {
+      display: none;
+    }
+
+    .custom-select-clear:hover,
+    .custom-select-clear:focus-visible {
+      background: rgba(102, 112, 133, .12);
+      color: var(--ink);
+      outline: none;
+    }
+
+    .custom-select-clear:active {
+      transform: translateY(-50%) scale(.9);
+    }
+
+    html[data-resolved-theme="dark"] .custom-select-clear {
+      color: #b9bdc8;
+    }
+
+    html[data-resolved-theme="dark"] .custom-select-clear:hover,
+    html[data-resolved-theme="dark"] .custom-select-clear:focus-visible {
+      background: rgba(255, 255, 255, .1);
+      color: #fff;
+    }
+
     .custom-select-trigger:hover,
     .custom-select-trigger[aria-expanded="true"] {
       border-color: rgba(15, 118, 110, .34);
@@ -7511,8 +7668,12 @@
     }
 
     /* Story-form CTAs must keep their contrast even when generic button rules change. */
+    #incomeEntryDialog #incomeStoryNextBtn,
+    #incomeEntryDialog #saveIncomeBtn,
     #expenseEntryDialog #expenseStoryNextBtn,
     #expenseEntryDialog #saveEntryBtn,
+    #transferEntryDialog #transferStoryNextBtn,
+    #transferEntryDialog #saveTransferBtn,
     #obligationDialog #debtStoryNextBtn,
     #obligationDialog #saveObligationBtn {
       background: #00a878;
@@ -7522,7 +7683,9 @@
       opacity: 1;
     }
 
+    #incomeEntryDialog #incomeStoryBackBtn,
     #expenseEntryDialog #expenseStoryBackBtn,
+    #transferEntryDialog #transferStoryBackBtn,
     #obligationDialog #debtStoryBackBtn {
       background: var(--panel);
       color: var(--ink);
@@ -7531,6 +7694,7 @@
       opacity: 1;
     }
 
+    #incomeEntryDialog #discardIncomeDraftBtn,
     #expenseEntryDialog #discardExpenseDraftBtn,
     #obligationDialog #discardObligationDraftBtn {
       background: #fff5f5;
@@ -7540,7 +7704,9 @@
       opacity: 1;
     }
 
+    #incomeEntryDialog .form-actions button:disabled,
     #expenseEntryDialog .form-actions button:disabled,
+    #transferEntryDialog .form-actions button:disabled,
     #obligationDialog .form-actions button:disabled {
       background: #e4e7ec;
       color: #475467;
@@ -7549,7 +7715,9 @@
       opacity: 1;
     }
 
+    html[data-resolved-theme="dark"] #incomeEntryDialog #incomeStoryBackBtn,
     html[data-resolved-theme="dark"] #expenseEntryDialog #expenseStoryBackBtn,
+    html[data-resolved-theme="dark"] #transferEntryDialog #transferStoryBackBtn,
     html[data-resolved-theme="dark"] #obligationDialog #debtStoryBackBtn {
       background: #252832;
       color: #f5f5f7;
@@ -7557,6 +7725,7 @@
       border-color: #454955;
     }
 
+    html[data-resolved-theme="dark"] #incomeEntryDialog #discardIncomeDraftBtn,
     html[data-resolved-theme="dark"] #expenseEntryDialog #discardExpenseDraftBtn,
     html[data-resolved-theme="dark"] #obligationDialog #discardObligationDraftBtn {
       background: #3b2023;
@@ -7565,7 +7734,9 @@
       border-color: #7f363b;
     }
 
+    html[data-resolved-theme="dark"] #incomeEntryDialog .form-actions button:disabled,
     html[data-resolved-theme="dark"] #expenseEntryDialog .form-actions button:disabled,
+    html[data-resolved-theme="dark"] #transferEntryDialog .form-actions button:disabled,
     html[data-resolved-theme="dark"] #obligationDialog .form-actions button:disabled {
       background: #343842;
       color: #d0d3dc;
@@ -7693,7 +7864,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-      <small id="appVersionBadge">v304</small>
+      <small id="appVersionBadge">v310</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -8390,40 +8561,46 @@
         </div>
         <div class="panel-body">
           <form id="incomeForm" class="form-grid" autocomplete="off">
-            <label><span data-i18n="incomeDate">Tanggal Pemasukan</span>
+            <div class="debt-story-stepper span-2" id="incomeStoryStepper">
+              <div><small id="incomeStoryStepKicker">Step 1 dari 3</small><strong id="incomeStoryStepTitle">Kapan dan berapa yang kamu terima?</strong></div>
+              <div class="debt-story-dots" id="incomeStoryDots" aria-label="Tahapan pencatatan pemasukan">
+                <button type="button" class="active" data-income-step-dot="0" aria-label="Langkah 1"></button><button type="button" data-income-step-dot="1" aria-label="Langkah 2"></button><button type="button" data-income-step-dot="2" aria-label="Langkah 3"></button>
+              </div>
+            </div>
+            <label data-income-step="0"><span data-i18n="incomeDate">Tanggal Pemasukan</span>
               <span class="date-field">
                 <span class="date-display" id="incomeDateInputDisplay" aria-hidden="true"></span>
                 <input class="date-native" id="incomeDateInput" type="date" autocomplete="off" required>
               </span>
             </label>
-            <label><span id="incomeAmountCurrencyLabel" data-i18n="amountRp">Nominal (Rp)</span>
+            <label data-income-step="0"><span id="incomeAmountCurrencyLabel" data-i18n="amountRp">Nominal (Rp)</span>
               <input id="incomeAmountInput" type="text" inputmode="decimal" placeholder="Contoh: 5.000.000" data-i18n-placeholder="amountPlaceholder" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" required>
             </label>
-            <label class="autocomplete-field"><span data-i18n="incomeSource">Sumber Pemasukan</span>
+            <label class="autocomplete-field" data-income-step="1"><span data-i18n="incomeSource">Sumber Pemasukan</span>
               <input id="incomeSourceInput" type="text" placeholder="Contoh: Gaji, Freelance, Bonus" data-i18n-placeholder="incomeSourcePlaceholder" autocomplete="new-password" autocapitalize="words" autocorrect="off" spellcheck="false" required>
               <div class="suggestion-box" id="incomeSourceSuggestions" hidden></div>
             </label>
-            <label><span data-i18n="wallet">Wallet</span>
+            <label data-income-step="1"><span data-i18n="wallet">Wallet</span>
               <select id="incomeWalletSelect" aria-label="Pilih wallet" data-i18n-aria="chooseWallet"></select>
             </label>
-            <label class="span-2" id="incomeAutoField"><span data-i18n="automaticIncome">Pemasukan otomatis?</span>
+            <label class="span-2" id="incomeAutoField" data-income-step="2"><span data-i18n="automaticIncome">Pemasukan otomatis?</span>
               <span class="no-end-toggle" role="group">
                 <span data-i18n="automaticIncomeHint">Buat otomatis sesuai jadwal</span>
                 <input id="incomeAutoInput" type="checkbox">
                 <span class="no-end-toggle-track" aria-hidden="true"></span>
               </span>
             </label>
-            <label id="incomeAutoFrequencyField" hidden><span data-i18n="automaticIncomeFrequency">Otomatis setiap</span>
+            <label id="incomeAutoFrequencyField" data-income-step="2" hidden><span data-i18n="automaticIncomeFrequency">Otomatis setiap</span>
               <select id="incomeAutoFrequencySelect" autocomplete="off">
                 <option value="monthly" data-i18n="monthly">Bulanan</option>
                 <option value="weekly" data-i18n="weekly">Mingguan</option>
                 <option value="daily" data-i18n="daily">Harian</option>
               </select>
             </label>
-            <label id="incomeAutoDayField" hidden><span data-i18n="automaticIncomeDay">Masuk setiap tanggal</span>
+            <label id="incomeAutoDayField" data-income-step="2" hidden><span data-i18n="automaticIncomeDay">Masuk setiap tanggal</span>
               <input id="incomeAutoDayInput" type="number" min="1" max="31" placeholder="Contoh: 25" data-i18n-placeholder="paymentDayPlaceholder" autocomplete="off">
             </label>
-            <label id="incomeAutoWeekdayField" hidden><span data-i18n="automaticIncomeWeekday">Masuk setiap hari</span>
+            <label id="incomeAutoWeekdayField" data-income-step="2" hidden><span data-i18n="automaticIncomeWeekday">Masuk setiap hari</span>
               <select id="incomeAutoWeekdaySelect" autocomplete="off">
                 <option value="1" data-i18n="monday">Senin</option>
                 <option value="2" data-i18n="tuesday">Selasa</option>
@@ -8434,7 +8611,7 @@
                 <option value="0" data-i18n="sunday">Minggu</option>
               </select>
             </label>
-            <label class="span-2"><span data-i18n="notesOptional">Catatan (Opsional)</span>
+            <label class="span-2" data-income-step="2"><span data-i18n="notesOptional">Catatan (Opsional)</span>
               <textarea id="incomeNoteInput" rows="2" placeholder="Contoh: Gaji bulan ini" data-i18n-placeholder="incomeNotePlaceholder" autocomplete="off" autocapitalize="sentences" autocorrect="off" spellcheck="false"></textarea>
             </label>
             <div class="form-footer">
@@ -8444,7 +8621,9 @@
               </div>
               <div class="form-actions">
                 <button type="button" class="ghost discard-draft-btn" id="discardIncomeDraftBtn" data-i18n="discardDraft" hidden>Buang Draft</button>
-                <button type="submit" data-i18n="saveIncome">Simpan Pemasukan</button>
+                <button type="button" class="ghost" id="incomeStoryBackBtn" data-i18n="back" hidden>Kembali</button>
+                <button type="button" id="incomeStoryNextBtn" data-i18n="next">Lanjut</button>
+                <button type="submit" id="saveIncomeBtn" data-i18n="saveIncome">Simpan Pemasukan</button>
               </div>
             </div>
           </form>
@@ -8531,32 +8710,38 @@
         </div>
         <div class="panel-body">
           <form id="transferForm" class="form-grid" autocomplete="off">
-            <label><span data-i18n="transferDate">Tanggal Transfer</span>
+            <div class="debt-story-stepper span-2" id="transferStoryStepper">
+              <div><small id="transferStoryStepKicker">Step 1 dari 3</small><strong id="transferStoryStepTitle">Kapan dan berapa yang mau dipindahkan?</strong></div>
+              <div class="debt-story-dots" id="transferStoryDots" aria-label="Tahapan transfer wallet">
+                <button type="button" class="active" data-transfer-step-dot="0" aria-label="Langkah 1"></button><button type="button" data-transfer-step-dot="1" aria-label="Langkah 2"></button><button type="button" data-transfer-step-dot="2" aria-label="Langkah 3"></button>
+              </div>
+            </div>
+            <label data-transfer-step="0"><span data-i18n="transferDate">Tanggal Transfer</span>
               <span class="date-field">
                 <span class="date-display" id="transferDateInputDisplay" aria-hidden="true"></span>
                 <input class="date-native" id="transferDateInput" type="date" autocomplete="off" required>
               </span>
             </label>
-            <label><span id="transferAmountCurrencyLabel" data-i18n="amountRp">Nominal (Rp)</span>
+            <label data-transfer-step="0"><span id="transferAmountCurrencyLabel" data-i18n="amountRp">Nominal (Rp)</span>
               <span class="transfer-amount-field">
                 <input id="transferAmountInput" type="text" inputmode="decimal" placeholder="Contoh: 500.000" data-i18n-placeholder="transferAmountPlaceholder" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" required>
                 <button type="button" id="transferMaxBtn" data-i18n="max">Max</button>
               </span>
             </label>
-            <div class="transfer-balance-hint span-2">
+            <div class="transfer-balance-hint span-2" data-transfer-step="0">
               <small id="transferSourceBalanceText">Saldo tersedia: Rp 0</small>
             </div>
-            <label><span data-i18n="fromWallet">Dari Wallet</span>
+            <label data-transfer-step="1"><span data-i18n="fromWallet">Dari Wallet</span>
               <select id="transferFromWalletSelect" aria-label="Pilih wallet asal" data-i18n-aria="chooseFromWallet"></select>
             </label>
-            <label><span data-i18n="toWallet">Ke Wallet</span>
+            <label data-transfer-step="1"><span data-i18n="toWallet">Ke Wallet</span>
               <select id="transferToWalletSelect" aria-label="Pilih wallet tujuan" data-i18n-aria="chooseTargetWallet"></select>
             </label>
-            <label class="span-2" id="transferReceivedField" hidden><span id="transferReceivedCurrencyLabel" data-i18n="transferReceivedAmount">Nominal yang benar-benar diterima</span>
+            <label class="span-2" id="transferReceivedField" data-transfer-step="1" hidden><span id="transferReceivedCurrencyLabel" data-i18n="transferReceivedAmount">Nominal yang benar-benar diterima</span>
               <input id="transferReceivedAmountInput" type="text" inputmode="decimal" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
               <small class="field-help" id="transferEffectiveRateText"></small>
             </label>
-            <label class="span-2"><span data-i18n="notesOptional">Catatan (Opsional)</span>
+            <label class="span-2" data-transfer-step="2"><span data-i18n="notesOptional">Catatan (Opsional)</span>
               <textarea id="transferNoteInput" rows="2" placeholder="Contoh: Pindah saldo ke e-wallet" data-i18n-placeholder="transferNotePlaceholder" autocomplete="off" autocapitalize="sentences" autocorrect="off" spellcheck="false"></textarea>
             </label>
             <div class="form-footer">
@@ -8565,7 +8750,9 @@
                 <strong id="transferPreviewText">Rp 0</strong>
               </div>
               <div class="form-actions">
-                <button type="submit" data-i18n="saveTransfer">Simpan Transfer</button>
+                <button type="button" class="ghost" id="transferStoryBackBtn" data-i18n="back" hidden>Kembali</button>
+                <button type="button" id="transferStoryNextBtn" data-i18n="next">Lanjut</button>
+                <button type="submit" id="saveTransferBtn" data-i18n="saveTransfer">Simpan Transfer</button>
               </div>
             </div>
           </form>
@@ -9077,6 +9264,11 @@
         receivableStoryTitle3: "Jadwal dan batas penagihan",
         receivableStoryTitle4: "Termin pembayaran dan bunga",
         receivableStoryTitle5: "Kategori dan catatan",
+        billStoryTitle1: "Tagihan apa yang perlu dibayar?",
+        billStoryTitle2: "Berapa tagihannya dan bayar dari mana?",
+        billStoryTitle3: "Kapan tagihan ini dibayar?",
+        billStoryTitle4: "Seberapa sering tagihan ini berulang?",
+        billStoryTitle5: "Kategori dan catatan terakhir",
         dailyInterestEstimate: "Estimasi bunga sekitar {amount} per hari.",
         downPaymentAmount: "DP / Uang Muka (Rp)", linkDownPayment: "Hubungkan transaksi DP lama",
         noLinkedDownPayment: "Tidak dihubungkan", optionalPlaceholder: "Opsional",
@@ -9164,6 +9356,12 @@
         expenseStoryTitle1: "Ceritakan belanjaannya",
         expenseStoryTitle2: "Berapa yang kamu bayar?",
         expenseStoryTitle3: "Bayar dari mana?",
+        incomeStoryTitle1: "Kapan dan berapa yang kamu terima?",
+        incomeStoryTitle2: "Pemasukan ini dari mana dan masuk ke mana?",
+        incomeStoryTitle3: "Perlu diulang otomatis atau diberi catatan?",
+        transferStoryTitle1: "Kapan dan berapa yang mau dipindahkan?",
+        transferStoryTitle2: "Uangnya pindah dari mana ke mana?",
+        transferStoryTitle3: "Ada catatan untuk transfer ini?",
         expenseDateQuestion: "Belanjanya kapan?", expenseCategoryQuestion: "Masuk kategori apa?",
         expenseItemQuestion: "Kamu beli apa?", expensePriceQuestion: "Berapa harga satuannya?",
         expenseQuantityQuestion: "Jumlahnya berapa?", expenseWalletQuestion: "Bayar pakai wallet apa?",
@@ -9441,6 +9639,11 @@
         receivableStoryTitle3: "Collection schedule and limit",
         receivableStoryTitle4: "Payment term and interest",
         receivableStoryTitle5: "Category and notes",
+        billStoryTitle1: "Which bill needs to be paid?",
+        billStoryTitle2: "How much is it and which wallet pays?",
+        billStoryTitle3: "When should this bill be paid?",
+        billStoryTitle4: "How often does this bill repeat?",
+        billStoryTitle5: "Final category and notes",
         dailyInterestEstimate: "Estimated interest is about {amount} per day.",
         downPaymentAmount: "Down Payment (Rp)", linkDownPayment: "Link previous down payment transaction",
         noLinkedDownPayment: "Not linked", optionalPlaceholder: "Optional",
@@ -9528,6 +9731,12 @@
         expenseStoryTitle1: "Tell us about the purchase",
         expenseStoryTitle2: "How much did you pay?",
         expenseStoryTitle3: "Where did you pay from?",
+        incomeStoryTitle1: "When and how much did you receive?",
+        incomeStoryTitle2: "Where did it come from and which wallet received it?",
+        incomeStoryTitle3: "Should it repeat automatically or include a note?",
+        transferStoryTitle1: "When and how much would you like to move?",
+        transferStoryTitle2: "Which wallet is it moving from and to?",
+        transferStoryTitle3: "Any note for this transfer?",
         expenseDateQuestion: "When did you buy it?", expenseCategoryQuestion: "Which category is it in?",
         expenseItemQuestion: "What did you buy?", expensePriceQuestion: "What was the unit price?",
         expenseQuantityQuestion: "How many did you buy?", expenseWalletQuestion: "Which wallet did you use?",
@@ -9927,6 +10136,8 @@
       let editingObligationCategory = false;
       let debtStoryStep = 0;
       let expenseStoryStep = 0;
+      let incomeStoryStep = 0;
+      let transferStoryStep = 0;
     let activeDatePickerInput = null;
     let appDatePickerMonth = new Date();
     let appDatePickerMode = "calendar";
@@ -10379,7 +10590,7 @@
       });
       if ("serviceWorker" in navigator && window.location.protocol !== "file:") {
         window.addEventListener("load", () => {
-          navigator.serviceWorker.register("./sw.js?v=304", { updateViaCache: "none" })
+          navigator.serviceWorker.register("./sw.js?v=310", { updateViaCache: "none" })
             .then((registration) => registration.update().catch(() => null))
             .catch((error) => {
               console.error("Service worker gagal didaftarkan:", error);
@@ -14242,6 +14453,95 @@
       }
     }
 
+    function updateIncomeStoryStep(nextStep = incomeStoryStep, { focus = false } = {}) {
+      const form = controls.incomeForm;
+      incomeStoryStep = Math.max(0, Math.min(2, Number(nextStep) || 0));
+      form.classList.add("income-step-mode");
+      form.querySelectorAll("[data-income-step]").forEach((node) => {
+        const active = Number(node.dataset.incomeStep) === incomeStoryStep;
+        node.classList.toggle("active", active);
+        node.querySelectorAll("input, select, textarea").forEach((field) => { field.disabled = !active; });
+      });
+      $("incomeStoryDots").querySelectorAll("[data-income-step-dot]").forEach((dot) => {
+        const active = Number(dot.dataset.incomeStepDot) === incomeStoryStep;
+        dot.classList.toggle("active", active);
+        dot.setAttribute("aria-current", active ? "step" : "false");
+      });
+      $("incomeStoryStepKicker").textContent = t("expenseStoryStep", { current: incomeStoryStep + 1, total: 3 });
+      $("incomeStoryStepTitle").textContent = t(`incomeStoryTitle${incomeStoryStep + 1}`);
+      $("incomeStoryBackBtn").hidden = incomeStoryStep === 0;
+      $("incomeStoryNextBtn").hidden = incomeStoryStep === 2;
+      $("saveIncomeBtn").hidden = incomeStoryStep !== 2;
+      const estimate = form.querySelector(".estimate");
+      if (estimate) estimate.hidden = incomeStoryStep === 0;
+      closeCustomSelectMenus();
+      hideSuggestionBoxes();
+      if (focus) form.querySelector(`[data-income-step="${incomeStoryStep}"] input, [data-income-step="${incomeStoryStep}"] select, [data-income-step="${incomeStoryStep}"] textarea`)?.focus();
+    }
+
+    function validateIncomeStoryStep() {
+      const fields = [...controls.incomeForm.querySelectorAll(`[data-income-step="${incomeStoryStep}"] input, [data-income-step="${incomeStoryStep}"] select, [data-income-step="${incomeStoryStep}"] textarea`)]
+        .filter((field) => !field.disabled && !field.hidden && field.type !== "hidden");
+      const invalid = fields.find((field) => !field.checkValidity());
+      if (!invalid) return true;
+      invalid.reportValidity();
+      return false;
+    }
+
+    function updateTransferStoryStep(nextStep = transferStoryStep, { focus = false } = {}) {
+      const form = controls.transferForm;
+      transferStoryStep = Math.max(0, Math.min(2, Number(nextStep) || 0));
+      form.classList.add("transfer-step-mode");
+      form.querySelectorAll("[data-transfer-step]").forEach((node) => {
+        const active = Number(node.dataset.transferStep) === transferStoryStep;
+        node.classList.toggle("active", active);
+        node.querySelectorAll("input, select, textarea").forEach((field) => { field.disabled = !active; });
+      });
+      $("transferStoryDots").querySelectorAll("[data-transfer-step-dot]").forEach((dot) => {
+        const active = Number(dot.dataset.transferStepDot) === transferStoryStep;
+        dot.classList.toggle("active", active);
+        dot.setAttribute("aria-current", active ? "step" : "false");
+      });
+      $("transferStoryStepKicker").textContent = t("expenseStoryStep", { current: transferStoryStep + 1, total: 3 });
+      $("transferStoryStepTitle").textContent = t(`transferStoryTitle${transferStoryStep + 1}`);
+      $("transferStoryBackBtn").hidden = transferStoryStep === 0;
+      $("transferStoryNextBtn").hidden = transferStoryStep === 2;
+      $("saveTransferBtn").hidden = transferStoryStep !== 2;
+      const estimate = form.querySelector(".estimate");
+      if (estimate) estimate.hidden = transferStoryStep === 0;
+      closeCustomSelectMenus();
+      if (focus) form.querySelector(`[data-transfer-step="${transferStoryStep}"] input, [data-transfer-step="${transferStoryStep}"] select, [data-transfer-step="${transferStoryStep}"] textarea`)?.focus();
+    }
+
+    function validateTransferStoryStep() {
+      const fields = [...controls.transferForm.querySelectorAll(`[data-transfer-step="${transferStoryStep}"] input, [data-transfer-step="${transferStoryStep}"] select, [data-transfer-step="${transferStoryStep}"] textarea`)]
+        .filter((field) => !field.disabled && !field.hidden && field.type !== "hidden");
+      const invalid = fields.find((field) => !field.checkValidity());
+      if (!invalid) return true;
+      invalid.reportValidity();
+      return false;
+    }
+
+    function nextIncomeStoryStep() {
+      if (!validateIncomeStoryStep()) return;
+      updateIncomeStoryStep(incomeStoryStep + 1, { focus: true });
+      saveDraft("income");
+    }
+
+    function previousIncomeStoryStep() {
+      updateIncomeStoryStep(incomeStoryStep - 1, { focus: true });
+      saveDraft("income");
+    }
+
+    function nextTransferStoryStep() {
+      if (!validateTransferStoryStep()) return;
+      updateTransferStoryStep(transferStoryStep + 1, { focus: true });
+    }
+
+    function previousTransferStoryStep() {
+      updateTransferStoryStep(transferStoryStep - 1, { focus: true });
+    }
+
     function updateExpenseStoryStep(nextStep = expenseStoryStep, { focus = false } = {}) {
       const form = controls.form;
       expenseStoryStep = Math.max(0, Math.min(2, Number(nextStep) || 0));
@@ -14320,8 +14620,9 @@
       document.body.classList.add("entry-dialog-open");
       updateDateDisplays();
       if (type === "expense") updateExpenseStoryStep(0);
+      if (type === "income") updateIncomeStoryStep(0);
       window.setTimeout(() => {
-        const focusTarget = type === "income" ? controls.incomeAmount : controls.item;
+        const focusTarget = type === "income" ? controls.incomeDate : controls.date;
         focusTarget.focus();
         hideSuggestionBoxes();
       }, 0);
@@ -14421,9 +14722,10 @@
       closeQuickAddMenu();
       hideSuggestionBoxes();
       resetTransferForm();
+      updateTransferStoryStep(0);
       $("transferEntryDialog").hidden = false;
       document.body.classList.add("entry-dialog-open");
-      window.setTimeout(() => controls.transferAmount.focus(), 0);
+      window.setTimeout(() => controls.transferDate.focus(), 0);
     }
 
     function closeTransferDialog() {
@@ -14607,7 +14909,7 @@
 
     function updateDebtStoryStep(nextStep = debtStoryStep) {
       const obligationType = controls.obligationType.value;
-      const isStoryMode = obligationType === "debt" || obligationType === "receivable";
+      const isStoryMode = ["bill", "debt", "receivable"].includes(obligationType);
       const form = controls.obligationForm;
       debtStoryStep = Math.max(0, Math.min(4, Number(nextStep) || 0));
       form.classList.toggle("debt-step-mode", isStoryMode);
@@ -14622,12 +14924,12 @@
         dot.classList.toggle("active", Number(dot.dataset.debtStepDot) === debtStoryStep);
       });
       $("debtStoryStepKicker").textContent = t("debtStoryStep", { current: debtStoryStep + 1, total: 5 });
-      const titlePrefix = obligationType === "receivable" ? "receivableStoryTitle" : "debtStoryTitle";
+      const titlePrefix = obligationType === "bill" ? "billStoryTitle" : obligationType === "receivable" ? "receivableStoryTitle" : "debtStoryTitle";
       $("debtStoryStepTitle").textContent = t(`${titlePrefix}${debtStoryStep + 1}`);
     }
 
     function validateDebtStoryStep() {
-      if (!["debt", "receivable"].includes(controls.obligationType.value)) return true;
+      if (!["bill", "debt", "receivable"].includes(controls.obligationType.value)) return true;
       const stepFields = [...controls.obligationForm.querySelectorAll(`[data-debt-step="${debtStoryStep}"] input, [data-debt-step="${debtStoryStep}"] select, [data-debt-step="${debtStoryStep}"] textarea`)]
         .filter((field) => !field.disabled && !field.hidden && field.type !== "hidden");
       const invalid = stepFields.find((field) => !field.checkValidity());
@@ -14699,7 +15001,7 @@
       $("obligationInstallmentLabel").textContent = t(selectedType === "receivable" ? "receivableInstallment" : "monthlyInstallment");
       $("saveObligationBtn").textContent = t(context.save);
       const debtMode = selectedType === "debt";
-      const storyMode = debtMode || selectedType === "receivable";
+      const storyMode = true;
       $("obligationInstallmentField").hidden = !storyMode;
       $("obligationDownPaymentField").hidden = !debtMode;
       $("obligationDownPaymentEntryField").hidden = !debtMode || downPaymentCandidates().length === 0;
@@ -16491,6 +16793,35 @@
       return matches.slice(0, 8);
     }
 
+    function expenseItemsForSelectedCategory() {
+      const selectedCategory = normalizeName(controls.category.value).toLowerCase();
+      if (!selectedCategory) return state.suggestions.items;
+      return uniqueRecentValues(
+        state.entries.filter((entry) => normalizeName(entry.category).toLowerCase() === selectedCategory),
+        (entry) => entry.item
+      );
+    }
+
+    function inferExpenseCategoryFromItem() {
+      const query = normalizeName(controls.item.value).toLowerCase();
+      if (query.length < 2) return;
+      const recentEntries = state.entries
+        .slice()
+        .sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
+      const exactMatches = recentEntries.filter((entry) => normalizeName(entry.item).toLowerCase() === query);
+      const candidateEntries = exactMatches.length
+        ? exactMatches
+        : recentEntries.filter((entry) => normalizeName(entry.item).toLowerCase().includes(query));
+      const candidateCategories = uniqueRecentValues(candidateEntries, (entry) => entry.category);
+      if (candidateCategories.length !== 1) return;
+      controls.category.value = capitalizeText(candidateCategories[0]);
+      const itemSuggestions = $("itemSuggestions");
+      if (itemSuggestions && !itemSuggestions.hidden) {
+        renderSuggestionBox(controls.item, itemSuggestions, expenseItemsForSelectedCategory());
+      }
+      saveDraft("expense");
+    }
+
     function renderSuggestionBox(input, box, options) {
       const matches = matchingSuggestions(options, input.value);
       if (!matches.length) {
@@ -16526,10 +16857,13 @@
       const ui = customSelectRegistry.get(select);
       if (!ui) return;
       const options = Array.from(select.options);
-      const selected = options.find((option) => option.selected) || options[0];
+      const selected = options.find((option) => option.selected);
       ui.value.textContent = selected ? selected.textContent : "";
       ui.trigger.disabled = select.disabled;
       ui.trigger.setAttribute("aria-label", select.getAttribute("aria-label") || (selected ? selected.textContent : ""));
+      if (ui.clearButton) {
+        ui.clearButton.hidden = !selected || selected.value === "" || select.disabled;
+      }
       ui.menu.innerHTML = "";
       const isCurrencySearch = select.id === "onboardingCurrencySelect" || select.id === "walletCurrencySelect";
       const isDownPaymentSearch = select.id === "obligationDownPaymentEntrySelect";
@@ -16614,9 +16948,31 @@
         menu.setAttribute("role", "listbox");
         menu.hidden = true;
         shell.appendChild(trigger);
+        let clearButton = null;
+        if (select.closest("form") && !select.matches("[data-no-clear]")) {
+          shell.classList.add("has-clear-control");
+          clearButton = document.createElement("button");
+          clearButton.type = "button";
+          clearButton.className = "custom-select-clear";
+          clearButton.setAttribute("aria-label", language === "id" ? "Hapus pilihan" : "Clear selection");
+          clearButton.title = language === "id" ? "Hapus pilihan" : "Clear selection";
+          clearButton.textContent = "×";
+          clearButton.hidden = true;
+          shell.appendChild(clearButton);
+        }
         shell.appendChild(menu);
         select.insertAdjacentElement("afterend", shell);
-        customSelectRegistry.set(select, { shell, trigger, value, menu });
+        customSelectRegistry.set(select, { shell, trigger, value, menu, clearButton });
+
+        clearButton?.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          select.selectedIndex = -1;
+          syncCustomSelect(select);
+          closeCustomSelectMenus();
+          select.dispatchEvent(new Event("change", { bubbles: true }));
+          trigger.focus();
+        });
 
         trigger.addEventListener("click", () => {
           const willOpen = menu.hidden;
@@ -19025,6 +19381,7 @@
       safeRender("wallet manager", renderWalletManager);
       safeRender("recurring income manager", renderRecurringIncomeManager);
       safeRender("estimate", updateEstimate);
+      window.requestAnimationFrame(syncClearableTextControls);
     }
 
     function attachEvents() {
@@ -19252,6 +19609,17 @@
         toast(t("editCancelled"));
       });
       controls.incomeForm.addEventListener("submit", addIncome);
+      $("incomeStoryBackBtn").addEventListener("click", previousIncomeStoryStep);
+      $("incomeStoryNextBtn").addEventListener("click", nextIncomeStoryStep);
+      $("incomeStoryDots").addEventListener("click", (event) => {
+        const dot = event.target.closest("[data-income-step-dot]");
+        if (!dot) return;
+        const targetStep = Number(dot.dataset.incomeStepDot);
+        if (targetStep > incomeStoryStep + 1) return;
+        if (targetStep > incomeStoryStep && !validateIncomeStoryStep()) return;
+        updateIncomeStoryStep(targetStep, { focus: true });
+        saveDraft("income");
+      });
       controls.discardIncomeDraft.addEventListener("click", () => {
         clearDraft("income");
         toast(t("draftDiscarded"));
@@ -19278,6 +19646,16 @@
       $("closeObligationDialog").addEventListener("click", closeObligationDialog);
       $("closeObligationPaymentDialog").addEventListener("click", closeObligationPaymentDialog);
       controls.transferForm.addEventListener("submit", addTransfer);
+      $("transferStoryBackBtn").addEventListener("click", previousTransferStoryStep);
+      $("transferStoryNextBtn").addEventListener("click", nextTransferStoryStep);
+      $("transferStoryDots").addEventListener("click", (event) => {
+        const dot = event.target.closest("[data-transfer-step-dot]");
+        if (!dot) return;
+        const targetStep = Number(dot.dataset.transferStepDot);
+        if (targetStep > transferStoryStep + 1) return;
+        if (targetStep > transferStoryStep && !validateTransferStoryStep()) return;
+        updateTransferStoryStep(targetStep, { focus: true });
+      });
       controls.budgetGoalForm.addEventListener("submit", saveBudgetGoal);
       controls.spendingBudgetForm.addEventListener("submit", saveSpendingBudget);
       controls.obligationForm.addEventListener("submit", saveObligation);
@@ -19559,11 +19937,19 @@
         window.addEventListener("resize", syncBottomNavIndicator);
       }
       window.requestAnimationFrame(syncBottomNavIndicator);
-      setupAutocomplete(controls.item, $("itemSuggestions"), () => state.suggestions.items);
+      setupAutocomplete(controls.item, $("itemSuggestions"), expenseItemsForSelectedCategory);
       setupAutocomplete(controls.category, $("categorySuggestions"), () => state.suggestions.categories);
       setupAutocomplete(controls.incomeSource, $("incomeSourceSuggestions"), () => state.suggestions.incomeSources);
       setupAutocomplete(controls.trendItem, $("trendItemSuggestions"), () => state.suggestions.items);
       setupAutocomplete(controls.spendingBudgetCategory, $("spendingBudgetCategorySuggestions"), () => state.suggestions.categories);
+      controls.item.addEventListener("input", inferExpenseCategoryFromItem);
+      controls.item.addEventListener("change", inferExpenseCategoryFromItem);
+      const refreshExpenseItemSuggestions = () => {
+        const itemSuggestions = $("itemSuggestions");
+        if (!itemSuggestions.hidden) renderSuggestionBox(controls.item, itemSuggestions, expenseItemsForSelectedCategory());
+      };
+      controls.category.addEventListener("input", refreshExpenseItemSuggestions);
+      controls.category.addEventListener("change", refreshExpenseItemSuggestions);
       $("activeMonthButton").addEventListener("pointermove", (event) => {
         const rect = event.currentTarget.getBoundingClientRect();
         const x = ((event.clientX - rect.left) / rect.width) * 100;
@@ -20297,6 +20683,84 @@
       });
     }
 
+    function syncClearableTextControls() {
+      document.querySelectorAll(".clearable-field > input, .clearable-field > textarea").forEach((field) => {
+        const shell = field.closest(".clearable-field");
+        if (!shell) return;
+        shell.classList.toggle("has-value", String(field.value || "").length > 0);
+      });
+    }
+
+    function setupClearableTextFields() {
+      const supportedTypes = new Set(["text", "search", "email", "password", "tel", "url", "number"]);
+
+      const updateClearButton = (field) => {
+        const shell = field?.closest(".clearable-field");
+        if (!shell) return;
+        shell.classList.toggle("has-value", String(field.value || "").length > 0);
+      };
+
+      const enhance = (field) => {
+        if (!(field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement)) return;
+        if (field.dataset.clearEnhanced === "true" || field.matches("[data-no-clear], [readonly], [disabled]")) return;
+        if (field instanceof HTMLInputElement && !supportedTypes.has((field.type || "text").toLowerCase())) return;
+        if (field.hidden || field.type === "hidden") return;
+
+        const shell = document.createElement("div");
+        shell.className = `clearable-field${field instanceof HTMLTextAreaElement ? " has-textarea" : ""}`;
+        field.parentNode.insertBefore(shell, field);
+        shell.appendChild(field);
+
+        const clearButton = document.createElement("button");
+        clearButton.type = "button";
+        clearButton.className = "text-clear-button";
+        clearButton.setAttribute("aria-label", language === "id" ? "Hapus semua teks" : "Clear all text");
+        clearButton.title = language === "id" ? "Hapus semua teks" : "Clear all text";
+        clearButton.textContent = "×";
+        shell.appendChild(clearButton);
+        field.dataset.clearEnhanced = "true";
+        updateClearButton(field);
+      };
+
+      document.querySelectorAll("input, textarea").forEach(enhance);
+
+      document.addEventListener("input", (event) => {
+        if (event.target.matches?.(".clearable-field > input, .clearable-field > textarea")) {
+          updateClearButton(event.target);
+        }
+      });
+
+      document.addEventListener("focusin", (event) => {
+        if (event.target.matches?.(".clearable-field > input, .clearable-field > textarea")) {
+          updateClearButton(event.target);
+        }
+      });
+
+      document.addEventListener("click", (event) => {
+        const button = event.target.closest?.(".text-clear-button");
+        if (!button) return;
+        const field = button.parentElement.querySelector("input, textarea");
+        if (!field) return;
+        field.value = "";
+        field.dispatchEvent(new Event("input", { bubbles: true }));
+        field.dispatchEvent(new Event("change", { bubbles: true }));
+        field.focus({ preventScroll: true });
+        updateClearButton(field);
+      });
+
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => mutation.addedNodes.forEach((node) => {
+          if (!(node instanceof Element)) return;
+          if (node.matches("input, textarea")) enhance(node);
+          node.querySelectorAll?.("input, textarea").forEach(enhance);
+        }));
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+      window.requestAnimationFrame(syncClearableTextControls);
+      window.setTimeout(syncClearableTextControls, 250);
+      window.setTimeout(syncClearableTextControls, 1000);
+    }
+
     function setupZoomLock() {
       const preventZoom = (event) => event.preventDefault();
       ["gesturestart", "gesturechange", "gestureend", "dblclick"].forEach((eventName) => {
@@ -20340,6 +20804,7 @@
         safeBootStep("month placement", syncMonthNavigatorPlacement);
         safeBootStep("month visibility", syncMonthNavigatorVisibility);
         safeBootStep("autofill", disableBrowserAutofill);
+        safeBootStep("clear text controls", setupClearableTextFields);
         safeBootStep("date displays", updateDateDisplays);
         safeBootStep("currency options", populateCurrencyOptions);
         safeBootStep("settings controls", syncSettingsControls);
