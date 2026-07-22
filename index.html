@@ -1057,6 +1057,32 @@
       overflow-wrap: anywhere;
     }
 
+    .metric-value-row {
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      margin-top: 14px;
+    }
+
+    .metric-value-row strong { margin-top: 0; }
+
+    .metric-comparison {
+      color: var(--danger);
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1.3;
+    }
+
+    .metric-comparison.down { color: var(--good); }
+    .metric-comparison.neutral { color: var(--muted); }
+
+    .metric-comparison em {
+      color: var(--muted);
+      font-style: normal;
+      font-weight: 700;
+    }
+
     .metric small {
       display: block;
       margin-top: 8px;
@@ -4768,7 +4794,7 @@
     }
 
     .summary-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 34px;
       margin-bottom: 0;
     }
@@ -5024,6 +5050,36 @@
       text-transform: none;
     }
 
+    .transfer-admin-fee-card {
+      gap: 14px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: color-mix(in srgb, var(--panel) 92%, var(--good) 8%);
+    }
+
+    .transfer-admin-fee-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      cursor: pointer;
+    }
+
+    .transfer-admin-fee-toggle > span:first-child {
+      display: grid;
+      gap: 3px;
+    }
+
+    .transfer-admin-fee-toggle small {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    #transferAdminFeeField:not([hidden]) {
+      display: grid;
+    }
+
     .transfer-balance-hint small {
       display: block;
       overflow-wrap: anywhere;
@@ -5231,6 +5287,89 @@
       z-index: 320;
     }
 
+    .expense-items-editor.active {
+      grid-column: span 2;
+      display: grid;
+      gap: 12px;
+    }
+
+    #expenseItemRows { display: grid; gap: 12px; }
+
+    .expense-item-row {
+      display: grid;
+      grid-template-columns: minmax(220px, 2fr) minmax(120px, 1fr) minmax(90px, .65fr);
+      gap: 12px;
+      align-items: end;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--soft);
+    }
+
+    .expense-item-row > label { min-width: 0; }
+    .expense-item-row-header {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 24px;
+    }
+    .expense-item-name-label {
+      color: var(--muted);
+      font-size: .78rem;
+      font-weight: 800;
+      line-height: 1.2;
+      text-transform: uppercase;
+    }
+    .expense-item-remove {
+      flex: 0 0 auto;
+      width: auto;
+      min-width: 0;
+      height: auto;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      color: var(--danger);
+      background: transparent;
+      font-size: .78rem;
+      font-weight: 800;
+      line-height: 1.2;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .expense-item-remove:hover { background: transparent; opacity: .72; }
+    .expense-item-remove[hidden] { display: none; }
+    .expense-item-summary {
+      grid-column: 1 / -1;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-width: 0;
+    }
+    .expense-item-summary-copy { display: grid; gap: 3px; min-width: 0; }
+    .expense-item-summary-copy strong,
+    .expense-item-summary-copy span { overflow-wrap: anywhere; }
+    .expense-item-summary-copy span { color: var(--muted); font-size: .82rem; }
+    .expense-item-edit,
+    .expense-item-save-draft {
+      width: auto;
+      min-width: 0;
+      justify-self: end;
+    }
+    .expense-item-save-draft {
+      grid-column: 1 / -1;
+      width: 100%;
+      justify-self: stretch;
+    }
+    .expense-item-row.is-collapsed { align-items: center; padding-block: 12px; }
+    .expense-item-row.is-collapsed .expense-item-row-header,
+    .expense-item-row.is-collapsed > label,
+    .expense-item-row.is-collapsed .expense-item-save-draft { display: none; }
+    .expense-item-row.is-collapsed .expense-item-summary { display: flex; }
+    .expense-add-item { justify-self: start; width: auto; }
+
     .expense-step-mode .expense-wallet-field.active .custom-select-shell,
     .expense-step-mode .expense-wallet-field.active .custom-select-trigger[aria-expanded="true"] {
       position: relative;
@@ -5271,9 +5410,182 @@
       display: block;
     }
 
+    .transfer-route-picker {
+      grid-template-columns: minmax(0, 1fr) 48px minmax(0, 1fr);
+      align-items: end;
+      gap: 12px;
+    }
+
+    .transfer-route-picker > label { min-width: 0; }
+
+    .transfer-wallet-swap {
+      width: 48px;
+      height: 48px;
+      min-width: 48px;
+      padding: 0;
+      margin-bottom: 2px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 168, 120, .35);
+      background: rgba(0, 168, 120, .1);
+      color: var(--accent);
+      box-shadow: none;
+    }
+
+    .transfer-wallet-swap:hover {
+      background: rgba(0, 168, 120, .16);
+      transform: none;
+    }
+
+    .transfer-wallet-swap:active svg { transform: rotate(180deg) scale(.92); }
+    .transfer-wallet-swap svg { width: 21px; height: 21px; transition: transform 180ms ease; }
+
+    @media (max-width: 620px) {
+      .transfer-route-picker {
+        grid-template-columns: minmax(0, 1fr) 42px minmax(0, 1fr);
+        gap: 8px;
+      }
+      .transfer-wallet-swap { width: 42px; height: 42px; min-width: 42px; }
+      .transfer-route-picker .custom-select-trigger { padding-inline: 12px; }
+    }
+
     .income-step-mode .form-footer,
     .transfer-step-mode .form-footer {
       order: 20;
+    }
+
+    /* Keep recurring-income controls above the remaining story-form content. */
+#incomeEntryDialog #incomeAutoFrequencyField.active,
+#incomeEntryDialog #incomeAutoDayField.active,
+#incomeEntryDialog #incomeAutoWeekdayField.active {
+  position: relative;
+  z-index: 330;
+}
+
+#incomeEntryDialog #incomeAutoFrequencyField.active,
+#incomeEntryDialog #incomeAutoWeekdayField.active {
+  z-index: 340;
+}
+
+    #incomeEntryDialog #incomeAutoFrequencyField .custom-select-shell,
+    #incomeEntryDialog #incomeAutoWeekdayField .custom-select-shell {
+      position: relative;
+      z-index: 331;
+    }
+
+    #incomeEntryDialog #incomeAutoFrequencyField .custom-select-trigger[aria-expanded="true"],
+    #incomeEntryDialog #incomeAutoWeekdayField .custom-select-trigger[aria-expanded="true"] {
+      position: relative;
+      z-index: 332;
+    }
+
+    #incomeEntryDialog #incomeAutoFrequencyField .custom-select-menu,
+    #incomeEntryDialog #incomeAutoWeekdayField .custom-select-menu {
+      z-index: 333;
+      max-height: 230px;
+      overflow-y: auto;
+      background: rgba(255, 255, 255, .99);
+      border-color: rgba(209, 213, 219, .96);
+      box-shadow: 0 20px 46px rgba(30, 41, 59, .24);
+    }
+
+    html[data-resolved-theme="dark"] #incomeEntryDialog #incomeAutoFrequencyField .custom-select-menu,
+    html[data-resolved-theme="dark"] #incomeEntryDialog #incomeAutoWeekdayField .custom-select-menu {
+      background: #1c2027;
+      border-color: rgba(255, 255, 255, .14);
+      color: #f5f5f7;
+      box-shadow: 0 20px 46px rgba(0, 0, 0, .5);
+    }
+
+    /* Income story form keeps its major sections on the full dialog width. */
+    #incomeEntryDialog #incomeStoryStepper,
+    #incomeEntryDialog #incomeAutoField.active,
+    #incomeEntryDialog .form-footer {
+      grid-column: 1 / -1;
+      width: 100%;
+      min-width: 0;
+    }
+
+    #incomeEntryDialog #incomeStoryStepper {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+    }
+
+    #incomeEntryDialog #incomeStoryStepper > div:first-child,
+    #incomeEntryDialog #incomeStoryStepper strong {
+      min-width: 0;
+      word-break: normal;
+      overflow-wrap: normal;
+    }
+
+    #incomeEntryDialog #incomeAutoFrequencyField .custom-select-clear,
+    #incomeEntryDialog #incomeAutoWeekdayField .custom-select-clear,
+    #incomeEntryDialog #incomeAutoDayField .field-clear-button {
+      display: none !important;
+    }
+
+    #incomeEntryDialog #incomeAutoFrequencyField .custom-select-trigger,
+    #incomeEntryDialog #incomeAutoWeekdayField .custom-select-trigger {
+      padding-right: 48px;
+    }
+
+    @media (max-width: 760px) {
+      #incomeEntryDialog #incomeForm {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 14px;
+      }
+
+      #incomeEntryDialog #incomeStoryStepper,
+      #incomeEntryDialog .income-step-mode [data-income-step].active,
+      #incomeEntryDialog .income-step-mode [data-income-step].span-2.active,
+      #incomeEntryDialog .form-footer {
+        grid-column: 1 / -1;
+        width: 100%;
+        min-width: 0;
+      }
+
+      #incomeEntryDialog #incomeStoryStepper {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 14px;
+        padding: 18px;
+      }
+
+      #incomeEntryDialog #incomeStoryStepper strong {
+        font-size: 16px;
+        line-height: 1.25;
+      }
+
+      #incomeEntryDialog #incomeAutoFrequencyField.active,
+      #incomeEntryDialog #incomeAutoDayField.active,
+      #incomeEntryDialog #incomeAutoWeekdayField.active {
+        grid-column: 1 / -1;
+      }
+
+      #incomeEntryDialog .form-footer {
+        display: grid;
+        gap: 16px;
+        padding-top: 18px;
+      }
+
+      #incomeEntryDialog .estimate {
+        width: 100%;
+        min-width: 0;
+      }
+
+      #incomeEntryDialog .form-actions {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        width: 100%;
+        gap: 8px;
+      }
+
+      #incomeEntryDialog .form-actions button {
+        width: 100%;
+        min-width: 0;
+        padding-inline: 10px;
+      }
     }
 
     #obligationInterestToggleField.active {
@@ -5931,6 +6243,7 @@
       }
 
       .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 24px;
       }
     }
@@ -6714,6 +7027,18 @@
         grid-column: 1 / -1;
         width: 100%;
         min-width: 0;
+      }
+
+      #expenseEntryDialog .expense-items-editor.active { grid-column: 1 / -1; }
+      #expenseEntryDialog .expense-item-row { grid-template-columns: minmax(0, 1fr); }
+      #expenseEntryDialog .expense-item-row > label,
+      #expenseEntryDialog .expense-row-item,
+      #expenseEntryDialog .expense-row-price { grid-column: 1 / -1; width: 100%; }
+      #expenseEntryDialog .expense-item-row input { width: 100%; min-width: 0; }
+      #expenseEntryDialog .expense-add-item {
+        justify-self: stretch;
+        width: 100%;
+        justify-content: center;
       }
 
       #expenseEntryDialog .debt-story-stepper {
@@ -7776,6 +8101,88 @@
       color: #f5f5f7;
       -webkit-text-fill-color: #f5f5f7;
     }
+
+    /* Transfer story: keep every step readable on narrow screens. */
+    @media (max-width: 700px) {
+      #transferEntryDialog #transferForm {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 14px;
+      }
+
+      #transferEntryDialog #transferForm > [data-transfer-step].active,
+      #transferEntryDialog #transferForm > .span-2,
+      #transferEntryDialog #transferForm .form-footer {
+        grid-column: 1 / -1;
+        width: 100%;
+        min-width: 0;
+      }
+
+      #transferEntryDialog .debt-story-stepper {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+      }
+
+      #transferEntryDialog .debt-story-stepper > div:first-child {
+        min-width: 0;
+      }
+
+      #transferEntryDialog .debt-story-stepper strong {
+        font-size: 17px;
+        line-height: 1.25;
+        overflow-wrap: normal;
+        word-break: normal;
+      }
+
+      #transferEntryDialog .debt-story-dots {
+        justify-self: end;
+      }
+
+      #transferEntryDialog label[data-transfer-step="1"].active {
+        display: grid;
+        min-width: 0;
+      }
+
+      #transferEntryDialog .date-field,
+      #transferEntryDialog .date-display,
+      #transferEntryDialog .transfer-amount-field,
+      #transferEntryDialog #transferReceivedAmountInput {
+        width: 100%;
+        min-width: 0;
+      }
+
+      #transferEntryDialog .transfer-balance-hint {
+        margin-top: 0;
+      }
+
+      #transferEntryDialog .transfer-admin-fee-card {
+        width: 100%;
+        min-width: 0;
+        padding: 14px;
+      }
+
+      #transferEntryDialog .transfer-admin-fee-toggle {
+        gap: 12px;
+      }
+
+      #transferEntryDialog .form-footer {
+        gap: 14px;
+      }
+
+      #transferEntryDialog .form-actions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+        gap: 10px;
+        width: 100%;
+      }
+
+      #transferEntryDialog .form-actions button {
+        width: 100%;
+        min-width: 0;
+      }
+    }
   </style>
 </head>
 <body class="splash-active">
@@ -7864,7 +8271,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-      <small id="appVersionBadge">v310</small>
+      <small id="appVersionBadge">v338</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -8573,14 +8980,14 @@
                 <input class="date-native" id="incomeDateInput" type="date" autocomplete="off" required>
               </span>
             </label>
-            <label data-income-step="0"><span id="incomeAmountCurrencyLabel" data-i18n="amountRp">Nominal (Rp)</span>
+            <label data-income-step="1"><span id="incomeAmountCurrencyLabel" data-i18n="amountRp">Nominal (Rp)</span>
               <input id="incomeAmountInput" type="text" inputmode="decimal" placeholder="Contoh: 5.000.000" data-i18n-placeholder="amountPlaceholder" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" required>
             </label>
-            <label class="autocomplete-field" data-income-step="1"><span data-i18n="incomeSource">Sumber Pemasukan</span>
+            <label class="autocomplete-field" data-income-step="0"><span data-i18n="incomeSource">Sumber Pemasukan</span>
               <input id="incomeSourceInput" type="text" placeholder="Contoh: Gaji, Freelance, Bonus" data-i18n-placeholder="incomeSourcePlaceholder" autocomplete="new-password" autocapitalize="words" autocorrect="off" spellcheck="false" required>
               <div class="suggestion-box" id="incomeSourceSuggestions" hidden></div>
             </label>
-            <label data-income-step="1"><span data-i18n="wallet">Wallet</span>
+            <label data-income-step="0"><span data-i18n="wallet">Wallet</span>
               <select id="incomeWalletSelect" aria-label="Pilih wallet" data-i18n-aria="chooseWallet"></select>
             </label>
             <label class="span-2" id="incomeAutoField" data-income-step="2"><span data-i18n="automaticIncome">Pemasukan otomatis?</span>
@@ -8591,17 +8998,17 @@
               </span>
             </label>
             <label id="incomeAutoFrequencyField" data-income-step="2" hidden><span data-i18n="automaticIncomeFrequency">Otomatis setiap</span>
-              <select id="incomeAutoFrequencySelect" autocomplete="off">
+              <select id="incomeAutoFrequencySelect" autocomplete="off" data-no-clear>
                 <option value="monthly" data-i18n="monthly">Bulanan</option>
                 <option value="weekly" data-i18n="weekly">Mingguan</option>
                 <option value="daily" data-i18n="daily">Harian</option>
               </select>
             </label>
             <label id="incomeAutoDayField" data-income-step="2" hidden><span data-i18n="automaticIncomeDay">Masuk setiap tanggal</span>
-              <input id="incomeAutoDayInput" type="number" min="1" max="31" placeholder="Contoh: 25" data-i18n-placeholder="paymentDayPlaceholder" autocomplete="off">
+              <input id="incomeAutoDayInput" type="number" min="1" max="31" placeholder="Contoh: 25" data-i18n-placeholder="paymentDayPlaceholder" autocomplete="off" data-no-clear>
             </label>
             <label id="incomeAutoWeekdayField" data-income-step="2" hidden><span data-i18n="automaticIncomeWeekday">Masuk setiap hari</span>
-              <select id="incomeAutoWeekdaySelect" autocomplete="off">
+              <select id="incomeAutoWeekdaySelect" autocomplete="off" data-no-clear>
                 <option value="1" data-i18n="monday">Senin</option>
                 <option value="2" data-i18n="tuesday">Selasa</option>
                 <option value="3" data-i18n="wednesday">Rabu</option>
@@ -8653,28 +9060,44 @@
                 <button type="button" data-expense-step-dot="2" aria-label="Langkah 3"></button>
               </div>
             </div>
-            <label data-expense-step="0"><span data-i18n="expenseDateQuestion">Belanjanya kapan?</span>
+            <label class="expense-wallet-field" data-expense-step="0"><span data-i18n="expenseWalletQuestion">Bayar pakai wallet apa?</span>
+              <select id="expenseWalletSelect" aria-label="Pilih wallet" data-i18n-aria="chooseWallet"></select>
+            </label>
+            <label class="expense-category-field autocomplete-field" data-expense-step="0"><span data-i18n="expenseCategoryQuestion">Masuk kategori apa?</span>
+              <input id="categoryInput" type="text" placeholder="Sembako" autocomplete="new-password" autocapitalize="words" autocorrect="off" spellcheck="false" required>
+              <div class="suggestion-box" id="categorySuggestions" hidden></div>
+            </label>
+            <div class="expense-items-editor" id="expenseItemsEditor" data-expense-step="1">
+              <div id="expenseItemRows">
+                <div class="expense-item-row" data-expense-item-row>
+                  <div class="expense-item-row-header">
+                    <span class="expense-item-name-label" data-i18n="itemName">Nama barang</span>
+                    <button type="button" class="expense-item-remove" data-i18n="deleteItem" aria-label="Hapus barang" title="Hapus barang" hidden>Hapus</button>
+                  </div>
+                  <div class="expense-item-summary">
+                    <div class="expense-item-summary-copy"><strong></strong><span></span></div>
+                    <button type="button" class="ghost expense-item-edit" data-i18n="edit">Edit</button>
+                  </div>
+                  <label class="autocomplete-field expense-row-item">
+                    <input class="expense-row-item-input" id="itemInput" type="text" placeholder="Nama barang" aria-label="Nama barang" autocomplete="new-password" autocapitalize="words" autocorrect="off" spellcheck="false" required>
+                    <div class="suggestion-box expense-row-suggestions" id="itemSuggestions" hidden></div>
+                  </label>
+                  <label class="expense-row-price"><span class="expense-row-price-label" id="expensePriceCurrencyLabel">Harga satuan</span>
+                    <input class="expense-row-price-input" id="priceInput" type="text" inputmode="decimal" placeholder="15.000" autocomplete="off" required>
+                  </label>
+                  <label><span>Qty</span>
+                    <input class="expense-row-qty-input" id="qtyInput" type="number" min="0.001" step="any" value="1" autocomplete="off" required>
+                  </label>
+                  <button type="button" class="ghost expense-item-save-draft" data-i18n="saveItemDraft">Simpan ke draft</button>
+                </div>
+              </div>
+              <button type="button" class="ghost expense-add-item" id="addExpenseItemBtn" data-i18n="addAnotherItem">+ Tambah barang</button>
+            </div>
+            <label data-expense-step="2"><span data-i18n="expenseDateQuestion">Belanjanya kapan?</span>
               <span class="date-field">
                 <span class="date-display" id="dateInputDisplay" aria-hidden="true"></span>
                 <input class="date-native" id="dateInput" type="date" autocomplete="off" required>
               </span>
-            </label>
-            <label class="expense-category-field autocomplete-field" data-expense-step="0"><span data-i18n="expenseCategoryQuestion">Masuk kategori apa?</span>
-              <input id="categoryInput" type="text" placeholder="Sembako" autocomplete="new-password" autocapitalize="words" autocorrect="off" spellcheck="false">
-              <div class="suggestion-box" id="categorySuggestions" hidden></div>
-            </label>
-            <label class="expense-wallet-field" data-expense-step="2"><span data-i18n="expenseWalletQuestion">Bayar pakai wallet apa?</span>
-              <select id="expenseWalletSelect" aria-label="Pilih wallet" data-i18n-aria="chooseWallet"></select>
-            </label>
-            <label class="span-2 expense-item-field autocomplete-field" data-expense-step="0"><span data-i18n="expenseItemQuestion">Kamu beli apa?</span>
-              <input id="itemInput" type="text" placeholder="Contoh: Beras Rojo Lele, Minyak Goreng Bimoli" data-i18n-placeholder="itemPlaceholder" autocomplete="new-password" autocapitalize="words" autocorrect="off" spellcheck="false" required>
-              <div class="suggestion-box" id="itemSuggestions" hidden></div>
-            </label>
-            <label data-expense-step="1"><span id="expensePriceCurrencyLabel" data-i18n="expensePriceQuestion">Berapa harga satuannya?</span>
-              <input id="priceInput" type="text" inputmode="decimal" placeholder="Contoh: 15.000" data-i18n-placeholder="pricePlaceholder" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" required>
-            </label>
-            <label data-expense-step="1"><span data-i18n="expenseQuantityQuestion">Jumlahnya berapa?</span>
-              <input id="qtyInput" type="number" min="0.001" step="any" value="1" autocomplete="off" required>
             </label>
             <label class="span-2 expense-note-field" data-expense-step="2"><span data-i18n="expenseNoteQuestion">Ada catatan tambahan? (Opsional)</span>
               <textarea id="noteInput" rows="2" placeholder="Contoh: Beli di supermarket ABC, sedang promo" data-i18n-placeholder="shoppingNotePlaceholder" autocomplete="off" autocapitalize="sentences" autocorrect="off" spellcheck="false"></textarea>
@@ -8695,6 +9118,29 @@
               </div>
             </div>
           </form>
+          <template id="expenseItemRowTemplate">
+            <div class="expense-item-row" data-expense-item-row>
+              <div class="expense-item-row-header">
+                <span class="expense-item-name-label" data-i18n="itemName">Nama barang</span>
+                <button type="button" class="expense-item-remove" data-i18n="deleteItem" aria-label="Hapus barang" title="Hapus barang">Hapus</button>
+              </div>
+              <div class="expense-item-summary">
+                <div class="expense-item-summary-copy"><strong></strong><span></span></div>
+                <button type="button" class="ghost expense-item-edit" data-i18n="edit">Edit</button>
+              </div>
+              <label class="autocomplete-field expense-row-item">
+                <input class="expense-row-item-input" type="text" placeholder="Nama barang" aria-label="Nama barang" autocomplete="new-password" autocapitalize="words" autocorrect="off" spellcheck="false" required>
+                <div class="suggestion-box expense-row-suggestions" hidden></div>
+              </label>
+              <label class="expense-row-price"><span class="expense-row-price-label">Harga satuan</span>
+                <input class="expense-row-price-input" type="text" inputmode="decimal" placeholder="15.000" autocomplete="off" required>
+              </label>
+              <label><span>Qty</span>
+                <input class="expense-row-qty-input" type="number" min="0.001" step="any" value="1" autocomplete="off" required>
+              </label>
+              <button type="button" class="ghost expense-item-save-draft" data-i18n="saveItemDraft">Simpan ke draft</button>
+            </div>
+          </template>
         </div>
       </aside>
     </section>
@@ -8711,32 +9157,37 @@
         <div class="panel-body">
           <form id="transferForm" class="form-grid" autocomplete="off">
             <div class="debt-story-stepper span-2" id="transferStoryStepper">
-              <div><small id="transferStoryStepKicker">Step 1 dari 3</small><strong id="transferStoryStepTitle">Kapan dan berapa yang mau dipindahkan?</strong></div>
+              <div><small id="transferStoryStepKicker">Step 1 dari 3</small><strong id="transferStoryStepTitle">Wallet mana yang mau dipindahkan?</strong></div>
               <div class="debt-story-dots" id="transferStoryDots" aria-label="Tahapan transfer wallet">
                 <button type="button" class="active" data-transfer-step-dot="0" aria-label="Langkah 1"></button><button type="button" data-transfer-step-dot="1" aria-label="Langkah 2"></button><button type="button" data-transfer-step-dot="2" aria-label="Langkah 3"></button>
               </div>
             </div>
-            <label data-transfer-step="0"><span data-i18n="transferDate">Tanggal Transfer</span>
+            <div class="transfer-route-picker span-2" data-transfer-step="0">
+              <label><span data-i18n="fromWallet">Dari Wallet</span>
+                <select id="transferFromWalletSelect" aria-label="Pilih wallet asal" data-i18n-aria="chooseFromWallet" data-no-clear></select>
+              </label>
+              <button class="transfer-wallet-swap" type="button" id="transferSwapWalletsBtn" aria-label="Tukar wallet asal dan tujuan" title="Tukar wallet">
+                <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h11"/><path d="m15 4 3 3-3 3"/><path d="M17 17H6"/><path d="m9 20-3-3 3-3"/></svg>
+              </button>
+              <label><span data-i18n="toWallet">Ke Wallet</span>
+                <select id="transferToWalletSelect" aria-label="Pilih wallet tujuan" data-i18n-aria="chooseTargetWallet" data-no-clear></select>
+              </label>
+            </div>
+            <label data-transfer-step="1"><span data-i18n="transferDate">Tanggal Transfer</span>
               <span class="date-field">
                 <span class="date-display" id="transferDateInputDisplay" aria-hidden="true"></span>
                 <input class="date-native" id="transferDateInput" type="date" autocomplete="off" required>
               </span>
             </label>
-            <label data-transfer-step="0"><span id="transferAmountCurrencyLabel" data-i18n="amountRp">Nominal (Rp)</span>
+            <label data-transfer-step="1"><span id="transferAmountCurrencyLabel" data-i18n="amountRp">Nominal (Rp)</span>
               <span class="transfer-amount-field">
                 <input id="transferAmountInput" type="text" inputmode="decimal" placeholder="Contoh: 500.000" data-i18n-placeholder="transferAmountPlaceholder" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" required>
                 <button type="button" id="transferMaxBtn" data-i18n="max">Max</button>
               </span>
             </label>
-            <div class="transfer-balance-hint span-2" data-transfer-step="0">
+            <div class="transfer-balance-hint span-2" data-transfer-step="1">
               <small id="transferSourceBalanceText">Saldo tersedia: Rp 0</small>
             </div>
-            <label data-transfer-step="1"><span data-i18n="fromWallet">Dari Wallet</span>
-              <select id="transferFromWalletSelect" aria-label="Pilih wallet asal" data-i18n-aria="chooseFromWallet"></select>
-            </label>
-            <label data-transfer-step="1"><span data-i18n="toWallet">Ke Wallet</span>
-              <select id="transferToWalletSelect" aria-label="Pilih wallet tujuan" data-i18n-aria="chooseTargetWallet"></select>
-            </label>
             <label class="span-2" id="transferReceivedField" data-transfer-step="1" hidden><span id="transferReceivedCurrencyLabel" data-i18n="transferReceivedAmount">Nominal yang benar-benar diterima</span>
               <input id="transferReceivedAmountInput" type="text" inputmode="decimal" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
               <small class="field-help" id="transferEffectiveRateText"></small>
@@ -8744,6 +9195,21 @@
             <label class="span-2" data-transfer-step="2"><span data-i18n="notesOptional">Catatan (Opsional)</span>
               <textarea id="transferNoteInput" rows="2" placeholder="Contoh: Pindah saldo ke e-wallet" data-i18n-placeholder="transferNotePlaceholder" autocomplete="off" autocapitalize="sentences" autocorrect="off" spellcheck="false"></textarea>
             </label>
+            <div class="span-2 transfer-admin-fee-card" data-transfer-step="1">
+              <label class="transfer-admin-fee-toggle" for="transferAdminFeeToggle">
+                <span>
+                  <strong data-i18n="hasAdminFee">Ada biaya admin?</strong>
+                  <small data-i18n="adminFeeHelp">Biaya hanya dipotong dari wallet asal.</small>
+                </span>
+                <span class="no-end-toggle" aria-hidden="true">
+                  <input id="transferAdminFeeToggle" type="checkbox" tabindex="-1">
+                  <span class="no-end-toggle-track"></span>
+                </span>
+              </label>
+              <label id="transferAdminFeeField" hidden><span id="transferAdminFeeCurrencyLabel" data-i18n="adminFee">Biaya admin</span>
+                <input id="transferAdminFeeInput" type="text" inputmode="decimal" placeholder="Contoh: 2.500" data-i18n-placeholder="adminFeePlaceholder" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+              </label>
+            </div>
             <div class="form-footer">
               <div class="estimate">
                 <span data-i18n="transferPreview">Transfer internal</span>
@@ -9210,10 +9676,12 @@
         chooseFromWallet: "Pilih wallet asal", transferAmountPlaceholder: "Contoh: 500.000",
         transferNotePlaceholder: "Contoh: Pindah saldo ke e-wallet", transferPreview: "Transfer internal",
         transferReceivedAmount: "Nominal yang benar-benar diterima", transferEffectiveRate: "Kurs efektif: {rate}",
+        hasAdminFee: "Ada biaya admin?", adminFee: "Biaya admin", adminFeeHelp: "Biaya hanya dipotong dari wallet asal.",
+        adminFeePlaceholder: "Contoh: 2.500", adminFeeTotal: "Total dipotong: {amount}",
         saveTransfer: "Simpan Transfer", transferSaved: "Transfer wallet tersimpan.",
         transferWalletSame: "Wallet asal dan tujuan tidak boleh sama.",
         transferAmountPositive: "Nominal transfer harus lebih dari 0.",
-        transferSourceBalance: "Saldo tersedia: {amount}", transferInsufficientBalance: "Saldo {wallet} tidak cukup. Tambahkan income dulu ke wallet tersebut.",
+        transferSourceBalance: "Saldo tersedia: {amount}", transferInsufficientBalance: "Saldo {wallet} tidak cukup untuk nominal transfer dan biaya admin.",
         max: "Max",
         obligationTitle: "Tagihan & Langganan", addObligation: "Tambah Catatan",
         addBill: "Tambah Tagihan", addDebt: "Tambah Hutang", addReceivable: "Tambah Piutang",
@@ -9297,8 +9765,9 @@
         obligationReminderTitle: "Saatnya cek {type}",
         obligationReminderBody: "{name} jatuh tempo hari ini. Estimasi: {amount}.",
         notificationEnabled: "Notifikasi aktif. Nanti kami ingatkan sesuai jadwal.",
+        pushSubscriptionFailed: "Izin notifikasi sudah aktif, tetapi perangkat belum berhasil terhubung ke layanan push. Coba lagi beberapa saat.",
         pushNeedsSecureAddressTitle: "Buka versi online aplikasi",
-        pushNeedsSecureAddress: "Izin browser sudah bisa diberikan, tetapi push notification OneSignal tidak dapat didaftarkan melalui file lokal. Buka aplikasi dari GitHub Pages (HTTPS) atau localhost, lalu aktifkan notifikasi kembali.",
+        pushNeedsSecureAddress: "Izin notifikasi lokal bisa digunakan di perangkat ini, tetapi push notification baru dapat didaftarkan dari aplikasi GitHub Pages yang sudah terhubung ke OneSignal.",
         obligationActiveStatus: "Status", notificationOn: "Aktif", notificationOff: "Nonaktif",
         budgetGoalsTitle: "Your Future Plans", addBudgetGoal: "Tambah Target", budgetGoalPill: "Goal",
         emptyGoalsTitle: "Belum ada rencana masa depan", emptyGoalsCopy: "Buat target tabungan seperti rumah, dana darurat, pendidikan, atau liburan agar progresnya bisa dipantau.",
@@ -9353,14 +9822,17 @@
         shoppingDate: "Tanggal Belanja", category: "Kategori", itemName: "Nama Barang",
         itemPlaceholder: "Contoh: Beras Rojo Lele, Minyak Goreng Bimoli", unitPriceRp: "Harga Satuan (Rp)",
         expenseStoryStep: "Step {current} dari {total}",
-        expenseStoryTitle1: "Ceritakan belanjaannya",
-        expenseStoryTitle2: "Berapa yang kamu bayar?",
-        expenseStoryTitle3: "Bayar dari mana?",
-        incomeStoryTitle1: "Kapan dan berapa yang kamu terima?",
-        incomeStoryTitle2: "Pemasukan ini dari mana dan masuk ke mana?",
+        expenseStoryTitle1: "Pilih wallet dan kategori",
+        expenseStoryTitle2: "Tambahkan barang yang dibeli",
+        expenseStoryTitle3: "Tanggal dan catatan",
+        addAnotherItem: "+ Tambah barang",
+        deleteItem: "Hapus",
+        saveItemDraft: "Simpan ke draft",
+        incomeStoryTitle1: "Pemasukan ini datang dari mana dan masuk ke wallet apa?",
+        incomeStoryTitle2: "Berapa nominal yang kamu terima?",
         incomeStoryTitle3: "Perlu diulang otomatis atau diberi catatan?",
-        transferStoryTitle1: "Kapan dan berapa yang mau dipindahkan?",
-        transferStoryTitle2: "Uangnya pindah dari mana ke mana?",
+        transferStoryTitle1: "Wallet mana yang mau dipindahkan?",
+        transferStoryTitle2: "Berapa nominalnya dan ada biaya admin?",
         transferStoryTitle3: "Ada catatan untuk transfer ini?",
         expenseDateQuestion: "Belanjanya kapan?", expenseCategoryQuestion: "Masuk kategori apa?",
         expenseItemQuestion: "Kamu beli apa?", expensePriceQuestion: "Berapa harga satuannya?",
@@ -9378,6 +9850,7 @@
         monthlyExpenseChart: "Total pengeluaran per bulan", priceOverTime: "Harga barang dari waktu ke waktu",
         allItems: "Semua barang", selectItem: "Pilih barang untuk detail", shoppingByCategory: "Belanja per kategori",
         incomeThisMonth: "Pemasukan Bulan Ini", expenseThisMonth: "Pengeluaran Bulan Ini",
+        expenseToday: "Pengeluaran Hari Ini", averageExpenseLast7Days: "Rata-rata 7 hari terakhir: {amount} per hari", comparedYesterday: "dibanding kemarin",
         cashBalance: "Total Saldo Kas", cashBalanceForPeriod: "Saldo kas {period}: {amount}",
         calculatedPeriod: "Kalkulasi periode {period}", averageIncrease: "Rata-rata Kenaikan Harga Barang",
         monthly: "Bulanan", sixMonths: "6 Bulan", yearly: "Tahunan",
@@ -9461,6 +9934,7 @@
         onboardingSubtitle: "Atur preferensi awal agar aplikasi langsung cocok dengan cara Anda mencatat uang.",
         currency: "Mata Uang", chooseCurrency: "Pilih mata uang",
         searchCurrency: "Cari mata uang", noCurrencyFound: "Mata uang tidak ditemukan",
+        searchWallet: "Cari wallet", noWalletFound: "Wallet tidak ditemukan",
         searchDownPayment: "Cari transaksi DP", noDownPaymentFound: "Transaksi DP tidak ditemukan",
         primaryWalletSetup: "Wallet pertama", initialBalance: "Saldo awal",
         initialBalancePlaceholder: "Contoh: 1.000.000", initialBalanceSource: "Saldo Awal",
@@ -9585,10 +10059,12 @@
         chooseFromWallet: "Choose source wallet", transferAmountPlaceholder: "Example: 500,000",
         transferNotePlaceholder: "Example: Move balance to e-wallet", transferPreview: "Internal transfer",
         transferReceivedAmount: "Amount actually received", transferEffectiveRate: "Effective rate: {rate}",
+        hasAdminFee: "Is there an admin fee?", adminFee: "Admin fee", adminFeeHelp: "The fee is deducted only from the source wallet.",
+        adminFeePlaceholder: "Example: 2.50", adminFeeTotal: "Total deducted: {amount}",
         saveTransfer: "Save Transfer", transferSaved: "Wallet transfer saved.",
         transferWalletSame: "Source and target wallets cannot be the same.",
         transferAmountPositive: "Transfer amount must be greater than 0.",
-        transferSourceBalance: "Available balance: {amount}", transferInsufficientBalance: "{wallet} balance is not enough. Add income to that wallet first.",
+        transferSourceBalance: "Available balance: {amount}", transferInsufficientBalance: "{wallet} balance is not enough for the transfer amount and admin fee.",
         max: "Max",
         obligationTitle: "Bills & Subscriptions", addObligation: "Add Record",
         addBill: "Add Bill", addDebt: "Add Debt", addReceivable: "Add Receivable",
@@ -9672,8 +10148,9 @@
         obligationReminderTitle: "Time to check {type}",
         obligationReminderBody: "{name} is due today. Estimate: {amount}.",
         notificationEnabled: "Notifications are on. We will remind you on schedule.",
+        pushSubscriptionFailed: "Notification permission is enabled, but this device has not connected to push service yet. Try again shortly.",
         pushNeedsSecureAddressTitle: "Open the online app",
-        pushNeedsSecureAddress: "Browser permission may be granted, but OneSignal push notifications cannot be registered from a local file. Open the app from GitHub Pages (HTTPS) or localhost, then enable notifications again.",
+        pushNeedsSecureAddress: "Local notifications can be enabled on this device, but push notifications can only be registered from the GitHub Pages app connected to OneSignal.",
         obligationActiveStatus: "Status", notificationOn: "On", notificationOff: "Off",
         budgetGoalsTitle: "Your Future Plans", addBudgetGoal: "Add Goal", budgetGoalPill: "Goal",
         emptyGoalsTitle: "No future plans yet", emptyGoalsCopy: "Create savings goals such as a house, emergency fund, education, or vacation so progress stays visible.",
@@ -9728,14 +10205,17 @@
         shoppingDate: "Purchase Date", category: "Category", itemName: "Item Name",
         itemPlaceholder: "Example: Rice, Cooking Oil", unitPriceRp: "Unit Price (Rp)",
         expenseStoryStep: "Step {current} of {total}",
-        expenseStoryTitle1: "Tell us about the purchase",
-        expenseStoryTitle2: "How much did you pay?",
-        expenseStoryTitle3: "Where did you pay from?",
-        incomeStoryTitle1: "When and how much did you receive?",
-        incomeStoryTitle2: "Where did it come from and which wallet received it?",
+        expenseStoryTitle1: "Choose a wallet and category",
+        expenseStoryTitle2: "Add the items you purchased",
+        expenseStoryTitle3: "Date and notes",
+        addAnotherItem: "+ Add another item",
+        deleteItem: "Delete",
+        saveItemDraft: "Save to draft",
+        incomeStoryTitle1: "Where did this income come from and which wallet received it?",
+        incomeStoryTitle2: "How much did you receive?",
         incomeStoryTitle3: "Should it repeat automatically or include a note?",
-        transferStoryTitle1: "When and how much would you like to move?",
-        transferStoryTitle2: "Which wallet is it moving from and to?",
+        transferStoryTitle1: "Which wallets are involved?",
+        transferStoryTitle2: "How much is it, and is there an admin fee?",
         transferStoryTitle3: "Any note for this transfer?",
         expenseDateQuestion: "When did you buy it?", expenseCategoryQuestion: "Which category is it in?",
         expenseItemQuestion: "What did you buy?", expensePriceQuestion: "What was the unit price?",
@@ -9753,6 +10233,7 @@
         monthlyExpenseChart: "Total monthly expenses", priceOverTime: "Item prices over time",
         allItems: "All items", selectItem: "Select an item for details", shoppingByCategory: "Shopping by category",
         incomeThisMonth: "Income This Month", expenseThisMonth: "Expenses This Month",
+        expenseToday: "Expenses Today", averageExpenseLast7Days: "Last 7-day average: {amount} per day", comparedYesterday: "vs yesterday",
         cashBalance: "Total Cash Balance", cashBalanceForPeriod: "Cash balance for {period}: {amount}",
         calculatedPeriod: "Calculated for {period}", averageIncrease: "Average Item Price Change",
         monthly: "Monthly", sixMonths: "6 Months", yearly: "Yearly",
@@ -9836,6 +10317,7 @@
         onboardingSubtitle: "Set up the basics so the app matches how you track your money.",
         currency: "Currency", chooseCurrency: "Choose currency",
         searchCurrency: "Search currency", noCurrencyFound: "No currency found",
+        searchWallet: "Search wallet", noWalletFound: "No wallet found",
         searchDownPayment: "Search down payment transaction", noDownPaymentFound: "No down payment transaction found",
         primaryWalletSetup: "First wallet", initialBalance: "Initial balance",
         initialBalancePlaceholder: "Example: 1,000,000", initialBalanceSource: "Initial Balance",
@@ -10033,7 +10515,8 @@
     const ONESIGNAL_CONFIG = {
       enabled: true,
       appId: "3b41a91d-1f22-401a-9c51-2a3f688fde5f",
-      sdkUrl: "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js"
+      sdkUrl: "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js",
+      allowedOrigin: "https://dastindimaz.github.io"
     };
     let oneSignalSdkPromise = null;
     let oneSignalReady = false;
@@ -10176,6 +10659,8 @@
       transferFromWallet: $("transferFromWalletSelect"),
       transferToWallet: $("transferToWalletSelect"),
       transferNote: $("transferNoteInput"),
+      transferAdminFeeToggle: $("transferAdminFeeToggle"),
+      transferAdminFee: $("transferAdminFeeInput"),
       transferMax: $("transferMaxBtn"),
       walletCurrency: $("walletCurrencySelect"),
       walletDifferentCurrency: $("walletDifferentCurrencyToggle"),
@@ -10590,7 +11075,7 @@
       });
       if ("serviceWorker" in navigator && window.location.protocol !== "file:") {
         window.addEventListener("load", () => {
-          navigator.serviceWorker.register("./sw.js?v=310", { updateViaCache: "none" })
+          navigator.serviceWorker.register("./sw.js?v=312", { updateViaCache: "none" })
             .then((registration) => registration.update().catch(() => null))
             .catch((error) => {
               console.error("Service worker gagal didaftarkan:", error);
@@ -10942,13 +11427,15 @@
 
     function updateTransactionCurrencyLabels() {
       const incomeLabel = $("incomeAmountCurrencyLabel");
-      const expenseLabel = $("expensePriceCurrencyLabel");
       const incomeCurrency = walletCurrency(controls.incomeWallet.value || defaultWalletName());
       const expenseCurrency = walletCurrency(controls.expenseWallet.value || defaultWalletName());
       if (incomeLabel) incomeLabel.textContent = `${t("amount")} (${incomeCurrency})`;
-      if (expenseLabel) expenseLabel.textContent = `${t("expensePriceQuestion")} (${expenseCurrency})`;
       if (controls.incomeAmount) controls.incomeAmount.inputMode = currencyFractionDigits(incomeCurrency) ? "decimal" : "numeric";
-      if (controls.price) controls.price.inputMode = currencyFractionDigits(expenseCurrency) ? "decimal" : "numeric";
+      updateExpenseRowCurrencyLabels();
+      expenseItemRows().forEach((row) => {
+        const input = row.querySelector(".expense-row-price-input");
+        if (input) input.inputMode = currencyFractionDigits(expenseCurrency) ? "decimal" : "numeric";
+      });
       updateEstimate();
     }
 
@@ -10975,7 +11462,7 @@
         .reduce((total, transfer) => total + Number(transfer.toAmount ?? transfer.amount ?? 0), 0);
       const transferOut = state.transfers
         .filter((transfer) => walletKey(transfer.fromWallet) === key)
-        .reduce((total, transfer) => total + Number(transfer.amount || 0), 0);
+        .reduce((total, transfer) => total + Number(transfer.amount || 0) + Number(transfer.adminFee || 0), 0);
       return incomeTotal - expenseTotal + transferIn - transferOut;
     }
 
@@ -11470,6 +11957,132 @@
       }
     }
 
+    function expenseItemRows() {
+      return [...document.querySelectorAll("#expenseItemRows [data-expense-item-row]")];
+    }
+
+    function expenseItemsPayload() {
+      return expenseItemRows().map((row) => ({
+        item: row.querySelector(".expense-row-item-input")?.value || "",
+        price: row.querySelector(".expense-row-price-input")?.value || "",
+        qty: row.querySelector(".expense-row-qty-input")?.value || "1"
+      }));
+    }
+
+    function validateExpenseItemRow(row) {
+      const itemInput = row.querySelector(".expense-row-item-input");
+      const priceInput = row.querySelector(".expense-row-price-input");
+      const qtyInput = row.querySelector(".expense-row-qty-input");
+      if (!itemInput?.value.trim()) {
+        itemInput?.reportValidity();
+        return false;
+      }
+      const currency = walletCurrency(controls.expenseWallet.value || defaultWalletName());
+      if (parseTransferAmount(priceInput?.value || "", currency) <= 0) {
+        priceInput.setCustomValidity(t("pricePositive"));
+        priceInput.reportValidity();
+        priceInput.setCustomValidity("");
+        return false;
+      }
+      if (Number(qtyInput?.value || 0) <= 0) {
+        qtyInput?.reportValidity();
+        return false;
+      }
+      return true;
+    }
+
+    function updateExpenseItemSummary(row) {
+      const currency = walletCurrency(controls.expenseWallet.value || defaultWalletName());
+      const item = capitalizeText(row.querySelector(".expense-row-item-input")?.value.trim() || "");
+      const price = parseTransferAmount(row.querySelector(".expense-row-price-input")?.value || "", currency);
+      const qty = Number(row.querySelector(".expense-row-qty-input")?.value || 1);
+      const title = row.querySelector(".expense-item-summary-copy strong");
+      const detail = row.querySelector(".expense-item-summary-copy span");
+      if (title) title.textContent = item;
+      if (detail) detail.textContent = `${formatCurrencyAmount(price, currency)} x ${numberFmt.format(qty)} = ${formatCurrencyAmount(price * qty, currency)}`;
+    }
+
+    function collapseExpenseItemRow(row) {
+      if (!row || !validateExpenseItemRow(row)) return false;
+      updateExpenseItemSummary(row);
+      row.classList.add("is-collapsed");
+      hideSuggestionBoxes();
+      saveDraft("expense");
+      return true;
+    }
+
+    function syncExpenseItemRemoveButtons() {
+      const rows = expenseItemRows();
+      rows.forEach((row) => {
+        const button = row.querySelector(".expense-item-remove");
+        if (button) button.hidden = rows.length === 1 || Boolean(state.editingEntryId);
+      });
+      const addButton = $("addExpenseItemBtn");
+      if (addButton) addButton.hidden = Boolean(state.editingEntryId);
+    }
+
+    function addExpenseItemRow(item = {}) {
+      const fragment = $("expenseItemRowTemplate").content.cloneNode(true);
+      const row = fragment.querySelector("[data-expense-item-row]");
+      const itemInput = row.querySelector(".expense-row-item-input");
+      const priceInput = row.querySelector(".expense-row-price-input");
+      const qtyInput = row.querySelector(".expense-row-qty-input");
+      const itemLabel = row.querySelector(".expense-item-name-label");
+      const removeButton = row.querySelector(".expense-item-remove");
+      const saveButton = row.querySelector(".expense-item-save-draft");
+      const editButton = row.querySelector(".expense-item-edit");
+      if (itemLabel) itemLabel.textContent = t("itemName");
+      if (saveButton) saveButton.textContent = t("saveItemDraft");
+      if (editButton) editButton.textContent = t("edit");
+      if (removeButton) {
+        removeButton.textContent = t("deleteItem");
+        removeButton.setAttribute("aria-label", t("deleteItem"));
+        removeButton.title = t("deleteItem");
+      }
+      itemInput.value = capitalizeText(item.item || "");
+      priceInput.value = formatTransferAmount(item.price || "", walletCurrency(controls.expenseWallet.value || defaultWalletName()));
+      qtyInput.value = item.qty || "1";
+      $("expenseItemRows").appendChild(fragment);
+      setupAutocomplete(itemInput, row.querySelector(".expense-row-suggestions"), expenseItemsForSelectedCategory);
+      syncExpenseItemRemoveButtons();
+      updateExpenseRowCurrencyLabels();
+      return row;
+    }
+
+    function resetExpenseItemRows(items = []) {
+      const rows = expenseItemRows();
+      rows.slice(1).forEach((row) => row.remove());
+      const first = expenseItemRows()[0];
+      first.classList.remove("is-collapsed");
+      const firstItem = items[0] || {};
+      first.querySelector(".expense-row-item-input").value = capitalizeText(firstItem.item || "");
+      first.querySelector(".expense-row-price-input").value = formatTransferAmount(firstItem.price || "", walletCurrency(controls.expenseWallet.value || defaultWalletName()));
+      first.querySelector(".expense-row-qty-input").value = firstItem.qty || "1";
+      items.slice(1).forEach(addExpenseItemRow);
+      syncExpenseItemRemoveButtons();
+    }
+
+    function updateExpenseRowCurrencyLabels() {
+      const currency = walletCurrency(controls.expenseWallet.value || defaultWalletName());
+      expenseItemRows().forEach((row) => {
+        const itemLabel = row.querySelector(".expense-item-name-label");
+        const label = row.querySelector(".expense-row-price-label");
+        const removeButton = row.querySelector(".expense-item-remove");
+        const saveButton = row.querySelector(".expense-item-save-draft");
+        const editButton = row.querySelector(".expense-item-edit");
+        if (itemLabel) itemLabel.textContent = t("itemName");
+        if (label) label.textContent = `${t("expensePriceQuestion")} (${currency})`;
+        if (saveButton) saveButton.textContent = t("saveItemDraft");
+        if (editButton) editButton.textContent = t("edit");
+        if (removeButton) {
+          removeButton.textContent = t("deleteItem");
+          removeButton.setAttribute("aria-label", t("deleteItem"));
+          removeButton.title = t("deleteItem");
+        }
+        if (row.classList.contains("is-collapsed")) updateExpenseItemSummary(row);
+      });
+    }
+
     function draftPayload(type) {
       if (type === "income") {
         return {
@@ -11511,6 +12124,7 @@
         date: controls.date.value,
         wallet: controls.expenseWallet.value,
         category: controls.category.value,
+        items: expenseItemsPayload(),
         item: controls.item.value,
         price: controls.price.value,
         qty: controls.qty.value,
@@ -11562,8 +12176,8 @@
       return Boolean(
         normalizeName(draft.category || "") ||
         normalizeName(draft.wallet || "") && walletKey(draft.wallet) !== walletKey(defaultWalletName()) ||
-        normalizeName(draft.item || "") ||
-        normalizeName(draft.price || "") ||
+        (Array.isArray(draft.items) && draft.items.some((item) => normalizeName(item.item || "") || normalizeName(item.price || "") || Number(item.qty || 1) !== 1)) ||
+        normalizeName(draft.item || "") || normalizeName(draft.price || "") ||
         normalizeName(draft.note || "") ||
         Number(draft.qty || 1) !== 1 ||
         draft.date && draft.date !== defaultDate
@@ -11636,9 +12250,7 @@
         controls.date.value = todayISO();
         controls.expenseWallet.value = defaultWalletName();
         controls.category.value = "";
-        controls.item.value = "";
-        controls.price.value = "";
-        controls.qty.value = "1";
+        resetExpenseItemRows();
         controls.note.value = "";
       }
       updateDateDisplays();
@@ -11722,9 +12334,7 @@
           controls.date.value = draft.date || todayISO();
           controls.expenseWallet.value = normalizeWalletName(draft.wallet || defaultWalletName());
           controls.category.value = capitalizeText(draft.category);
-          controls.item.value = capitalizeText(draft.item);
-          controls.price.value = formatTransferAmount(draft.price, walletCurrency(controls.expenseWallet.value));
-          controls.qty.value = draft.qty || "1";
+          resetExpenseItemRows(Array.isArray(draft.items) && draft.items.length ? draft.items : [{ item: draft.item, price: draft.price, qty: draft.qty }]);
           controls.note.value = capitalizeText(draft.note);
         }
         updateDateDisplays();
@@ -14460,7 +15070,10 @@
       form.querySelectorAll("[data-income-step]").forEach((node) => {
         const active = Number(node.dataset.incomeStep) === incomeStoryStep;
         node.classList.toggle("active", active);
-        node.querySelectorAll("input, select, textarea").forEach((field) => { field.disabled = !active; });
+        node.querySelectorAll("input, select, textarea").forEach((field) => {
+          field.disabled = !active;
+          if (field.tagName === "SELECT") syncCustomSelect(field);
+        });
       });
       $("incomeStoryDots").querySelectorAll("[data-income-step-dot]").forEach((dot) => {
         const active = Number(dot.dataset.incomeStepDot) === incomeStoryStep;
@@ -14495,7 +15108,10 @@
       form.querySelectorAll("[data-transfer-step]").forEach((node) => {
         const active = Number(node.dataset.transferStep) === transferStoryStep;
         node.classList.toggle("active", active);
-        node.querySelectorAll("input, select, textarea").forEach((field) => { field.disabled = !active; });
+        node.querySelectorAll("input, select, textarea").forEach((field) => {
+          field.disabled = !active;
+          if (field.tagName === "SELECT") syncCustomSelect(field);
+        });
       });
       $("transferStoryDots").querySelectorAll("[data-transfer-step-dot]").forEach((dot) => {
         const active = Number(dot.dataset.transferStepDot) === transferStoryStep;
@@ -14507,6 +15123,7 @@
       $("transferStoryBackBtn").hidden = transferStoryStep === 0;
       $("transferStoryNextBtn").hidden = transferStoryStep === 2;
       $("saveTransferBtn").hidden = transferStoryStep !== 2;
+      updateTransferAdminFeeControls();
       const estimate = form.querySelector(".estimate");
       if (estimate) estimate.hidden = transferStoryStep === 0;
       closeCustomSelectMenus();
@@ -14517,6 +15134,11 @@
       const fields = [...controls.transferForm.querySelectorAll(`[data-transfer-step="${transferStoryStep}"] input, [data-transfer-step="${transferStoryStep}"] select, [data-transfer-step="${transferStoryStep}"] textarea`)]
         .filter((field) => !field.disabled && !field.hidden && field.type !== "hidden");
       const invalid = fields.find((field) => !field.checkValidity());
+      if (!invalid && transferStoryStep === 0 && walletKey(controls.transferFromWallet.value) === walletKey(controls.transferToWallet.value)) {
+        toast(t("transferWalletSame"));
+        controls.transferToWallet.focus();
+        return false;
+      }
       if (!invalid) return true;
       invalid.reportValidity();
       return false;
@@ -14551,6 +15173,7 @@
         node.classList.toggle("active", active);
         node.querySelectorAll("input, select, textarea").forEach((field) => {
           field.disabled = !active;
+          if (field.tagName === "SELECT") syncCustomSelect(field);
         });
       });
       [...$("expenseStoryDots").querySelectorAll("[data-expense-step-dot]")].forEach((dot) => {
@@ -14582,15 +15205,19 @@
       }
       if (expenseStoryStep === 1) {
         const currency = walletCurrency(controls.expenseWallet.value || defaultWalletName());
-        if (parseTransferAmount(controls.price.value, currency) <= 0) {
-          controls.price.setCustomValidity(t("pricePositive"));
-          controls.price.reportValidity();
-          controls.price.setCustomValidity("");
-          return false;
-        }
-        if (Number(controls.qty.value) <= 0) {
-          controls.qty.reportValidity();
-          return false;
+        for (const row of expenseItemRows()) {
+          const priceInput = row.querySelector(".expense-row-price-input");
+          const qtyInput = row.querySelector(".expense-row-qty-input");
+          if (parseTransferAmount(priceInput.value, currency) <= 0) {
+            priceInput.setCustomValidity(t("pricePositive"));
+            priceInput.reportValidity();
+            priceInput.setCustomValidity("");
+            return false;
+          }
+          if (Number(qtyInput.value) <= 0) {
+            qtyInput.reportValidity();
+            return false;
+          }
         }
       }
       return true;
@@ -14656,6 +15283,9 @@
       const fromCurrency = walletCurrency(fromWallet);
       const toCurrency = walletCurrency(toWallet);
       const amount = parseTransferAmount(controls.transferAmount.value, fromCurrency);
+      const adminFee = controls.transferAdminFeeToggle.checked
+        ? parseTransferAmount(controls.transferAdminFee.value, fromCurrency)
+        : 0;
       const marketConverted = convertedCurrencyAmount(amount, fromCurrency, toCurrency);
       const receivedField = $("transferReceivedField");
       const receivedLabel = $("transferReceivedCurrencyLabel");
@@ -14680,10 +15310,25 @@
           })
           : "";
       }
-      preview.textContent = fromCurrency === toCurrency
+      const transferText = fromCurrency === toCurrency
         ? formatCurrencyAmount(amount, fromCurrency)
         : `${formatCurrencyAmount(amount, fromCurrency)} → ${formatCurrencyAmount(receivedAmount, toCurrency)}`;
+      preview.textContent = adminFee > 0
+        ? `${transferText} · ${t("adminFeeTotal", { amount: formatCurrencyAmount(amount + adminFee, fromCurrency) })}`
+        : transferText;
       updateTransferSourceBalance();
+    }
+
+    function updateTransferAdminFeeControls() {
+      const enabled = Boolean(controls.transferAdminFeeToggle.checked);
+      const field = $("transferAdminFeeField");
+      const currency = walletCurrency(controls.transferFromWallet.value || defaultWalletName());
+      field.hidden = !enabled;
+      controls.transferAdminFee.disabled = !enabled || transferStoryStep !== 1;
+      controls.transferAdminFee.inputMode = currencyFractionDigits(currency) ? "decimal" : "numeric";
+      $("transferAdminFeeCurrencyLabel").textContent = `${t("adminFee")} (${currency})`;
+      if (!enabled) controls.transferAdminFee.value = "";
+      updateTransferPreview();
     }
 
     function transferSourceBalance() {
@@ -14708,6 +15353,8 @@
       controls.transferAmount.value = "";
       controls.transferReceivedAmount.value = "";
       controls.transferNote.value = "";
+      controls.transferAdminFeeToggle.checked = false;
+      controls.transferAdminFee.value = "";
       setWalletOptions();
       if (state.wallets.length > 1) {
         controls.transferFromWallet.value = state.wallets[0];
@@ -14716,6 +15363,7 @@
       updateDateDisplays();
       updateTransferPreview();
       updateTransferSourceBalance();
+      updateTransferAdminFeeControls();
     }
 
     function openTransferDialog() {
@@ -14725,7 +15373,26 @@
       updateTransferStoryStep(0);
       $("transferEntryDialog").hidden = false;
       document.body.classList.add("entry-dialog-open");
-      window.setTimeout(() => controls.transferDate.focus(), 0);
+      window.setTimeout(() => controls.transferFromWallet.focus(), 0);
+    }
+
+    function swapTransferWallets() {
+      const fromWallet = controls.transferFromWallet.value;
+      const toWallet = controls.transferToWallet.value;
+      if (!fromWallet || !toWallet) return;
+      controls.transferFromWallet.value = toWallet;
+      controls.transferToWallet.value = fromWallet;
+      transferReceivedManuallyEdited = false;
+      syncCustomSelect(controls.transferFromWallet);
+      syncCustomSelect(controls.transferToWallet);
+      updateTransferSourceBalance();
+      updateTransferAdminFeeControls();
+      updateTransferPreview();
+      $("transferSwapWalletsBtn").animate([
+        { transform: "rotate(0deg) scale(1)" },
+        { transform: "rotate(180deg) scale(.92)" },
+        { transform: "rotate(360deg) scale(1)" }
+      ], { duration: 260, easing: "ease-out" });
     }
 
     function closeTransferDialog() {
@@ -15412,34 +16079,42 @@
         nextExpenseStoryStep();
         return;
       }
-      const qty = Number(controls.qty.value);
       const wallet = normalizeWalletName(controls.expenseWallet.value);
       const currency = walletCurrency(wallet);
-      const unitPrice = parseTransferAmount(controls.price.value, currency);
-      if (!Number.isFinite(qty) || qty <= 0) {
+      const items = expenseItemsPayload().map((item) => ({
+        item: normalizeName(capitalizeText(item.item)),
+        qty: Number(item.qty),
+        unitPrice: parseTransferAmount(item.price, currency)
+      }));
+      const invalidItem = items.find((item) => !item.item || !Number.isFinite(item.qty) || item.qty <= 0 || item.unitPrice <= 0);
+      if (invalidItem) {
+        updateExpenseStoryStep(1, { focus: true });
         toast(t("quantityPositive"));
-        controls.qty.focus();
         return;
       }
       const editingIndex = state.entries.findIndex((item) => item.id === state.editingEntryId);
-      const total = roundCurrencyAmount(qty * unitPrice, currency);
-      const currencyMeta = transactionCurrencyMeta(wallet, total);
-      const entry = {
-        id: editingIndex >= 0 ? state.entries[editingIndex].id : createId(),
+      const batchId = editingIndex >= 0 ? state.entries[editingIndex].batchId : items.length > 1 ? createId() : "";
+      const sharedEntry = {
         date: controls.date.value,
-        item: normalizeName(capitalizeText(controls.item.value)),
         category: normalizeName(capitalizeText(controls.category.value)) || "Lainnya",
         wallet,
-        qty,
-        unitPrice,
-        total,
-        ...currencyMeta,
         note: capitalizeText(controls.note.value.trim())
       };
+      const entries = items.map((item, index) => {
+        const total = roundCurrencyAmount(item.qty * item.unitPrice, currency);
+        return {
+          id: editingIndex >= 0 && index === 0 ? state.entries[editingIndex].id : createId(),
+          ...sharedEntry,
+          ...item,
+          total,
+          ...transactionCurrencyMeta(wallet, total),
+          ...(batchId ? { batchId } : {})
+        };
+      });
       if (editingIndex >= 0) {
-        state.entries[editingIndex] = entry;
+        state.entries[editingIndex] = entries[0];
       } else {
-        state.entries.unshift(entry);
+        state.entries.unshift(...entries);
       }
       state.entries.sort((a, b) => b.date.localeCompare(a.date));
       const wasEditing = editingIndex >= 0;
@@ -15457,15 +16132,14 @@
       if (!entry) return;
       state.editingEntryId = id;
       controls.date.value = entry.date;
-      controls.item.value = entry.item;
       controls.category.value = entry.category;
       controls.expenseWallet.value = normalizeWalletName(entry.wallet || defaultWalletName());
-      controls.qty.value = String(entry.qty);
-      controls.price.value = formatTransferAmount(entry.unitPrice, walletCurrency(controls.expenseWallet.value));
+      resetExpenseItemRows([{ item: entry.item, qty: String(entry.qty), price: entry.unitPrice }]);
       controls.note.value = entry.note || "";
       $("entryFormTitle").textContent = t("editTransaction");
       controls.saveEntry.textContent = t("saveChanges");
       controls.cancelEdit.hidden = false;
+      syncExpenseItemRemoveButtons();
       syncDraftButton("expense", false);
       updateDateDisplays();
       updateEstimate();
@@ -15632,6 +16306,9 @@
       const fromWallet = normalizeWalletName(controls.transferFromWallet.value);
       const toWallet = normalizeWalletName(controls.transferToWallet.value);
       const amount = parseTransferAmount(controls.transferAmount.value, walletCurrency(fromWallet));
+      const adminFee = controls.transferAdminFeeToggle.checked
+        ? parseTransferAmount(controls.transferAdminFee.value, walletCurrency(fromWallet))
+        : 0;
       if (walletKey(fromWallet) === walletKey(toWallet)) {
         toast(t("transferWalletSame"));
         return;
@@ -15642,7 +16319,7 @@
         return;
       }
       const availableBalance = walletBalance(fromWallet);
-      if (amount > availableBalance) {
+      if (amount + adminFee > availableBalance) {
         toast(t("transferInsufficientBalance", { wallet: fromWallet }));
         controls.transferAmount.focus();
         return;
@@ -15675,6 +16352,7 @@
         fromWallet,
         toWallet,
         amount,
+        adminFee,
         toAmount,
         fromCurrency,
         toCurrency,
@@ -16199,7 +16877,10 @@
         updateHeaderNotificationButton();
         return "unavailable";
       }
-      if (ONESIGNAL_CONFIG.enabled && ONESIGNAL_CONFIG.appId && window.location.protocol === "file:") {
+      if (ONESIGNAL_CONFIG.enabled && ONESIGNAL_CONFIG.appId && !oneSignalOriginSupported()) {
+        if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+          await Notification.requestPermission();
+        }
         await requestAppConfirmation(t("pushNeedsSecureAddress"), {
           title: t("pushNeedsSecureAddressTitle"),
           confirmLabel: t("understood"),
@@ -16207,7 +16888,7 @@
           showCancel: false
         });
         updateHeaderNotificationButton();
-        return "insecure";
+        return Notification.permission === "granted" ? "local-only" : "insecure";
       }
       if (Notification.permission === "denied") {
         await requestAppConfirmation(t("notificationsBlockedHelp"), {
@@ -16222,19 +16903,26 @@
       try {
         const oneSignal = await initializeOneSignal();
         if (oneSignal) {
-          await identifyOneSignalUser(oneSignal);
           if (Notification.permission !== "granted") {
             await oneSignal.Notifications.requestPermission();
           }
           if (Notification.permission === "granted") {
+            await identifyOneSignalUser(oneSignal);
             await oneSignal.User.PushSubscription.optIn();
-            oneSignalPushSubscribed = Boolean(oneSignal.User.PushSubscription.optedIn);
+            const subscribed = await waitForOneSignalSubscription(oneSignal);
+            if (!subscribed) {
+              toast(t("pushSubscriptionFailed"));
+              updateHeaderNotificationButton();
+              return "subscription-failed";
+            }
           }
         } else {
           if (Notification.permission !== "granted") await Notification.requestPermission();
         }
         const permission = Notification.permission;
-        if (permission === "granted") toast(t("notificationEnabled"));
+        if (permission === "granted" && (!oneSignal || oneSignalPushSubscribed)) {
+          toast(t("notificationEnabled"));
+        }
         updateHeaderNotificationButton();
         return permission;
       } catch (error) {
@@ -16248,8 +16936,14 @@
       return Boolean(
         ONESIGNAL_CONFIG.enabled &&
         ONESIGNAL_CONFIG.appId &&
-        /^https?:$/.test(window.location.protocol)
+        oneSignalOriginSupported()
       );
+    }
+
+    function oneSignalOriginSupported() {
+      if (!/^https?:$/.test(window.location.protocol)) return false;
+      const allowedOrigin = String(ONESIGNAL_CONFIG.allowedOrigin || "").replace(/\/$/, "");
+      return !allowedOrigin || window.location.origin === allowedOrigin;
     }
 
     function loadOneSignalSdk() {
@@ -16280,6 +16974,28 @@
       return oneSignalSdkPromise;
     }
 
+    function oneSignalWorkerOptions() {
+      const workerUrl = new URL("./push/onesignal/OneSignalSDKWorker.js", window.location.href);
+      const scopeUrl = new URL("./push/onesignal/", window.location.href);
+      return { path: workerUrl.pathname, scope: scopeUrl.pathname };
+    }
+
+    function refreshOneSignalSubscriptionState(oneSignal) {
+      const subscription = oneSignal && oneSignal.User && oneSignal.User.PushSubscription;
+      oneSignalPushSubscribed = Boolean(subscription && subscription.optedIn && subscription.id);
+      updateHeaderNotificationButton();
+      return oneSignalPushSubscribed;
+    }
+
+    async function waitForOneSignalSubscription(oneSignal, timeoutMs = 10000) {
+      const startedAt = Date.now();
+      while (Date.now() - startedAt < timeoutMs) {
+        if (refreshOneSignalSubscriptionState(oneSignal)) return true;
+        await new Promise((resolve) => window.setTimeout(resolve, 300));
+      }
+      return refreshOneSignalSubscriptionState(oneSignal);
+    }
+
     async function initializeOneSignal() {
       if (!oneSignalConfigured()) return null;
       try {
@@ -16288,14 +17004,23 @@
           window.OneSignalDeferred.push(async (oneSignal) => {
             try {
               if (!oneSignalReady) {
+                const worker = oneSignalWorkerOptions();
                 await oneSignal.init({
                   appId: ONESIGNAL_CONFIG.appId,
                   allowLocalhostAsSecureOrigin: true,
-                  serviceWorkerPath: "push/onesignal/OneSignalSDKWorker.js",
-                  serviceWorkerParam: { scope: "push/onesignal/" }
+                  serviceWorkerPath: worker.path,
+                  serviceWorkerParam: { scope: worker.scope },
+                  notifyButton: { enable: false }
+                });
+                oneSignal.Notifications.addEventListener("permissionChange", () => {
+                  refreshOneSignalSubscriptionState(oneSignal);
+                });
+                oneSignal.User.PushSubscription.addEventListener("change", () => {
+                  refreshOneSignalSubscriptionState(oneSignal);
                 });
                 oneSignalReady = true;
               }
+              refreshOneSignalSubscriptionState(oneSignal);
               resolve(oneSignal);
             } catch (error) {
               reject(error);
@@ -16322,10 +17047,10 @@
         });
         if (Notification.permission === "granted") {
           await sdk.User.PushSubscription.optIn();
-          oneSignalPushSubscribed = Boolean(sdk.User.PushSubscription.optedIn);
+          await waitForOneSignalSubscription(sdk);
         }
         updateHeaderNotificationButton();
-        return true;
+        return Notification.permission !== "granted" || oneSignalPushSubscribed;
       } catch (error) {
         console.warn("Identitas OneSignal gagal disambungkan:", error);
         return false;
@@ -16853,6 +17578,10 @@
       });
     }
 
+    function isWalletSelect(select) {
+      return /wallet/i.test(select.id) && !/currency/i.test(select.id);
+    }
+
     function syncCustomSelect(select, query = "") {
       const ui = customSelectRegistry.get(select);
       if (!ui) return;
@@ -16864,29 +17593,33 @@
       if (ui.clearButton) {
         ui.clearButton.hidden = !selected || selected.value === "" || select.disabled;
       }
-      ui.menu.innerHTML = "";
       const isCurrencySearch = select.id === "onboardingCurrencySelect" || select.id === "walletCurrencySelect";
+      const isWalletSearch = isWalletSelect(select);
       const isDownPaymentSearch = select.id === "obligationDownPaymentEntrySelect";
-      const searchable = isCurrencySearch || isDownPaymentSearch;
+      const searchable = isCurrencySearch || isWalletSearch || isDownPaymentSearch;
       const normalizedQuery = normalizeName(query).toLowerCase();
       if (searchable) {
-        const search = document.createElement("input");
-        search.type = "search";
-        search.className = "custom-select-search";
-        search.placeholder = t(isCurrencySearch ? "searchCurrency" : "searchDownPayment");
-        search.value = query;
-        search.autocomplete = "off";
-        search.addEventListener("click", (event) => event.stopPropagation());
-        search.addEventListener("input", () => {
-          const nextQuery = search.value;
-          syncCustomSelect(select, nextQuery);
-          if (ui.search) {
-            ui.search.focus();
-            ui.search.setSelectionRange(nextQuery.length, nextQuery.length);
-          }
+        const search = ui.search || document.createElement("input");
+        if (!ui.search) {
+          search.type = "search";
+          search.className = "custom-select-search";
+          search.autocomplete = "off";
+          search.addEventListener("click", (event) => event.stopPropagation());
+          search.addEventListener("input", () => {
+            const nextQuery = search.value;
+            syncCustomSelect(select, nextQuery);
+          });
+          ui.search = search;
+        }
+        // Keep the same search element mounted so typing does not lose focus.
+        if (search.parentElement !== ui.menu) ui.menu.prepend(search);
+        search.placeholder = t(isCurrencySearch ? "searchCurrency" : (isWalletSearch ? "searchWallet" : "searchDownPayment"));
+        if (search.value !== query) search.value = query;
+        Array.from(ui.menu.children).forEach((child) => {
+          if (child !== search) child.remove();
         });
-        ui.search = search;
-        ui.menu.appendChild(search);
+      } else {
+        ui.menu.innerHTML = "";
       }
       let visibleCount = 0;
       const visibleOptions = searchable
@@ -16912,7 +17645,7 @@
       if (searchable && !visibleCount) {
         const empty = document.createElement("div");
         empty.className = "custom-select-empty";
-        empty.textContent = t(isCurrencySearch ? "noCurrencyFound" : "noDownPaymentFound");
+        empty.textContent = t(isCurrencySearch ? "noCurrencyFound" : (isWalletSearch ? "noWalletFound" : "noDownPaymentFound"));
         ui.menu.appendChild(empty);
       }
     }
@@ -16948,33 +17681,17 @@
         menu.setAttribute("role", "listbox");
         menu.hidden = true;
         shell.appendChild(trigger);
-        let clearButton = null;
-        if (select.closest("form") && !select.matches("[data-no-clear]")) {
-          shell.classList.add("has-clear-control");
-          clearButton = document.createElement("button");
-          clearButton.type = "button";
-          clearButton.className = "custom-select-clear";
-          clearButton.setAttribute("aria-label", language === "id" ? "Hapus pilihan" : "Clear selection");
-          clearButton.title = language === "id" ? "Hapus pilihan" : "Clear selection";
-          clearButton.textContent = "×";
-          clearButton.hidden = true;
-          shell.appendChild(clearButton);
-        }
+        const clearButton = null;
         shell.appendChild(menu);
         select.insertAdjacentElement("afterend", shell);
         customSelectRegistry.set(select, { shell, trigger, value, menu, clearButton });
 
-        clearButton?.addEventListener("click", (event) => {
+        trigger.addEventListener("click", (event) => {
+          // Prevent the wrapping <label> from forwarding a second click to the
+          // hidden native select. That second activation can cancel the custom
+          // menu entirely, especially in mobile browsers.
           event.preventDefault();
           event.stopPropagation();
-          select.selectedIndex = -1;
-          syncCustomSelect(select);
-          closeCustomSelectMenus();
-          select.dispatchEvent(new Event("change", { bubbles: true }));
-          trigger.focus();
-        });
-
-        trigger.addEventListener("click", () => {
           const willOpen = menu.hidden;
           closeCustomSelectMenus(willOpen ? select : null);
           if (!willOpen) return;
@@ -16984,7 +17701,7 @@
           void menu.offsetWidth;
           menu.classList.add("is-opening");
           trigger.setAttribute("aria-expanded", "true");
-          if ((select.id === "onboardingCurrencySelect" || select.id === "walletCurrencySelect" || select.id === "obligationDownPaymentEntrySelect") && customSelectRegistry.get(select).search) {
+          if ((isWalletSelect(select) || select.id === "onboardingCurrencySelect" || select.id === "walletCurrencySelect" || select.id === "obligationDownPaymentEntrySelect") && customSelectRegistry.get(select).search) {
             window.setTimeout(() => customSelectRegistry.get(select).search.focus(), 0);
           }
         });
@@ -16994,9 +17711,14 @@
             trigger.focus();
           }
         });
+        menu.addEventListener("pointerdown", (event) => {
+          event.stopPropagation();
+        });
         menu.addEventListener("click", (event) => {
           const optionButton = event.target.closest("[data-option-index]");
           if (!optionButton || optionButton.disabled) return;
+          event.preventDefault();
+          event.stopPropagation();
           const option = select.options[Number(optionButton.dataset.optionIndex)];
           if (!option) return;
           select.value = option.value;
@@ -17008,7 +17730,9 @@
         if (typeof MutationObserver === "function") {
           new MutationObserver(() => syncCustomSelect(select)).observe(select, {
             childList: true,
-            subtree: true
+            subtree: true,
+            attributes: true,
+            attributeFilter: ["disabled"]
           });
         }
         syncCustomSelect(select);
@@ -17025,14 +17749,19 @@
       };
       input.addEventListener("pointerdown", show);
       input.addEventListener("input", show);
+      input.addEventListener("blur", () => {
+        window.setTimeout(() => {
+          box.hidden = true;
+        }, 80);
+      });
       box.addEventListener("mousedown", (event) => {
         const button = event.target.closest("[data-suggestion-value]");
         if (!button) return;
         event.preventDefault();
         input.value = capitalizeText(button.dataset.suggestionValue);
-        box.hidden = true;
         input.dispatchEvent(new Event("change", { bubbles: true }));
         input.dispatchEvent(new Event("input", { bubbles: true }));
+        hideSuggestionBoxes();
         input.focus();
       });
     }
@@ -17096,6 +17825,26 @@
     function renderSummary(rows) {
       const selectedMonth = `${controls.year.value}-${controls.month.value}`;
       const selectedMonthExpenseTotal = sum(currentMonthEntries());
+      const today = todayISO();
+      const sevenDayStart = new Date(`${today}T00:00:00`);
+      sevenDayStart.setDate(sevenDayStart.getDate() - 6);
+      const sevenDayStartKey = toISODate(sevenDayStart);
+      const todayExpenseTotal = sum(state.entries.filter((entry) => entry.date === today));
+      const yesterdayDate = new Date(`${today}T00:00:00`);
+      yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+      const yesterdayExpenseTotal = sum(state.entries.filter((entry) => entry.date === toISODate(yesterdayDate)));
+      const dailyExpenseDifference = todayExpenseTotal - yesterdayExpenseTotal;
+      const dailyExpensePercentage = yesterdayExpenseTotal > 0
+        ? (dailyExpenseDifference / yesterdayExpenseTotal) * 100
+        : (todayExpenseTotal === 0 ? 0 : null);
+      const dailyExpenseSign = dailyExpenseDifference > 0 ? "+" : dailyExpenseDifference < 0 ? "−" : "";
+      const dailyExpensePercentSign = dailyExpensePercentage > 0 ? "+" : dailyExpensePercentage < 0 ? "−" : "";
+      const dailyExpenseComparison = `${dailyExpenseSign}${rupiah.format(Math.abs(dailyExpenseDifference))} · ${dailyExpensePercentage === null
+        ? "—%"
+        : `${dailyExpensePercentSign}${Math.abs(dailyExpensePercentage).toLocaleString(currentLanguage() === "id" ? "id-ID" : "en-US", { maximumFractionDigits: 1 })}%`} <em>${t("comparedYesterday")}</em>`;
+      const dailyExpenseDirection = dailyExpenseDifference > 0 ? "up" : dailyExpenseDifference < 0 ? "down" : "neutral";
+      const sevenDayExpenseTotal = sum(state.entries.filter((entry) => entry.date >= sevenDayStartKey && entry.date <= today));
+      const averageDailyExpense = sevenDayExpenseTotal / 7;
       const selectedMonthIncomeTotal = sumIncome(
         state.incomes.filter((income) => income.date.startsWith(selectedMonth))
       );
@@ -17110,6 +17859,14 @@
 
       $("summaryGrid").innerHTML = [
         metric(t("incomeThisMonth"), rupiah.format(selectedMonthIncomeTotal), t("calculatedPeriod", { period: activePeriod })),
+        metric(
+          t("expenseToday"),
+          rupiah.format(todayExpenseTotal),
+          t("averageExpenseLast7Days", { amount: rupiah.format(averageDailyExpense) }),
+          "daily-expense-metric",
+          dailyExpenseComparison,
+          dailyExpenseDirection
+        ),
         metric(t("expenseThisMonth"), rupiah.format(selectedMonthExpenseTotal), t("calculatedPeriod", { period: activePeriod })),
         metric(
           t("cashBalance"),
@@ -17123,8 +17880,11 @@
       ].join("");
     }
 
-    function metric(label, value, detail, className = "") {
-      return `<article class="metric${className ? ` ${className}` : ""}"><span>${label}</span><strong>${value}</strong><small>${detail}</small></article>`;
+    function metric(label, value, detail, className = "", comparison = "", comparisonClass = "") {
+      const valueMarkup = comparison
+        ? `<div class="metric-value-row"><strong>${value}</strong><span class="metric-comparison ${comparisonClass}">${comparison}</span></div>`
+        : `<strong>${value}</strong>`;
+      return `<article class="metric${className ? ` ${className}` : ""}"><span>${label}</span>${valueMarkup}<small>${detail}</small></article>`;
     }
 
     function renderInsightSummary() {
@@ -17201,11 +17961,13 @@
       const localEquivalent = $("estimateLocalEquivalent");
       const exchangeRateInfo = $("estimateExchangeRate");
       if (!estimate) return;
-      const qty = Number(controls.qty.value || 0);
       const currency = walletCurrency(controls.expenseWallet.value || defaultWalletName());
       const baseCurrency = currentCurrency();
-      const price = parseTransferAmount(controls.price.value, currency);
-      const total = roundCurrencyAmount(qty * price, currency);
+      const total = roundCurrencyAmount(expenseItemsPayload().reduce((sum, item) => {
+        const qty = Number(item.qty || 0);
+        const price = parseTransferAmount(item.price, currency);
+        return sum + (Number.isFinite(qty) ? qty : 0) * price;
+      }, 0), currency);
       estimate.textContent = formatCurrencyAmount(total, currency);
       if (!localEquivalent || !exchangeRateInfo) return;
       if (currency === baseCurrency) {
@@ -18176,6 +18938,7 @@
                 <th>${t("toWallet")}</th>
                 <th class="num">${t("amountSent")}</th>
                 <th class="num">${t("amountReceived")}</th>
+                <th class="num">${t("adminFee")}</th>
                 <th>${t("effectiveRate")}</th>
                 <th>${t("notes")}</th>
                 <th>${t("actions")}</th>
@@ -18200,6 +18963,7 @@
                     <td data-label="${t("toWallet")}"><b>${escapeHtml(transfer.toWallet)}</b></td>
                     <td class="num" data-label="${t("amountSent")}">${formatCurrencyAmount(sentAmount, fromCurrency)}</td>
                     <td class="num" data-label="${t("amountReceived")}">${formatCurrencyAmount(receivedAmount, toCurrency)}</td>
+                    <td class="num" data-label="${t("adminFee")}">${formatCurrencyAmount(Number(transfer.adminFee || 0), fromCurrency)}</td>
                     <td data-label="${t("effectiveRate")}">${escapeHtml(rateText)}</td>
                     <td data-label="${t("notes")}">${escapeHtml(transfer.note || "-")}</td>
                     <td data-label="${t("actions")}"><button type="button" class="ghost" data-delete-transfer="${escapeHtml(transfer.id)}" title="${t("delete")}">${t("delete")}</button></td>
@@ -19025,6 +19789,7 @@
         fromWallet: normalizeWalletName(transfer.fromWallet || transfer.from || transfer.dariWallet || defaultWalletName()),
         toWallet: normalizeWalletName(transfer.toWallet || transfer.to || transfer.keWallet || defaultWalletName()),
         amount: Number(transfer.amount || transfer.nominal || 0),
+        adminFee: Math.max(0, Number(transfer.adminFee || transfer.biayaAdmin || 0)),
         toAmount: Number(transfer.toAmount || 0) || undefined,
         fromCurrency: transfer.fromCurrency,
         toCurrency: transfer.toCurrency,
@@ -19648,6 +20413,7 @@
       controls.transferForm.addEventListener("submit", addTransfer);
       $("transferStoryBackBtn").addEventListener("click", previousTransferStoryStep);
       $("transferStoryNextBtn").addEventListener("click", nextTransferStoryStep);
+      $("transferSwapWalletsBtn").addEventListener("click", swapTransferWallets);
       $("transferStoryDots").addEventListener("click", (event) => {
         const dot = event.target.closest("[data-transfer-step-dot]");
         if (!dot) return;
@@ -20057,6 +20823,56 @@
         controls.price.value = formatTransferAmount(controls.price.value, currency);
         updateEstimate();
       });
+      $("addExpenseItemBtn").addEventListener("click", () => {
+        const openRows = expenseItemRows().filter((row) => !row.classList.contains("is-collapsed"));
+        const blankRow = openRows.find((row) => {
+          const item = row.querySelector(".expense-row-item-input")?.value.trim();
+          const price = row.querySelector(".expense-row-price-input")?.value.trim();
+          return !item && !price;
+        });
+        if (blankRow) {
+          blankRow.querySelector(".expense-row-item-input")?.focus();
+          return;
+        }
+        for (const openRow of openRows) {
+          if (!collapseExpenseItemRow(openRow)) return;
+        }
+        const row = addExpenseItemRow();
+        updateEstimate();
+        saveDraft("expense");
+        row.querySelector(".expense-row-item-input")?.focus();
+      });
+      $("expenseItemRows").addEventListener("click", (event) => {
+        const saveButton = event.target.closest(".expense-item-save-draft");
+        if (saveButton) {
+          collapseExpenseItemRow(saveButton.closest("[data-expense-item-row]"));
+          return;
+        }
+        const editButton = event.target.closest(".expense-item-edit");
+        if (editButton) {
+          const row = editButton.closest("[data-expense-item-row]");
+          row?.classList.remove("is-collapsed");
+          row?.querySelector(".expense-row-item-input")?.focus();
+          return;
+        }
+        const removeButton = event.target.closest(".expense-item-remove");
+        if (!removeButton) return;
+        removeButton.closest("[data-expense-item-row]")?.remove();
+        syncExpenseItemRemoveButtons();
+        updateEstimate();
+        saveDraft("expense");
+      });
+      $("expenseItemRows").addEventListener("input", (event) => {
+        const itemInput = event.target.closest(".expense-row-item-input");
+        const priceInput = event.target.closest(".expense-row-price-input");
+        if (itemInput) capitalizeTextField(itemInput);
+        if (priceInput) {
+          const currency = walletCurrency(controls.expenseWallet.value || defaultWalletName());
+          priceInput.value = formatTransferAmount(priceInput.value, currency);
+        }
+        updateEstimate();
+        saveDraft("expense");
+      });
       controls.incomeAmount.addEventListener("input", () => {
         const currency = walletCurrency(controls.incomeWallet.value || defaultWalletName());
         controls.incomeAmount.value = formatTransferAmount(controls.incomeAmount.value, currency);
@@ -20078,6 +20894,8 @@
       });
       controls.expenseWallet.addEventListener("change", () => {
         updateTransactionCurrencyLabels();
+        updateExpenseRowCurrencyLabels();
+        updateEstimate();
         refreshWalletExchangeRates();
         saveDraft("expense");
       });
@@ -20109,6 +20927,12 @@
         controls.transferReceivedAmount.value = formatTransferAmount(controls.transferReceivedAmount.value, currency);
         updateTransferPreview();
       });
+      controls.transferAdminFeeToggle.addEventListener("change", updateTransferAdminFeeControls);
+      controls.transferAdminFee.addEventListener("input", () => {
+        const currency = walletCurrency(controls.transferFromWallet.value || defaultWalletName());
+        controls.transferAdminFee.value = formatTransferAmount(controls.transferAdminFee.value, currency);
+        updateTransferPreview();
+      });
       controls.transferFromWallet.addEventListener("change", () => {
         transferReceivedManuallyEdited = false;
         controls.transferAmount.value = "";
@@ -20123,7 +20947,10 @@
       controls.transferMax.addEventListener("click", () => {
         const currency = transferCurrency();
         const precision = 10 ** currencyFractionDigits(currency);
-        const balance = Math.floor(Math.max(0, transferSourceBalance()) * precision) / precision;
+        const adminFee = controls.transferAdminFeeToggle.checked
+          ? parseTransferAmount(controls.transferAdminFee.value, currency)
+          : 0;
+        const balance = Math.floor(Math.max(0, transferSourceBalance() - adminFee) * precision) / precision;
         controls.transferAmount.value = formatTransferAmount(balance, currency);
         updateTransferPreview();
         controls.transferAmount.focus();
@@ -20714,8 +21541,9 @@
         const clearButton = document.createElement("button");
         clearButton.type = "button";
         clearButton.className = "text-clear-button";
-        clearButton.setAttribute("aria-label", language === "id" ? "Hapus semua teks" : "Clear all text");
-        clearButton.title = language === "id" ? "Hapus semua teks" : "Clear all text";
+        const activeLanguage = state.settings.language || "id";
+        clearButton.setAttribute("aria-label", activeLanguage === "id" ? "Hapus semua teks" : "Clear all text");
+        clearButton.title = activeLanguage === "id" ? "Hapus semua teks" : "Clear all text";
         clearButton.textContent = "×";
         shell.appendChild(clearButton);
         field.dataset.clearEnhanced = "true";
