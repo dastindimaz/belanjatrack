@@ -8271,7 +8271,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-      <small id="appVersionBadge">v338</small>
+      <small id="appVersionBadge">v341</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -11965,7 +11965,8 @@
       return expenseItemRows().map((row) => ({
         item: row.querySelector(".expense-row-item-input")?.value || "",
         price: row.querySelector(".expense-row-price-input")?.value || "",
-        qty: row.querySelector(".expense-row-qty-input")?.value || "1"
+        qty: row.querySelector(".expense-row-qty-input")?.value || "1",
+        saved: row.classList.contains("is-collapsed")
       }));
     }
 
@@ -12043,6 +12044,10 @@
       priceInput.value = formatTransferAmount(item.price || "", walletCurrency(controls.expenseWallet.value || defaultWalletName()));
       qtyInput.value = item.qty || "1";
       $("expenseItemRows").appendChild(fragment);
+      if (item.saved) {
+        updateExpenseItemSummary(row);
+        row.classList.add("is-collapsed");
+      }
       setupAutocomplete(itemInput, row.querySelector(".expense-row-suggestions"), expenseItemsForSelectedCategory);
       syncExpenseItemRemoveButtons();
       updateExpenseRowCurrencyLabels();
@@ -12058,6 +12063,10 @@
       first.querySelector(".expense-row-item-input").value = capitalizeText(firstItem.item || "");
       first.querySelector(".expense-row-price-input").value = formatTransferAmount(firstItem.price || "", walletCurrency(controls.expenseWallet.value || defaultWalletName()));
       first.querySelector(".expense-row-qty-input").value = firstItem.qty || "1";
+      if (firstItem.saved) {
+        updateExpenseItemSummary(first);
+        first.classList.add("is-collapsed");
+      }
       items.slice(1).forEach(addExpenseItemRow);
       syncExpenseItemRemoveButtons();
     }
@@ -12256,6 +12265,9 @@
       updateDateDisplays();
       updateEstimate();
       updateIncomeAutoControls();
+      if (type === "income") updateIncomeStoryStep(0);
+      if (type === "expense") updateExpenseStoryStep(0);
+      if (type === "obligation") updateDebtStoryStep(0);
       syncDraftButton(type, false);
     }
 
@@ -17562,9 +17574,8 @@
     }
 
     function hideSuggestionBoxes() {
-      ["itemSuggestions", "categorySuggestions", "incomeSourceSuggestions", "trendItemSuggestions", "spendingBudgetCategorySuggestions"].forEach((id) => {
-        const box = $(id);
-        if (box) box.hidden = true;
+      document.querySelectorAll(".suggestion-box").forEach((box) => {
+        box.hidden = true;
       });
     }
 
@@ -17762,6 +17773,8 @@
         input.dispatchEvent(new Event("change", { bubbles: true }));
         input.dispatchEvent(new Event("input", { bubbles: true }));
         hideSuggestionBoxes();
+        box.hidden = true;
+        box.innerHTML = "";
         input.focus();
       });
     }
@@ -20852,6 +20865,7 @@
         if (editButton) {
           const row = editButton.closest("[data-expense-item-row]");
           row?.classList.remove("is-collapsed");
+          saveDraft("expense");
           row?.querySelector(".expense-row-item-input")?.focus();
           return;
         }
