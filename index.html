@@ -8278,7 +8278,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-      <small id="appVersionBadge">v342</small>
+      <small id="appVersionBadge">v345</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -9030,7 +9030,7 @@
             </label>
             <div class="form-footer">
               <div class="estimate">
-                <span data-i18n="monthlyIncomeTotal">Total Pemasukan Bulan Ini</span>
+                <span data-i18n="monthlyIncomeTotal">Estimasi Total Pemasukan</span>
                 <strong id="incomeMonthTotal">Rp 0</strong>
               </div>
               <div class="form-actions">
@@ -9812,7 +9812,7 @@
         incomeDate: "Tanggal Pemasukan", amountRp: "Nominal (Rp)", amountPlaceholder: "Contoh: 5.000.000",
         incomeSource: "Sumber Pemasukan", incomeSourcePlaceholder: "Contoh: Gaji, Freelance, Bonus",
         notesOptional: "Catatan (Opsional)", incomeNotePlaceholder: "Contoh: Gaji bulan ini",
-        monthlyIncomeTotal: "Total Pemasukan Bulan Ini", saveIncome: "Simpan Pemasukan",
+        monthlyIncomeTotal: "Estimasi Total Pemasukan", saveIncome: "Simpan Pemasukan",
         active: "Aktif",
         automaticIncome: "Pemasukan otomatis?", automaticIncomeHint: "Buat otomatis sesuai jadwal",
         automaticIncomeFrequency: "Otomatis setiap", automaticIncomeDay: "Masuk setiap tanggal",
@@ -10195,7 +10195,7 @@
         incomeDate: "Income Date", amountRp: "Amount (Rp)", amountPlaceholder: "Example: 5,000,000",
         incomeSource: "Income Source", incomeSourcePlaceholder: "Example: Salary, Freelance, Bonus",
         notesOptional: "Notes (Optional)", incomeNotePlaceholder: "Example: This month's salary",
-        monthlyIncomeTotal: "Total Income This Month", saveIncome: "Save Income",
+        monthlyIncomeTotal: "Estimated Total Income", saveIncome: "Save Income",
         active: "Active",
         automaticIncome: "Automatic income?", automaticIncomeHint: "Create automatically on schedule",
         automaticIncomeFrequency: "Automatic every", automaticIncomeDay: "Create every date",
@@ -10507,7 +10507,7 @@
       spendingBudgets: [],
       obligations: [],
       wallets: [],
-      settings: { theme: "system", language: defaultLanguage(), currency: defaultCurrency(), defaultWallet: "Cash", onboardingComplete: false },
+      settings: { theme: "system", language: defaultLanguage(), currency: defaultCurrency(), defaultWallet: "Cash", onboardingComplete: false, walletOpeningBalances: {} },
       mode: "monthly",
       view: "home",
       editingEntryId: null,
@@ -11259,7 +11259,24 @@
     }
 
     function todayISO() {
-      return new Date().toISOString().slice(0, 10);
+      return toISODate(new Date());
+    }
+
+    function isEffectiveTransaction(item, asOfDate = todayISO()) {
+      const date = String(item?.date || "").slice(0, 10);
+      return Boolean(date) && date <= asOfDate;
+    }
+
+    function effectiveEntries(rows = state.entries) {
+      return rows.filter((entry) => isEffectiveTransaction(entry));
+    }
+
+    function effectiveIncomes(rows = state.incomes) {
+      return rows.filter((income) => isEffectiveTransaction(income));
+    }
+
+    function effectiveTransfers(rows = state.transfers) {
+      return rows.filter((transfer) => isEffectiveTransaction(transfer));
     }
 
     function toISODate(date) {
@@ -11458,19 +11475,32 @@
 
     function walletBalance(wallet) {
       const key = walletKey(wallet);
-      const incomeTotal = state.incomes
+      const openingBalance = walletOpeningBalance(wallet);
+      const incomeTotal = effectiveIncomes()
         .filter((income) => walletKey(income.wallet) === key)
         .reduce((total, income) => total + Number(income.amount || 0), 0);
-      const expenseTotal = state.entries
+      const expenseTotal = effectiveEntries()
         .filter((entry) => walletKey(entry.wallet) === key)
         .reduce((total, entry) => total + Number(entry.total || 0), 0);
-      const transferIn = state.transfers
+      const transferIn = effectiveTransfers()
         .filter((transfer) => walletKey(transfer.toWallet) === key)
         .reduce((total, transfer) => total + Number(transfer.toAmount ?? transfer.amount ?? 0), 0);
-      const transferOut = state.transfers
+      const transferOut = effectiveTransfers()
         .filter((transfer) => walletKey(transfer.fromWallet) === key)
         .reduce((total, transfer) => total + Number(transfer.amount || 0) + Number(transfer.adminFee || 0), 0);
-      return incomeTotal - expenseTotal + transferIn - transferOut;
+      return openingBalance + incomeTotal - expenseTotal + transferIn - transferOut;
+    }
+
+    function walletOpeningBalance(wallet) {
+      const record = state.settings.walletOpeningBalances?.[walletKey(wallet)];
+      return Number(record && typeof record === "object" ? record.amount : record || 0);
+    }
+
+    function walletOpeningBalanceDate(wallet) {
+      const record = state.settings.walletOpeningBalances?.[walletKey(wallet)];
+      return record && typeof record === "object" && /^\d{4}-\d{2}-\d{2}$/.test(String(record.date || ""))
+        ? record.date
+        : "";
     }
 
     function renderWalletManager() {
@@ -11671,6 +11701,11 @@
       if (walletKey(defaultWalletName()) === walletKey(previousName)) {
         state.settings.defaultWallet = nextName;
       }
+      const previousOpeningBalance = state.settings.walletOpeningBalances?.[walletKey(previousName)];
+      if (previousOpeningBalance !== undefined) {
+        state.settings.walletOpeningBalances[walletKey(nextName)] = previousOpeningBalance;
+        delete state.settings.walletOpeningBalances[walletKey(previousName)];
+      }
       delete state.settings.walletCurrencies[walletKey(previousName)];
       setWalletCurrency(nextName, nextCurrency);
       if (walletKey(controls.expenseWallet.value) === walletKey(previousName)) controls.expenseWallet.value = nextName;
@@ -11740,6 +11775,7 @@
         closeWalletForm();
       }
       delete state.settings.walletCurrencies[key];
+      delete state.settings.walletOpeningBalances?.[key];
       setWalletOptions();
       syncWalletEditMode();
       persist();
@@ -11841,6 +11877,16 @@
         walletKey(transfer.fromWallet) !== walletKey(transfer.toWallet)
       );
       state.wallets = state.wallets.filter((wallet) => walletKey(wallet) !== sourceKey);
+      const sourceOpening = state.settings.walletOpeningBalances?.[sourceKey];
+      if (sourceOpening) {
+        const targetKey = walletKey(targetWallet);
+        const targetAmount = walletOpeningBalance(targetWallet);
+        state.settings.walletOpeningBalances[targetKey] = {
+          amount: targetAmount + walletOpeningBalance(pendingWalletDelete),
+          date: walletOpeningBalanceDate(targetWallet) || walletOpeningBalanceDate(pendingWalletDelete) || todayISO()
+        };
+        delete state.settings.walletOpeningBalances[sourceKey];
+      }
       if (walletKey(controls.expenseWallet.value) === sourceKey) controls.expenseWallet.value = targetWallet;
       if (walletKey(controls.incomeWallet.value) === sourceKey) controls.incomeWallet.value = targetWallet;
       if (walletKey(controls.budgetGoalWallet.value) === sourceKey) controls.budgetGoalWallet.value = targetWallet;
@@ -12393,7 +12439,7 @@
       state.spendingBudgets = [];
       state.obligations = [];
       state.wallets = [];
-      state.settings = { theme: "system", language: defaultLanguage(), currency: defaultCurrency(), defaultWallet: "Cash", onboardingComplete: false, walletCurrencies: {}, exchangeRates: {}, exchangeRateDates: {} };
+      state.settings = { theme: "system", language: defaultLanguage(), currency: defaultCurrency(), defaultWallet: "Cash", onboardingComplete: false, walletCurrencies: {}, walletOpeningBalances: {}, exchangeRates: {}, exchangeRateDates: {} };
       state.mode = "monthly";
       state.view = "home";
       state.editingEntryId = null;
@@ -14649,18 +14695,10 @@
       ensureWallets();
       ensureWalletCurrencies();
       walletRows.forEach((wallet) => setWalletCurrency(wallet.name, currency));
-      walletRows.forEach((wallet) => {
-        if (wallet.balance <= 0) return;
-        state.incomes.unshift({
-          id: createId(),
-          date: todayISO(),
-          amount: wallet.balance,
-          wallet: wallet.name,
-          ...transactionCurrencyMeta(wallet.name, wallet.balance),
-          source: t("initialBalanceSource"),
-          note: t("initialBalanceSource")
-        });
-      });
+      state.settings.walletOpeningBalances = Object.fromEntries(walletRows.map((wallet) => [
+        walletKey(wallet.name),
+        { amount: Math.max(0, Number(wallet.balance || 0)), date: todayISO() }
+      ]));
       applyLanguage(language);
       applyTheme(theme);
       if (currentUser?.needsOnboarding) {
@@ -14740,9 +14778,6 @@
       state.settings.language = selectedLanguage;
       const migrated = migrateLegacy && migrateLegacyData(account);
       safeAccountStep("load user data", load);
-      if (account.needsOnboarding) {
-        state.settings.onboardingComplete = false;
-      }
       safeAccountStep("settings controls", syncSettingsControls);
       safeAccountStep("filter options", setupFilterOptions);
       safeAccountStep("date displays", updateDateDisplays);
@@ -14926,9 +14961,24 @@
         defaultWallet: normalizeName(String(savedSettings.defaultWallet || "")) || "Cash",
         onboardingComplete: savedSettings.onboardingComplete === true,
         walletCurrencies: savedSettings.walletCurrencies && typeof savedSettings.walletCurrencies === "object" && !Array.isArray(savedSettings.walletCurrencies) ? savedSettings.walletCurrencies : {},
+        walletOpeningBalances: savedSettings.walletOpeningBalances && typeof savedSettings.walletOpeningBalances === "object" && !Array.isArray(savedSettings.walletOpeningBalances) ? savedSettings.walletOpeningBalances : {},
         exchangeRates: savedSettings.exchangeRates && typeof savedSettings.exchangeRates === "object" && !Array.isArray(savedSettings.exchangeRates) ? savedSettings.exchangeRates : {},
         exchangeRateDates: savedSettings.exchangeRateDates && typeof savedSettings.exchangeRateDates === "object" && !Array.isArray(savedSettings.exchangeRateDates) ? savedSettings.exchangeRateDates : {}
       };
+      const initialBalanceLabels = new Set(["saldo awal", "initial balance"]);
+      state.incomes = state.incomes.filter((income) => {
+        const source = String(income.source || "").trim().toLocaleLowerCase();
+        const note = String(income.note || "").trim().toLocaleLowerCase();
+        if (!initialBalanceLabels.has(source) || (note && !initialBalanceLabels.has(note))) return true;
+        const key = walletKey(income.wallet || state.settings.defaultWallet);
+        const current = state.settings.walletOpeningBalances[key];
+        const currentAmount = Number(current && typeof current === "object" ? current.amount : current || 0);
+        state.settings.walletOpeningBalances[key] = {
+          amount: currentAmount + Number(income.amount || 0),
+          date: String(income.date || todayISO())
+        };
+        return false;
+      });
       state.wallets = Array.isArray(parsed.wallets) ? parsed.wallets.map(normalizeWalletName) : [];
       ensureWallets();
       ensureWalletCurrencies();
@@ -17253,7 +17303,7 @@
 
     function currentMonthEntries() {
       const key = `${controls.year.value}-${controls.month.value}`;
-      return state.entries.filter((entry) => monthKey(entry.date) === key);
+      return effectiveEntries().filter((entry) => monthKey(entry.date) === key);
     }
 
     function sum(rows) {
@@ -17279,7 +17329,7 @@
           .filter((item) => item.type === "bill")
           .map((item) => item.id)
       );
-      const grouped = state.entries.reduce((items, entry) => {
+      const grouped = effectiveEntries().reduce((items, entry) => {
         // Recurring bills have their own same-bill comparison and must not be
         // counted again as ordinary item-price inflation.
         if (entry.obligationId && recurringBillIds.has(entry.obligationId)) return items;
@@ -17313,7 +17363,7 @@
           .filter((item) => item.type === "bill")
           .map((item) => item.id)
       );
-      const grouped = state.entries.reduce((items, entry) => {
+      const grouped = effectiveEntries().reduce((items, entry) => {
         if (!entry.obligationId || !billIds.has(entry.obligationId) || Number(entry.total || 0) <= 0) return items;
         if (!items[entry.obligationId]) items[entry.obligationId] = [];
         items[entry.obligationId].push(entry);
@@ -17359,7 +17409,7 @@
       const billIds = new Set(
         state.obligations.filter((item) => item.type === "bill").map((item) => item.id)
       );
-      const baselineRows = state.entries.filter((entry) => monthKey(entry.date) === baselineKey);
+      const baselineRows = effectiveEntries().filter((entry) => monthKey(entry.date) === baselineKey);
       const billWeight = sum(baselineRows.filter((entry) => billIds.has(entry.obligationId)));
       const itemWeight = sum(baselineRows.filter((entry) => !billIds.has(entry.obligationId)));
       return {
@@ -17382,7 +17432,7 @@
       const candidates = [];
       const itemGroups = new Map();
 
-      state.entries.forEach((entry) => {
+      effectiveEntries().forEach((entry) => {
         if (entry.obligationId && billById.has(entry.obligationId)) return;
         const name = normalizeName(entry.item || "");
         if (!name || comparableUnitPrice(entry) <= 0) return;
@@ -17407,7 +17457,7 @@
       });
 
       const billGroups = new Map();
-      state.entries.forEach((entry) => {
+      effectiveEntries().forEach((entry) => {
         if (!entry.obligationId || !billById.has(entry.obligationId)) return;
         if (!billGroups.has(entry.obligationId)) billGroups.set(entry.obligationId, []);
         billGroups.get(entry.obligationId).push(entry);
@@ -17440,7 +17490,7 @@
     function highestIncomePeriod(endIndex) {
       const endDate = `${monthKeyFromIndex(endIndex)}-31`;
       const monthGroups = new Map();
-      state.incomes
+      effectiveIncomes()
         .filter((income) => income.date && income.date <= endDate)
         .forEach((income) => {
           const key = monthKey(income.date);
@@ -17866,7 +17916,7 @@
       const sevenDayExpenseTotal = sum(state.entries.filter((entry) => entry.date >= sevenDayStartKey && entry.date <= today));
       const averageDailyExpense = sevenDayExpenseTotal / 7;
       const selectedMonthIncomeTotal = sumIncome(
-        state.incomes.filter((income) => income.date.startsWith(selectedMonth))
+        effectiveIncomes().filter((income) => income.date.startsWith(selectedMonth))
       );
       ensureWallets();
       const selectedMonthCashBalance = state.wallets.reduce((total, wallet) => (
@@ -17913,7 +17963,7 @@
 
     function renderRecentActivity() {
       const activities = [
-        ...state.entries.map((entry) => ({
+        ...effectiveEntries().map((entry) => ({
           record: entry,
           type: "expense",
           date: entry.date,
@@ -17922,7 +17972,7 @@
           wallet: entry.wallet || defaultWalletName(),
           amount: Number(entry.total || 0)
         })),
-        ...state.incomes.map((income) => ({
+        ...effectiveIncomes().map((income) => ({
           record: income,
           type: "income",
           date: income.date,
@@ -17931,7 +17981,7 @@
           wallet: income.wallet || defaultWalletName(),
           amount: Number(income.amount || 0)
         })),
-        ...state.transfers.map((transfer) => ({
+        ...effectiveTransfers().map((transfer) => ({
           record: transfer,
           type: "transfer",
           date: transfer.date,
@@ -18014,10 +18064,28 @@
       });
     }
 
+    function updateIncomeEstimate() {
+      const estimate = $("incomeMonthTotal");
+      if (!estimate) return;
+      const selectedDate = controls.incomeDate?.value || todayISO();
+      const selectedMonth = selectedDate.slice(0, 7);
+      const existingIncome = sumIncome(
+        state.incomes.filter((income) => String(income.date || "").startsWith(selectedMonth))
+      );
+      const wallet = controls.incomeWallet?.value || defaultWalletName();
+      const currency = walletCurrency(wallet);
+      const enteredAmount = parseTransferAmount(controls.incomeAmount?.value || "", currency);
+      const convertedAmount = transactionCurrencyMeta(wallet, enteredAmount).baseAmount;
+      const estimatedAddition = Number.isFinite(convertedAmount)
+        ? convertedAmount
+        : amountInCurrentCurrency(enteredAmount, currency);
+      estimate.textContent = rupiah.format(existingIncome + (Number(estimatedAddition) || 0));
+    }
+
     function renderIncomeUsage() {
       const activeMonth = `${controls.year.value}-${controls.month.value}`;
       const expenses = sum(currentMonthEntries());
-      const income = sumIncome(state.incomes.filter((entry) => entry.date.startsWith(activeMonth)));
+      const income = sumIncome(effectiveIncomes().filter((entry) => entry.date.startsWith(activeMonth)));
       const usage = income > 0 ? (expenses / income) * 100 : null;
       const roundedUsage = usage === null ? null : Math.round(usage * 10) / 10;
       const percentText = roundedUsage === null ? "—" : `${numberFmt.format(roundedUsage)}%`;
@@ -18032,19 +18100,20 @@
 
     function walletBalanceForMonth(wallet, month) {
       const key = walletKey(wallet);
-      const incomeTotal = state.incomes.filter((income) =>
+      const openingBalance = monthKey(walletOpeningBalanceDate(wallet)) === month ? walletOpeningBalance(wallet) : 0;
+      const incomeTotal = effectiveIncomes().filter((income) =>
         monthKey(income.date) === month && walletKey(income.wallet) === key
       ).reduce((total, income) => total + Number(income.amount || 0), 0);
-      const expenseTotal = state.entries.filter((entry) =>
+      const expenseTotal = effectiveEntries().filter((entry) =>
         monthKey(entry.date) === month && walletKey(entry.wallet) === key
       ).reduce((total, entry) => total + Number(entry.total || 0), 0);
-      const transferIn = state.transfers.filter((transfer) =>
+      const transferIn = effectiveTransfers().filter((transfer) =>
         monthKey(transfer.date) === month && walletKey(transfer.toWallet) === key
       ).reduce((total, transfer) => total + Number(transfer.toAmount ?? transfer.amount ?? 0), 0);
-      const transferOut = state.transfers.filter((transfer) =>
+      const transferOut = effectiveTransfers().filter((transfer) =>
         monthKey(transfer.date) === month && walletKey(transfer.fromWallet) === key
       ).reduce((total, transfer) => total + Number(transfer.amount || 0), 0);
-      return incomeTotal - expenseTotal + transferIn - transferOut;
+      return openingBalance + incomeTotal - expenseTotal + transferIn - transferOut;
     }
 
     function renderWalletBalanceAnalytics(activeMonth, activePeriod) {
@@ -18099,14 +18168,14 @@
       const key = walletKey(wallet);
       if (!key) return 0;
       const monthlyTotals = new Map();
-      state.incomes
+      effectiveIncomes()
         .filter((income) => walletKey(income.wallet || defaultWalletName()) === key)
         .forEach((income) => {
           const month = monthKey(income.date);
           if (!month) return;
           monthlyTotals.set(month, (monthlyTotals.get(month) || 0) + Number(income.amount || 0));
         });
-      state.transfers
+      effectiveTransfers()
         .filter((transfer) => walletKey(transfer.toWallet) === key)
         .forEach((transfer) => {
           const month = monthKey(transfer.date);
@@ -18164,7 +18233,7 @@
       const range = spendingBudgetPeriodRange(budget.period);
       const categoryKey = normalizeName(budget.category || "").toLocaleLowerCase("id-ID");
       const budgetWalletKey = walletKey(budget.wallet || "");
-      const rows = state.entries.filter((entry) => {
+      const rows = effectiveEntries().filter((entry) => {
         if (!entry.date || entry.date < range.start || entry.date > range.end) return false;
         if (categoryKey && normalizeName(entry.category || "").toLocaleLowerCase("id-ID") !== categoryKey) return false;
         if (budgetWalletKey && walletKey(entry.wallet || defaultWalletName()) !== budgetWalletKey) return false;
@@ -18594,12 +18663,12 @@
       const [previousYear, previousMonth] = previousKey.split("-");
       const previousPeriod = `${localizedMonthNames()[Number(previousMonth) - 1]} ${previousYear}`;
 
-      const currentExpenseRows = state.entries.filter((entry) => monthKey(entry.date) === currentKey);
-      const previousExpenseRows = state.entries.filter((entry) => monthKey(entry.date) === previousKey);
+      const currentExpenseRows = effectiveEntries().filter((entry) => monthKey(entry.date) === currentKey);
+      const previousExpenseRows = effectiveEntries().filter((entry) => monthKey(entry.date) === previousKey);
       const currentExpenses = sum(currentExpenseRows);
       const previousExpenses = sum(previousExpenseRows);
-      const currentIncome = sumIncome(state.incomes.filter((entry) => monthKey(entry.date) === currentKey));
-      const previousIncome = sumIncome(state.incomes.filter((entry) => monthKey(entry.date) === previousKey));
+      const currentIncome = sumIncome(effectiveIncomes().filter((entry) => monthKey(entry.date) === currentKey));
+      const previousIncome = sumIncome(effectiveIncomes().filter((entry) => monthKey(entry.date) === previousKey));
       const currentBalance = currentIncome - currentExpenses;
       const previousBalance = previousIncome - previousExpenses;
       const inflationHorizons = {
@@ -18611,7 +18680,7 @@
       const billInflation = inflationHorizons.monthly.bills;
       const inflation = inflationHorizons.monthly.combined;
       const knownItems = new Set(
-        state.entries
+        effectiveEntries()
           .filter((entry) => entry.date < `${currentKey}-01`)
           .map((entry) => normalizeName(entry.item || "").toLocaleLowerCase("id-ID"))
           .filter(Boolean)
@@ -18896,12 +18965,9 @@
     }
 
     function renderIncomeTable() {
-      const activeMonth = `${controls.year.value}-${controls.month.value}`;
-      const monthIncomes = state.incomes.filter((income) => income.date.startsWith(activeMonth));
-      const allIncomeTotal = sumIncome(state.incomes);
-      const monthIncomeTotal = sumIncome(monthIncomes);
+      const allIncomeTotal = sumIncome(effectiveIncomes());
 
-      $("incomeMonthTotal").textContent = rupiah.format(monthIncomeTotal);
+      updateIncomeEstimate();
       $("incomeCountText").textContent = t("showingIncome", { count: state.incomes.length });
       $("incomeTotalText").textContent = rupiah.format(allIncomeTotal);
 
@@ -19017,6 +19083,7 @@
     }
 
     function renderCharts(rows) {
+      rows = effectiveEntries(rows);
       $("periodLabel").textContent = periodLabel();
       $("mainChartTitle").textContent = state.mode === "monthly" ? t("shoppingByCategory") : t("monthlyExpenseChart");
       if ($("insightView").hidden) return;
@@ -19027,11 +19094,11 @@
 
       const trendItemName = normalizeName(controls.trendItem.value).toLocaleLowerCase("id-ID");
       const matchingItemRows = trendItemName
-        ? state.entries.filter((entry) => normalizeName(entry.item).toLocaleLowerCase("id-ID") === trendItemName)
+        ? effectiveEntries().filter((entry) => normalizeName(entry.item).toLocaleLowerCase("id-ID") === trendItemName)
         : [];
       const priceData = matchingItemRows.length
         ? priceTrend(matchingItemRows)
-        : averagePriceTrend(state.entries);
+        : averagePriceTrend(effectiveEntries());
       mainChartInstance = renderInteractiveChart(
         mainChartInstance,
         $("mainChart"),
@@ -19146,7 +19213,7 @@
       const activePeriod = `${localizedMonthNames()[Number(controls.month.value) - 1]} ${controls.year.value}`;
       const rows = currentMonthEntries();
       const expenseTotal = sum(rows);
-      const incomeTotal = sumIncome(state.incomes.filter((income) => income.date.startsWith(activeMonth)));
+      const incomeTotal = sumIncome(effectiveIncomes().filter((income) => income.date.startsWith(activeMonth)));
       $("homeAnalyticsPeriod").textContent = activePeriod;
       $("homeCategoryTotal").textContent = expenseTotal > 0 ? rupiah.format(expenseTotal) : "";
       const categoryCenter = $("homeCategoryTotal").closest(".donut-center");
@@ -19921,6 +19988,7 @@
           defaultWallet: normalizeName(String(importedSettings.defaultWallet || "")) || state.settings.defaultWallet || "Cash",
           onboardingComplete: importedSettings.onboardingComplete === true,
           walletCurrencies: importedSettings.walletCurrencies && typeof importedSettings.walletCurrencies === "object" && !Array.isArray(importedSettings.walletCurrencies) ? importedSettings.walletCurrencies : {},
+          walletOpeningBalances: importedSettings.walletOpeningBalances && typeof importedSettings.walletOpeningBalances === "object" && !Array.isArray(importedSettings.walletOpeningBalances) ? importedSettings.walletOpeningBalances : {},
           exchangeRates: importedSettings.exchangeRates && typeof importedSettings.exchangeRates === "object" && !Array.isArray(importedSettings.exchangeRates) ? importedSettings.exchangeRates : {},
           exchangeRateDates: importedSettings.exchangeRateDates && typeof importedSettings.exchangeRateDates === "object" && !Array.isArray(importedSettings.exchangeRateDates) ? importedSettings.exchangeRateDates : {}
         },
@@ -20149,7 +20217,7 @@
       safeRender("summary", () => renderSummary(rows));
       safeRender("insight summary", renderInsightSummary);
       safeRender("recent activity", renderRecentActivity);
-      safeRender("filter summary", () => renderFilterSummary(rows));
+      safeRender("filter summary", () => renderFilterSummary(effectiveEntries(rows)));
       safeRender("charts", () => renderCharts(rows));
       safeRender("shopping table", () => renderTable(rows));
       safeRender("income table", renderIncomeTable);
@@ -20897,6 +20965,7 @@
       controls.incomeAmount.addEventListener("input", () => {
         const currency = walletCurrency(controls.incomeWallet.value || defaultWalletName());
         controls.incomeAmount.value = formatTransferAmount(controls.incomeAmount.value, currency);
+        updateIncomeEstimate();
         saveDraft("income");
       });
       controls.incomeDate.addEventListener("change", () => {
@@ -20906,11 +20975,13 @@
           controls.incomeAutoWeekday.value = String(date.getDay());
         }
         updateIncomeAutoControls();
+        updateIncomeEstimate();
         saveDraft("income");
       });
       controls.incomeWallet.addEventListener("change", () => {
         controls.incomeAmount.value = "";
         updateTransactionCurrencyLabels();
+        updateIncomeEstimate();
         saveDraft("income");
       });
       controls.expenseWallet.addEventListener("change", () => {
