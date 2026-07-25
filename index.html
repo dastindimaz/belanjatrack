@@ -7007,14 +7007,22 @@
       }
 
       .secure-dialog.entry-dialog {
-        align-items: end;
-        padding: 10px;
+        place-items: center;
+        padding:
+          max(14px, env(safe-area-inset-top))
+          12px
+          max(14px, env(safe-area-inset-bottom));
+        overflow-y: auto;
+        overscroll-behavior: contain;
       }
 
       .entry-dialog-panel {
         width: 100%;
-        max-height: calc(100dvh - 20px);
-        border-radius: 20px 20px 12px 12px;
+        max-height: calc(100dvh - 28px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+        margin: auto;
+        border-radius: 20px;
+        overscroll-behavior: contain;
+        scroll-padding-block: 18px;
       }
 
       .entry-dialog-panel .panel-header {
@@ -8278,7 +8286,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-      <small id="appVersionBadge">v345</small>
+      <small id="appVersionBadge">v350</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -9772,7 +9780,7 @@
         obligationReminderTitle: "Saatnya cek {type}",
         obligationReminderBody: "{name} jatuh tempo hari ini. Estimasi: {amount}.",
         notificationEnabled: "Notifikasi aktif. Nanti kami ingatkan sesuai jadwal.",
-        pushSubscriptionFailed: "Izin notifikasi sudah aktif, tetapi perangkat belum berhasil terhubung ke layanan push. Coba lagi beberapa saat.",
+        pushSubscriptionFailed: "Izin notifikasi aktif, tetapi token push belum terbentuk. Muat ulang aplikasi lalu coba aktifkan lagi.",
         pushNeedsSecureAddressTitle: "Buka versi online aplikasi",
         pushNeedsSecureAddress: "Izin notifikasi lokal bisa digunakan di perangkat ini, tetapi push notification baru dapat didaftarkan dari aplikasi GitHub Pages yang sudah terhubung ke OneSignal.",
         obligationActiveStatus: "Status", notificationOn: "Aktif", notificationOff: "Nonaktif",
@@ -10155,7 +10163,7 @@
         obligationReminderTitle: "Time to check {type}",
         obligationReminderBody: "{name} is due today. Estimate: {amount}.",
         notificationEnabled: "Notifications are on. We will remind you on schedule.",
-        pushSubscriptionFailed: "Notification permission is enabled, but this device has not connected to push service yet. Try again shortly.",
+        pushSubscriptionFailed: "Notifications are allowed, but the push token was not created. Reload the app, then try enabling it again.",
         pushNeedsSecureAddressTitle: "Open the online app",
         pushNeedsSecureAddress: "Local notifications can be enabled on this device, but push notifications can only be registered from the GitHub Pages app connected to OneSignal.",
         obligationActiveStatus: "Status", notificationOn: "On", notificationOff: "Off",
@@ -11082,7 +11090,7 @@
       });
       if ("serviceWorker" in navigator && window.location.protocol !== "file:") {
         window.addEventListener("load", () => {
-          navigator.serviceWorker.register("./sw.js?v=312", { updateViaCache: "none" })
+          navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" })
             .then((registration) => registration.update().catch(() => null))
             .catch((error) => {
               console.error("Service worker gagal didaftarkan:", error);
@@ -16976,15 +16984,26 @@
             await oneSignal.Notifications.requestPermission();
           }
           if (Notification.permission === "granted") {
-            await identifyOneSignalUser(oneSignal);
             await oneSignal.User.PushSubscription.optIn();
             const subscribed = await waitForOneSignalSubscription(oneSignal);
             if (!subscribed) {
+              console.warn("OneSignal push token was not created.", {
+                permission: Notification.permission,
+                optedIn: oneSignal.User.PushSubscription.optedIn,
+                subscriptionId: oneSignal.User.PushSubscription.id,
+                origin: window.location.origin,
+                worker: oneSignalWorkerOptions()
+              });
               toast(t("pushSubscriptionFailed"));
               updateHeaderNotificationButton();
               return "subscription-failed";
             }
+            await identifyOneSignalUser(oneSignal);
           }
+        } else if (oneSignalConfigured()) {
+          toast(t("pushSubscriptionFailed"));
+          updateHeaderNotificationButton();
+          return "subscription-failed";
         } else {
           if (Notification.permission !== "granted") await Notification.requestPermission();
         }
@@ -17012,7 +17031,8 @@
     function oneSignalOriginSupported() {
       if (!/^https?:$/.test(window.location.protocol)) return false;
       const allowedOrigin = String(ONESIGNAL_CONFIG.allowedOrigin || "").replace(/\/$/, "");
-      return !allowedOrigin || window.location.origin === allowedOrigin;
+      const isLocalTest = window.location.hostname === "localhost";
+      return isLocalTest || !allowedOrigin || window.location.origin === allowedOrigin;
     }
 
     function loadOneSignalSdk() {
@@ -17051,12 +17071,17 @@
 
     function refreshOneSignalSubscriptionState(oneSignal) {
       const subscription = oneSignal && oneSignal.User && oneSignal.User.PushSubscription;
-      oneSignalPushSubscribed = Boolean(subscription && subscription.optedIn && subscription.id);
+      oneSignalPushSubscribed = Boolean(
+        subscription &&
+        subscription.optedIn &&
+        subscription.id &&
+        subscription.token
+      );
       updateHeaderNotificationButton();
       return oneSignalPushSubscribed;
     }
 
-    async function waitForOneSignalSubscription(oneSignal, timeoutMs = 10000) {
+    async function waitForOneSignalSubscription(oneSignal, timeoutMs = 20000) {
       const startedAt = Date.now();
       while (Date.now() - startedAt < timeoutMs) {
         if (refreshOneSignalSubscriptionState(oneSignal)) return true;
@@ -17068,6 +17093,9 @@
     async function initializeOneSignal() {
       if (!oneSignalConfigured()) return null;
       try {
+        if (!("serviceWorker" in navigator)) {
+          throw new Error("PUSH_WORKER_UNAVAILABLE");
+        }
         await loadOneSignalSdk();
         return await new Promise((resolve, reject) => {
           window.OneSignalDeferred.push(async (oneSignal) => {
@@ -17097,7 +17125,7 @@
           });
         });
       } catch (error) {
-        console.warn("OneSignal belum siap; notifikasi lokal tetap digunakan:", error);
+        console.error("OneSignal gagal membuat subscription push:", error);
         return null;
       }
     }
@@ -17114,10 +17142,6 @@
           language: state.settings.language || "id",
           plan: currentUser.plan || PLAN_CONFIG.defaultPlan
         });
-        if (Notification.permission === "granted") {
-          await sdk.User.PushSubscription.optIn();
-          await waitForOneSignalSubscription(sdk);
-        }
         updateHeaderNotificationButton();
         return Notification.permission !== "granted" || oneSignalPushSubscribed;
       } catch (error) {
