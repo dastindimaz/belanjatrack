@@ -17048,13 +17048,19 @@
             await oneSignal.User.PushSubscription.optIn();
             const subscribed = await waitForOneSignalSubscription(oneSignal);
             if (!subscribed) {
+              const repaired = await recoverOneSignalSubscription();
               console.warn("OneSignal push token was not created.", {
                 permission: Notification.permission,
                 optedIn: oneSignal.User.PushSubscription.optedIn,
                 subscriptionId: oneSignal.User.PushSubscription.id,
                 origin: window.location.origin,
-                worker: oneSignalWorkerOptions()
+                worker: oneSignalWorkerOptions(),
+                repaired
               });
+              if (repaired) {
+                window.location.reload();
+                return "repairing";
+              }
               toast(t("pushSubscriptionFailed"));
               updateHeaderNotificationButton();
               return "subscription-failed";
@@ -17154,7 +17160,7 @@
     function oneSignalOriginSupported() {
       if (!/^https?:$/.test(window.location.protocol)) return false;
       const allowedOrigin = String(ONESIGNAL_CONFIG.allowedOrigin || "").replace(/\/$/, "");
-      const isLocalTest = window.location.hostname === "localhost";
+      const isLocalTest = ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname);
       return isLocalTest || !allowedOrigin || window.location.origin === allowedOrigin;
     }
 
@@ -17189,7 +17195,69 @@
     function oneSignalWorkerOptions() {
       const workerUrl = new URL("./push/onesignal/OneSignalSDKWorker.js", window.location.href);
       const scopeUrl = new URL("./push/onesignal/", window.location.href);
-      return { path: workerUrl.pathname, scope: scopeUrl.pathname };
+      return {
+        path: workerUrl.pathname,
+        scope: scopeUrl.pathname,
+        url: workerUrl.href,
+        scopeUrl: scopeUrl.href
+      };
+    }
+
+    async function prepareOneSignalWorker({ reset = false } = {}) {
+      if (!("serviceWorker" in navigator)) throw new Error("PUSH_WORKER_UNAVAILABLE");
+      const worker = oneSignalWorkerOptions();
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      const scopedRegistrations = registrations.filter((registration) =>
+        registration.scope === worker.scopeUrl
+      );
+
+      if (reset) {
+        await Promise.all(scopedRegistrations.map((registration) => registration.unregister()));
+      } else {
+        await Promise.all(scopedRegistrations.map((registration) =>
+          registration.update().catch(() => null)
+        ));
+      }
+
+      const registration = await navigator.serviceWorker.register(worker.url, {
+        scope: worker.scope,
+        updateViaCache: "none"
+      });
+      await registration.update().catch(() => null);
+
+      if (!registration.active) {
+        await new Promise((resolve, reject) => {
+          const installing = registration.installing || registration.waiting;
+          if (!installing) {
+            reject(new Error("PUSH_WORKER_NOT_ACTIVE"));
+            return;
+          }
+          const timeout = window.setTimeout(() => reject(new Error("PUSH_WORKER_TIMEOUT")), 12000);
+          installing.addEventListener("statechange", () => {
+            if (installing.state === "activated") {
+              window.clearTimeout(timeout);
+              resolve();
+            } else if (installing.state === "redundant") {
+              window.clearTimeout(timeout);
+              reject(new Error("PUSH_WORKER_REDUNDANT"));
+            }
+          });
+        });
+      }
+      return registration;
+    }
+
+    async function recoverOneSignalSubscription() {
+      const repairKey = `belanjatrack-onesignal-repair-${ONESIGNAL_CONFIG.appId}`;
+      if (sessionStorage.getItem(repairKey) === "done") return false;
+      sessionStorage.setItem(repairKey, "done");
+      try {
+        await prepareOneSignalWorker({ reset: true });
+        return true;
+      } catch (error) {
+        console.warn("OneSignal worker repair failed:", error);
+        return false;
+      }
     }
 
     function refreshOneSignalSubscriptionState(oneSignal) {
@@ -17225,11 +17293,13 @@
             try {
               if (!oneSignalReady) {
                 const worker = oneSignalWorkerOptions();
+                await prepareOneSignalWorker();
                 await oneSignal.init({
                   appId: ONESIGNAL_CONFIG.appId,
                   allowLocalhostAsSecureOrigin: true,
                   serviceWorkerPath: worker.path,
                   serviceWorkerParam: { scope: worker.scope },
+                  autoResubscribe: true,
                   notifyButton: { enable: false }
                 });
                 oneSignal.Notifications.addEventListener("permissionChange", () => {
