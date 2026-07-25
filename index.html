@@ -953,6 +953,39 @@
       background: var(--line);
     }
 
+    .push-test-panel {
+      display: grid;
+      gap: 2px;
+    }
+
+    .push-test-panel button {
+      border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--line));
+      background: color-mix(in srgb, var(--accent) 7%, var(--panel));
+      color: var(--accent);
+    }
+
+    .push-test-panel button:hover {
+      border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+      background: color-mix(in srgb, var(--accent) 12%, var(--panel));
+    }
+
+    .push-test-status {
+      min-height: 18px;
+      margin-top: 4px;
+    }
+
+    .push-test-status[data-state="success"] {
+      color: var(--accent);
+    }
+
+    .push-test-status[data-state="warning"] {
+      color: #b45309;
+    }
+
+    .push-test-status[data-state="error"] {
+      color: #b91c1c;
+    }
+
     .layout {
       display: grid;
       grid-template-columns: 360px minmax(0, 1fr);
@@ -8499,6 +8532,14 @@
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 17l5-5-5-5"></path><path d="M15 12H3"></path><path d="M14 3h7v18h-7"></path></svg>
               <span data-i18n="logout">Keluar</span>
             </button>
+            <div class="settings-divider"></div>
+            <div class="push-test-panel">
+              <button type="button" id="testPushNotificationBtn">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M10 21h4"></path></svg>
+                <span data-i18n="testPushNotification">Tes push notification</span>
+              </button>
+              <p class="install-hint push-test-status" id="testPushNotificationStatus" data-i18n="testPushNotificationHint" aria-live="polite">Periksa izin browser, service worker, dan koneksi push di perangkat ini.</p>
+            </div>
           </div>
       </div>
     </header>
@@ -9781,6 +9822,16 @@
         obligationReminderBody: "{name} jatuh tempo hari ini. Estimasi: {amount}.",
         notificationEnabled: "Notifikasi aktif. Nanti kami ingatkan sesuai jadwal.",
         pushSubscriptionFailed: "Izin notifikasi aktif, tetapi token push belum terbentuk. Muat ulang aplikasi lalu coba aktifkan lagi.",
+        testPushNotification: "Tes push notification",
+        testPushNotificationHint: "Periksa izin browser, service worker, dan koneksi push di perangkat ini.",
+        testingPushNotification: "Menyiapkan notifikasi tes...",
+        testPushNotificationTitle: "Notifikasi BelanjaTrack aktif",
+        testPushNotificationBody: "Tes berhasil. Pengingat dapat muncul di perangkat ini.",
+        testPushNotificationSuccess: "Tes berhasil. Perangkat ini sudah terhubung ke push notification.",
+        testPushNotificationLocalOnly: "Notifikasi lokal berhasil, tetapi token push cloud belum terbentuk.",
+        testPushNotificationSecureRequired: "Tes push notification perlu dibuka melalui HTTPS atau localhost.",
+        testPushNotificationPermissionNeeded: "Izin notifikasi belum diberikan.",
+        testPushNotificationFailed: "Tes gagal. Periksa izin browser, service worker, dan koneksi push.",
         pushNeedsSecureAddressTitle: "Buka versi online aplikasi",
         pushNeedsSecureAddress: "Izin notifikasi lokal bisa digunakan di perangkat ini, tetapi push notification baru dapat didaftarkan dari aplikasi GitHub Pages yang sudah terhubung ke OneSignal.",
         obligationActiveStatus: "Status", notificationOn: "Aktif", notificationOff: "Nonaktif",
@@ -10164,6 +10215,16 @@
         obligationReminderBody: "{name} is due today. Estimate: {amount}.",
         notificationEnabled: "Notifications are on. We will remind you on schedule.",
         pushSubscriptionFailed: "Notifications are allowed, but the push token was not created. Reload the app, then try enabling it again.",
+        testPushNotification: "Test push notification",
+        testPushNotificationHint: "Check browser permission, the service worker, and the push connection on this device.",
+        testingPushNotification: "Preparing a test notification...",
+        testPushNotificationTitle: "BelanjaTrack notifications are active",
+        testPushNotificationBody: "Test successful. Reminders can appear on this device.",
+        testPushNotificationSuccess: "Test successful. This device is connected to push notifications.",
+        testPushNotificationLocalOnly: "The local notification worked, but a cloud push token has not been created.",
+        testPushNotificationSecureRequired: "Push notification testing requires HTTPS or localhost.",
+        testPushNotificationPermissionNeeded: "Notification permission has not been granted.",
+        testPushNotificationFailed: "The test failed. Check browser permission, the service worker, and the push connection.",
         pushNeedsSecureAddressTitle: "Open the online app",
         pushNeedsSecureAddress: "Local notifications can be enabled on this device, but push notifications can only be registered from the GitHub Pages app connected to OneSignal.",
         obligationActiveStatus: "Status", notificationOn: "On", notificationOff: "Off",
@@ -17020,6 +17081,68 @@
       }
     }
 
+    function updatePushTestStatus(message, stateName = "") {
+      const status = $("testPushNotificationStatus");
+      if (!status) return;
+      status.textContent = message;
+      if (stateName) status.dataset.state = stateName;
+      else delete status.dataset.state;
+    }
+
+    async function testPushNotification() {
+      const button = $("testPushNotificationBtn");
+      if (!button) return;
+      button.disabled = true;
+      updatePushTestStatus(t("testingPushNotification"));
+      try {
+        if (!("Notification" in window)) {
+          updatePushTestStatus(t("testPushNotificationFailed"), "error");
+          return;
+        }
+        if (!oneSignalOriginSupported()) {
+          updatePushTestStatus(t("testPushNotificationSecureRequired"), "warning");
+          return;
+        }
+
+        const permissionResult = await enableObligationNotifications();
+        if (permissionResult === "denied" || Notification.permission !== "granted") {
+          updatePushTestStatus(t("testPushNotificationPermissionNeeded"), "warning");
+          return;
+        }
+        if (permissionResult === "subscription-failed" || permissionResult === "error" || permissionResult === "unavailable") {
+          updatePushTestStatus(t("testPushNotificationFailed"), "error");
+          return;
+        }
+
+        if (!("serviceWorker" in navigator)) {
+          updatePushTestStatus(t("testPushNotificationFailed"), "error");
+          return;
+        }
+        const worker = oneSignalWorkerOptions();
+        const registration =
+          (await navigator.serviceWorker.getRegistration(worker.scope)) ||
+          (await navigator.serviceWorker.ready);
+        await registration.showNotification(t("testPushNotificationTitle"), {
+          body: t("testPushNotificationBody"),
+          icon: "./pwa-icon-192.png",
+          badge: "./pwa-icon-192.png",
+          tag: `belanjatrack-push-test-${Date.now()}`
+        });
+
+        const oneSignal = oneSignalConfigured() ? await initializeOneSignal() : null;
+        const cloudPushReady = oneSignal ? refreshOneSignalSubscriptionState(oneSignal) : false;
+        updatePushTestStatus(
+          t(cloudPushReady ? "testPushNotificationSuccess" : "testPushNotificationLocalOnly"),
+          cloudPushReady ? "success" : "warning"
+        );
+      } catch (error) {
+        console.error("Push notification test failed:", error);
+        updatePushTestStatus(t("testPushNotificationFailed"), "error");
+      } finally {
+        button.disabled = false;
+      }
+    }
+
     function oneSignalConfigured() {
       return Boolean(
         ONESIGNAL_CONFIG.enabled &&
@@ -21354,6 +21477,7 @@
         desktopNotificationBannerDismissed = true;
         updateHeaderNotificationButton();
       });
+      $("testPushNotificationBtn").addEventListener("click", testPushNotification);
 
       $("sampleBtn").addEventListener("click", async () => {
         if (await seedSample()) closeSettingsMenu();
