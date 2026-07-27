@@ -1850,6 +1850,19 @@
       margin-top: 18px;
     }
 
+    .secure-dialog-actions button.primary {
+      border: 1px solid rgba(255, 255, 255, .22);
+      background: linear-gradient(135deg, #07885f, #0aad7b);
+      color: #fff;
+      -webkit-text-fill-color: #fff;
+      box-shadow: 0 12px 26px rgba(7, 136, 95, .22);
+    }
+
+    .secure-dialog-actions button.primary:hover,
+    .secure-dialog-actions button.primary:focus-visible {
+      filter: brightness(1.05);
+    }
+
     #closeRecoveryCodeBtn,
     #finishOnboardingBtn {
       min-width: 148px;
@@ -2760,6 +2773,14 @@
       color: #fecaca;
     }
 
+    html[data-resolved-theme="dark"] .secure-dialog-actions button.primary {
+      border-color: rgba(94, 234, 212, .36);
+      background: linear-gradient(135deg, #0f766e, #059669);
+      color: #fff;
+      -webkit-text-fill-color: #fff;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, .3);
+    }
+
     html[data-resolved-theme="dark"] .header-notification-button {
       border-color: rgba(125, 211, 252, .24);
       background:
@@ -3609,6 +3630,25 @@
       overflow-wrap: anywhere;
       font-size: 11px;
       white-space: normal;
+    }
+
+    .category-chart-legend:not(.is-expanded) .category-legend-item.is-extra {
+      display: none;
+    }
+
+    .category-legend-toggle {
+      width: 100%;
+      min-height: 40px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--accent);
+      box-shadow: none;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 850;
+      cursor: pointer;
     }
 
     .wallet-balance-list {
@@ -8319,7 +8359,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-      <small id="appVersionBadge">v350</small>
+      <small id="appVersionBadge">v351</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -8357,7 +8397,6 @@
       </form>
       <p class="auth-message" id="authMessage" aria-live="polite"></p>
       <div class="auth-restore">
-        <input class="file-input" id="restoreAccountFile" type="file" accept="application/json,.json">
         <p class="auth-note" data-i18n="localAccountNote">Aplikasi ini tetap bisa berjalan tanpa internet. Saat internet tersedia, data akan dibackup ke cloud otomatis.</p>
       </div>
       <footer class="auth-footer">
@@ -8496,16 +8535,6 @@
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
               <span data-i18n="fillSample">Isi data contoh</span>
             </button>
-            <button type="button" id="exportBtn">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>
-              Export JSON
-            </button>
-            <button type="button" id="importBtn">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V9"></path><path d="m7 14 5-5 5 5"></path><path d="M5 3h14"></path></svg>
-              Import JSON
-            </button>
-            <input class="file-input" id="importFile" type="file" accept="application/json,.json">
-            <div class="settings-divider"></div>
             <button type="button" id="exportExcelBtn">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 3h16v18H4z"></path><path d="M4 9h16M10 9v12"></path><path d="m7 13 4 4m0-4-4 4"></path></svg>
               <span data-i18n="exportExcel">Export Excel</span>
@@ -8532,14 +8561,6 @@
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 17l5-5-5-5"></path><path d="M15 12H3"></path><path d="M14 3h7v18h-7"></path></svg>
               <span data-i18n="logout">Keluar</span>
             </button>
-            <div class="settings-divider"></div>
-            <div class="push-test-panel">
-              <button type="button" id="testPushNotificationBtn">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M10 21h4"></path></svg>
-                <span data-i18n="testPushNotification">Tes push notification</span>
-              </button>
-              <p class="install-hint push-test-status" id="testPushNotificationStatus" data-i18n="testPushNotificationHint" aria-live="polite">Periksa izin browser, service worker, dan koneksi push di perangkat ini.</p>
-            </div>
           </div>
       </div>
     </header>
@@ -9618,31 +9639,6 @@
       </form>
     </section>
   </div>
-  <div class="secure-dialog" id="restoreRegistrationDialog" hidden>
-    <section class="secure-dialog-panel" role="dialog" aria-modal="true" aria-labelledby="restoreRegistrationTitle">
-      <h2 id="restoreRegistrationTitle" data-i18n="setupImportedAccount">Buat akun untuk data ini</h2>
-      <p data-i18n="setupImportedAccountText">Lengkapi akun lokal agar data dari JSON hanya tampil setelah Anda login.</p>
-      <form id="restoreRegistrationForm" autocomplete="off">
-        <label><span data-i18n="yourName">Nama Anda</span>
-          <input id="restoreDisplayName" type="text" autocomplete="new-password" required>
-        </label>
-        <label><span data-i18n="email">Email</span>
-          <input id="restoreUsername" type="email" autocomplete="email" autocapitalize="none" spellcheck="false" required>
-        </label>
-        <label><span data-i18n="password">Password</span>
-          <input id="restorePassword" type="password" autocomplete="new-password" minlength="6" required>
-        </label>
-        <label><span data-i18n="confirmPassword">Ulangi password</span>
-          <input id="restorePasswordConfirm" type="password" autocomplete="new-password" minlength="6" required>
-        </label>
-        <p class="auth-message" id="restoreRegistrationMessage" aria-live="polite"></p>
-        <div class="secure-dialog-actions">
-          <button type="button" class="secondary" id="restoreRegistrationCancel" data-i18n="cancel">Batal</button>
-          <button type="submit" data-i18n="createAndRestore">Buat akun & pulihkan</button>
-        </div>
-      </form>
-    </section>
-  </div>
   <div class="secure-dialog" id="accountRecoveryDialog" hidden>
     <section class="secure-dialog-panel" role="dialog" aria-modal="true" aria-labelledby="accountRecoveryTitle">
       <h2 id="accountRecoveryTitle">Pemulihan akun</h2>
@@ -9694,9 +9690,7 @@
     const CLOUD_AUTH_KEY = "trackbelanja:cloud-auth:v1";
     const WINDOW_SESSION_KEY = "__belanjaTrackSession";
     const LEGACY_MIGRATION_KEY = "trackbelanja:legacy-migrated:v1";
-    const BACKUP_FORMAT = "belanjatrack-encrypted-backup";
     const PASSWORD_ITERATIONS = 180000;
-    const BACKUP_ITERATIONS = 220000;
     const RECOVERY_ITERATIONS = 180000;
     const ADD_WALLET_OPTION_VALUE = "__add_wallet__";
     const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
@@ -9822,16 +9816,6 @@
         obligationReminderBody: "{name} jatuh tempo hari ini. Estimasi: {amount}.",
         notificationEnabled: "Notifikasi aktif. Nanti kami ingatkan sesuai jadwal.",
         pushSubscriptionFailed: "Izin notifikasi aktif, tetapi token push belum terbentuk. Muat ulang aplikasi lalu coba aktifkan lagi.",
-        testPushNotification: "Tes push notification",
-        testPushNotificationHint: "Periksa izin browser, service worker, dan koneksi push di perangkat ini.",
-        testingPushNotification: "Menyiapkan notifikasi tes...",
-        testPushNotificationTitle: "Notifikasi BelanjaTrack aktif",
-        testPushNotificationBody: "Tes berhasil. Pengingat dapat muncul di perangkat ini.",
-        testPushNotificationSuccess: "Tes berhasil. Perangkat ini sudah terhubung ke push notification.",
-        testPushNotificationLocalOnly: "Notifikasi lokal berhasil, tetapi token push cloud belum terbentuk.",
-        testPushNotificationSecureRequired: "Tes push notification perlu dibuka melalui HTTPS atau localhost.",
-        testPushNotificationPermissionNeeded: "Izin notifikasi belum diberikan.",
-        testPushNotificationFailed: "Tes gagal. Periksa izin browser, service worker, dan koneksi push.",
         pushNeedsSecureAddressTitle: "Buka versi online aplikasi",
         pushNeedsSecureAddress: "Izin notifikasi lokal bisa digunakan di perangkat ini, tetapi push notification baru dapat didaftarkan dari aplikasi GitHub Pages yang sudah terhubung ke OneSignal.",
         obligationActiveStatus: "Status", notificationOn: "Aktif", notificationOff: "Nonaktif",
@@ -9936,7 +9920,6 @@
         samplePreviewExited: "Preview sample dihapus. Data asli Anda sudah dimuat kembali.",
         quantityPositive: "Jumlah barang harus lebih dari 0.", pricePositive: "Harga harus lebih dari 0.", changesSaved: "Perubahan transaksi tersimpan.",
         transactionSaved: "Transaksi belanja tersimpan.", incomeSaved: "Pemasukan tersimpan.",
-        exportReady: "Export JSON disiapkan. Cek folder Downloads browser.", importSuccess: "Import JSON berhasil.",
         importInvalid: "File JSON tidak valid untuk TrackBelanja. Pastikan halaman sudah di-refresh.",
         editCancelled: "Edit transaksi dibatalkan.", themeActive: "Tema {theme} aktif.",
         deleteConfirm: "Hapus semua data belanja di browser ini?", allDeleted: "Semua data sudah dihapus.",
@@ -9944,7 +9927,7 @@
         deleteTransactionConfirm: "Hapus transaksi pengeluaran ini? Data yang dihapus tidak dapat dipulihkan.",
         deleteIncomeRecordConfirm: "Hapus catatan pemasukan ini? Data yang dihapus tidak dapat dipulihkan.",
         deleteTransferRecordConfirm: "Hapus catatan transfer ini? Saldo wallet akan dihitung ulang.",
-        chooseDate: "Pilih tanggal", noChartData: "Belum ada data untuk grafik ini.", sampleDataNote: "Data contoh",
+        chooseDate: "Pilih tanggal", readMore: "Lihat lainnya", showLess: "Tampilkan lebih sedikit", noChartData: "Belum ada data untuk grafik ini.", sampleDataNote: "Data contoh",
         sampleSalary: "Gaji", sampleAnnualBonus: "Bonus Tahunan",
         exportExcel: "Export Excel", importExcel: "Import Excel", downloadSampleExcel: "Download Sample Excel",
         excelExported: "File Excel berhasil dibuat.", excelSampleDownloaded: "Sample Excel berhasil dibuat.",
@@ -10038,7 +10021,7 @@
         localAccountSubtitle: "Akun lokal untuk data belanja Anda", login: "Masuk", register: "Daftar",
         username: "Nama pengguna", userId: "User ID", cloudUserId: "Cloud User ID", copyUserId: "Salin User ID", userIdCopied: "User ID disalin.", notConnected: "Belum terhubung", email: "Email", password: "Password", displayName: "Nama tampilan", yourName: "Nama Anda",
         saveName: "Simpan nama", nameRequired: "Nama Anda belum diisi.", nameSaved: "Nama Anda sudah diperbarui.",
-        confirmPassword: "Ulangi password", createAccount: "Buat akun", restoreAccount: "Pulihkan akun dari JSON",
+        confirmPassword: "Ulangi password", createAccount: "Buat akun",
         localAccountNote: "Aplikasi ini tetap bisa berjalan tanpa internet. Saat internet tersedia, data akan dibackup ke cloud otomatis.",
         logout: "Keluar", continue: "Lanjutkan", usernameRequired: "Masukkan email yang valid.",
         passwordTooShort: "Password minimal 6 karakter.", passwordMismatch: "Password tidak sama.",
@@ -10061,16 +10044,9 @@
         cloudRegisterSending: "Mengirim pendaftaran ke cloud...",
         cloudPullFailed: "Data cloud belum bisa dimuat, memakai data lokal dulu.",
         cryptoUnavailable: "Enkripsi aman tidak tersedia pada browser ini.", confirmBackupPassword: "Konfirmasi password",
-        exportPasswordHint: "Masukkan password akun untuk membuat backup JSON terenkripsi.",
-        importPasswordHint: "Masukkan password akun untuk membuka backup JSON terenkripsi.",
-        backupPasswordWrong: "Password backup salah atau file rusak.", encryptedExportReady: "Backup JSON terenkripsi berhasil dibuat.",
         restoreCredentialsRequired: "Isi email dan password pada form Masuk sebelum memilih file backup.",
         restoreOnlyEncrypted: "Pemulihan akun memerlukan backup JSON terenkripsi dari BelanjaTrack.",
-        restoreUsernameMismatch: "Email tidak cocok dengan pemilik backup.", accountRestored: "Akun dan data berhasil dipulihkan.",
-        backupDifferentAccount: "Backup ini dimiliki oleh akun yang berbeda.", legacyDataMigrated: "Data lama dipindahkan ke akun ini.",
-        setupImportedAccount: "Buat akun untuk data ini",
-        setupImportedAccountText: "Lengkapi akun lokal agar data dari JSON hanya tampil setelah Anda login.",
-        createAndRestore: "Buat akun & pulihkan", importedJsonInvalid: "JSON tidak berisi data BelanjaTrack yang valid.",
+        legacyDataMigrated: "Data lama dipindahkan ke akun ini.",
         greetingMorning: "Selamat pagi, {name}", greetingAfternoon: "Selamat siang, {name}",
         greetingEvening: "Selamat malam, {name}", forgotUserId: "Lupa User ID?", forgotEmail: "Lupa Email?", forgotPassword: "Lupa Password?",
         recoveryCode: "Recovery Code", newPassword: "Password baru", findUserId: "Cari Email",
@@ -10215,16 +10191,6 @@
         obligationReminderBody: "{name} is due today. Estimate: {amount}.",
         notificationEnabled: "Notifications are on. We will remind you on schedule.",
         pushSubscriptionFailed: "Notifications are allowed, but the push token was not created. Reload the app, then try enabling it again.",
-        testPushNotification: "Test push notification",
-        testPushNotificationHint: "Check browser permission, the service worker, and the push connection on this device.",
-        testingPushNotification: "Preparing a test notification...",
-        testPushNotificationTitle: "BelanjaTrack notifications are active",
-        testPushNotificationBody: "Test successful. Reminders can appear on this device.",
-        testPushNotificationSuccess: "Test successful. This device is connected to push notifications.",
-        testPushNotificationLocalOnly: "The local notification worked, but a cloud push token has not been created.",
-        testPushNotificationSecureRequired: "Push notification testing requires HTTPS or localhost.",
-        testPushNotificationPermissionNeeded: "Notification permission has not been granted.",
-        testPushNotificationFailed: "The test failed. Check browser permission, the service worker, and the push connection.",
         pushNeedsSecureAddressTitle: "Open the online app",
         pushNeedsSecureAddress: "Local notifications can be enabled on this device, but push notifications can only be registered from the GitHub Pages app connected to OneSignal.",
         obligationActiveStatus: "Status", notificationOn: "On", notificationOff: "Off",
@@ -10329,7 +10295,6 @@
         samplePreviewExited: "Sample preview deleted. Your original data is back.",
         quantityPositive: "Quantity must be greater than 0.", pricePositive: "Price must be greater than 0.", changesSaved: "Transaction changes saved.",
         transactionSaved: "Shopping transaction saved.", incomeSaved: "Income saved.",
-        exportReady: "JSON export prepared. Check your browser's Downloads folder.", importSuccess: "JSON imported successfully.",
         importInvalid: "This JSON file is not valid for TrackBelanja. Make sure the page has been refreshed.",
         editCancelled: "Transaction edit cancelled.", themeActive: "{theme} theme enabled.",
         deleteConfirm: "Delete all shopping data in this browser?", allDeleted: "All shopping data has been deleted.",
@@ -10337,7 +10302,7 @@
         deleteTransactionConfirm: "Delete this expense transaction? Deleted data cannot be recovered.",
         deleteIncomeRecordConfirm: "Delete this income record? Deleted data cannot be recovered.",
         deleteTransferRecordConfirm: "Delete this transfer record? Wallet balances will be recalculated.",
-        chooseDate: "Choose a date", noChartData: "No data available for this chart.", sampleDataNote: "Sample data",
+        chooseDate: "Choose a date", readMore: "Read more", showLess: "Show less", noChartData: "No data available for this chart.", sampleDataNote: "Sample data",
         sampleSalary: "Salary", sampleAnnualBonus: "Annual Bonus",
         exportExcel: "Export Excel", importExcel: "Import Excel", downloadSampleExcel: "Download Sample Excel",
         excelExported: "Excel file created successfully.", excelSampleDownloaded: "Sample Excel created successfully.",
@@ -10431,7 +10396,7 @@
         localAccountSubtitle: "A local account for your shopping data", login: "Log in", register: "Register",
         username: "Username", userId: "User ID", cloudUserId: "Cloud User ID", copyUserId: "Copy User ID", userIdCopied: "User ID copied.", notConnected: "Not connected", email: "Email", password: "Password", displayName: "Display name", yourName: "Your name",
         saveName: "Save name", nameRequired: "Enter your name first.", nameSaved: "Your name has been updated.",
-        confirmPassword: "Confirm password", createAccount: "Create account", restoreAccount: "Restore account from JSON",
+        confirmPassword: "Confirm password", createAccount: "Create account",
         localAccountNote: "This app can keep working without internet. When internet is available, your data is backed up to the cloud automatically.",
         logout: "Log out", continue: "Continue", usernameRequired: "Enter a valid email address.",
         passwordTooShort: "Password must be at least 6 characters.", passwordMismatch: "Passwords do not match.",
@@ -10454,16 +10419,9 @@
         cloudRegisterSending: "Sending registration to cloud...",
         cloudPullFailed: "Cloud data could not be loaded, using local data for now.",
         cryptoUnavailable: "Secure encryption is not available in this browser.", confirmBackupPassword: "Confirm password",
-        exportPasswordHint: "Enter your account password to create an encrypted JSON backup.",
-        importPasswordHint: "Enter your account password to open this encrypted JSON backup.",
-        backupPasswordWrong: "The backup password is incorrect or the file is damaged.", encryptedExportReady: "Encrypted JSON backup created.",
         restoreCredentialsRequired: "Enter the email and password in the Login form before selecting a backup.",
         restoreOnlyEncrypted: "Account recovery requires an encrypted BelanjaTrack JSON backup.",
-        restoreUsernameMismatch: "The email does not match the backup owner.", accountRestored: "Account and data restored.",
-        backupDifferentAccount: "This backup belongs to another account.", legacyDataMigrated: "Existing data was moved into this account.",
-        setupImportedAccount: "Create an account for this data",
-        setupImportedAccountText: "Complete a local account so the imported JSON is only visible after you log in.",
-        createAndRestore: "Create account & restore", importedJsonInvalid: "The JSON does not contain valid BelanjaTrack data.",
+        legacyDataMigrated: "Existing data was moved into this account.",
         greetingMorning: "Good morning, {name}", greetingAfternoon: "Good afternoon, {name}",
         greetingEvening: "Good evening, {name}", forgotUserId: "Forgot User ID?", forgotEmail: "Forgot Email?", forgotPassword: "Forgot Password?",
         recoveryCode: "Recovery Code", newPassword: "New password", findUserId: "Find Email",
@@ -10612,7 +10570,6 @@
           },
           features: {
             cloudSync: true,
-            exportJson: true,
             exportExcel: true,
             walletSharing: false,
             cloudAutomation: false,
@@ -10631,7 +10588,6 @@
           },
           features: {
             cloudSync: true,
-            exportJson: true,
             exportExcel: true,
             walletSharing: true,
             cloudAutomation: true,
@@ -10674,7 +10630,6 @@
     let samplePreviewActive = false;
     let passwordDialogResolver = null;
     let appConfirmResolver = null;
-    let pendingAccountRestore = null;
     let greetingTimer = null;
     let accountRecoveryMode = "password";
     let monthPickerYear = new Date().getFullYear();
@@ -14084,55 +14039,6 @@
       toast(t("passwordResetSuccess"));
     }
 
-    async function createEncryptedBackup(payload, password, account) {
-      const salt = crypto.getRandomValues(new Uint8Array(16));
-      const iv = crypto.getRandomValues(new Uint8Array(12));
-      const key = await deriveBackupKey(password, salt, BACKUP_ITERATIONS);
-      const plaintext = new TextEncoder().encode(JSON.stringify(payload));
-      const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, plaintext);
-      return {
-        format: BACKUP_FORMAT,
-        version: 1,
-        createdAt: new Date().toISOString(),
-        account: {
-          username: account.username,
-          usernameKey: account.usernameKey,
-          displayName: account.displayName,
-          plan: resolveAccountPlan(account),
-          planSource: account.planSource || (ownerPlanForAccount(account) ? "owner" : "default"),
-          planExpiresAt: account.planExpiresAt || null,
-          featureOverrides: account.featureOverrides || {}
-        },
-        encryption: {
-          name: "AES-GCM",
-          kdf: "PBKDF2",
-          hash: "SHA-256",
-          iterations: BACKUP_ITERATIONS,
-          salt: bytesToBase64(salt),
-          iv: bytesToBase64(iv)
-        },
-        ciphertext: bytesToBase64(new Uint8Array(ciphertext))
-      };
-    }
-
-    async function decryptBackup(backup, password) {
-      if (!backup || backup.format !== BACKUP_FORMAT || !backup.encryption || !backup.ciphertext) {
-        throw new Error("not encrypted backup");
-      }
-      const encryption = backup.encryption;
-      const key = await deriveBackupKey(
-        password,
-        base64ToBytes(encryption.salt),
-        Number(encryption.iterations || BACKUP_ITERATIONS)
-      );
-      const plaintext = await crypto.subtle.decrypt(
-        { name: "AES-GCM", iv: base64ToBytes(encryption.iv) },
-        key,
-        base64ToBytes(backup.ciphertext)
-      );
-      return JSON.parse(new TextDecoder().decode(plaintext));
-    }
-
     function migrateLegacyData(account) {
       if (localStorage.getItem(LEGACY_MIGRATION_KEY)) return false;
       const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
@@ -14967,6 +14873,7 @@
       const submit = $("appConfirmSubmit");
       submit.textContent = confirmLabel;
       submit.classList.toggle("danger", danger);
+      submit.classList.toggle("primary", !danger);
       $("appConfirmCancel").hidden = !showCancel;
       $("appConfirmDialog").hidden = false;
       setMainLocked(true);
@@ -17084,68 +16991,6 @@
         console.warn("Izin notifikasi tidak tersedia:", error);
         updateHeaderNotificationButton();
         return "error";
-      }
-    }
-
-    function updatePushTestStatus(message, stateName = "") {
-      const status = $("testPushNotificationStatus");
-      if (!status) return;
-      status.textContent = message;
-      if (stateName) status.dataset.state = stateName;
-      else delete status.dataset.state;
-    }
-
-    async function testPushNotification() {
-      const button = $("testPushNotificationBtn");
-      if (!button) return;
-      button.disabled = true;
-      updatePushTestStatus(t("testingPushNotification"));
-      try {
-        if (!("Notification" in window)) {
-          updatePushTestStatus(t("testPushNotificationFailed"), "error");
-          return;
-        }
-        if (!oneSignalOriginSupported()) {
-          updatePushTestStatus(t("testPushNotificationSecureRequired"), "warning");
-          return;
-        }
-
-        const permissionResult = await enableObligationNotifications();
-        if (permissionResult === "denied" || Notification.permission !== "granted") {
-          updatePushTestStatus(t("testPushNotificationPermissionNeeded"), "warning");
-          return;
-        }
-        if (permissionResult === "subscription-failed" || permissionResult === "error" || permissionResult === "unavailable") {
-          updatePushTestStatus(t("testPushNotificationFailed"), "error");
-          return;
-        }
-
-        if (!("serviceWorker" in navigator)) {
-          updatePushTestStatus(t("testPushNotificationFailed"), "error");
-          return;
-        }
-        const worker = oneSignalWorkerOptions();
-        const registration =
-          (await navigator.serviceWorker.getRegistration(worker.scope)) ||
-          (await navigator.serviceWorker.ready);
-        await registration.showNotification(t("testPushNotificationTitle"), {
-          body: t("testPushNotificationBody"),
-          icon: "./pwa-icon-192.png",
-          badge: "./pwa-icon-192.png",
-          tag: `belanjatrack-push-test-${Date.now()}`
-        });
-
-        const oneSignal = oneSignalConfigured() ? await initializeOneSignal() : null;
-        const cloudPushReady = oneSignal ? refreshOneSignalSubscriptionState(oneSignal) : false;
-        updatePushTestStatus(
-          t(cloudPushReady ? "testPushNotificationSuccess" : "testPushNotificationLocalOnly"),
-          cloudPushReady ? "success" : "warning"
-        );
-      } catch (error) {
-        console.error("Push notification test failed:", error);
-        updatePushTestStatus(t("testPushNotificationFailed"), "error");
-      } finally {
-        button.disabled = false;
       }
     }
 
@@ -19449,25 +19294,56 @@
         "#ec4899",
         "#64748b"
       ];
-      const categoryPairs = Object.entries(groupBy(rows, (entry) => entry.category))
-        .sort((left, right) => right[1] - left[1]);
-      const categoryLabels = categoryPairs.map(([label]) => label);
-      const categoryValues = categoryPairs.map(([, value]) => Number(value || 0));
+      const categoryMap = new Map();
+      rows.forEach((entry) => {
+        const category = String(entry.category || "").trim() || "—";
+        const baseValue = transactionBaseAmount(entry, "expense");
+        const nativeCurrency = transactionNativeCurrency(entry);
+        const nativeValue = transactionNativeAmount(entry, "expense");
+        const aggregate = categoryMap.get(category) || {
+          category,
+          baseValue: 0,
+          nativeTotals: new Map()
+        };
+        aggregate.baseValue += baseValue;
+        aggregate.nativeTotals.set(
+          nativeCurrency,
+          (aggregate.nativeTotals.get(nativeCurrency) || 0) + nativeValue
+        );
+        categoryMap.set(category, aggregate);
+      });
+      const categoryPairs = [...categoryMap.values()]
+        .sort((left, right) => right.baseValue - left.baseValue);
+      const categoryLabels = categoryPairs.map(({ category }) => category);
+      const categoryValues = categoryPairs.map(({ baseValue }) => Number(baseValue || 0));
       const categoryColors = categoryPairs.map((pair, index) => palette[index % palette.length]);
 
       $("homeCategoryChartLayout")?.classList.toggle("is-empty", categoryPairs.length === 0);
 
-      $("homeCategoryLegend").innerHTML = categoryPairs.length
-        ? categoryPairs.map(([category, value], index) => {
-          const percent = expenseTotal > 0 ? Math.round((value / expenseTotal) * 100) : 0;
+      const categoryAmountLabel = ({ baseValue, nativeTotals }) => {
+        if (nativeTotals.size === 1) {
+          const [[currency, amount]] = nativeTotals.entries();
+          if (currency !== currentCurrency()) {
+            return `${formatCurrencyAmount(amount, currency)} · ≈ ${formatCurrencyAmount(baseValue, currentCurrency())}`;
+          }
+        }
+        return formatCurrencyAmount(baseValue, currentCurrency());
+      };
+      const categoryLegend = $("homeCategoryLegend");
+      categoryLegend.classList.remove("is-expanded");
+      categoryLegend.innerHTML = categoryPairs.length
+        ? `${categoryPairs.map((item, index) => {
+          const percent = expenseTotal > 0 ? Math.round((item.baseValue / expenseTotal) * 100) : 0;
           return `
-            <button class="category-legend-item" type="button" data-category-chart-index="${index}" title="${escapeHtml(category)}">
+            <button class="category-legend-item${index >= 5 ? " is-extra" : ""}" type="button" data-category-chart-index="${index}" title="${escapeHtml(item.category)}">
               <i style="background:${categoryColors[index]}"></i>
-              <span>${escapeHtml(category)}</span>
-              <b>${rupiah.format(value)} · ${percent}%</b>
+              <span>${escapeHtml(item.category)}</span>
+              <b>${escapeHtml(categoryAmountLabel(item))} · ${percent}%</b>
             </button>
           `;
-        }).join("")
+        }).join("")}${categoryPairs.length > 5
+          ? `<button class="category-legend-toggle" type="button" data-category-legend-toggle aria-expanded="false">${escapeHtml(t("readMore"))}</button>`
+          : ""}`
         : "";
 
       if (homeCategoryChartInstance) homeCategoryChartInstance.destroy();
@@ -19506,7 +19382,11 @@
                 label(context) {
                   const value = Number(context.parsed || 0);
                   const percent = expenseTotal > 0 ? Math.round((value / expenseTotal) * 100) : 0;
-                  return `${context.label}: ${rupiah.format(value)} (${percent}%)`;
+                  const item = categoryPairs[context.dataIndex];
+                  const amount = item
+                    ? categoryAmountLabel(item)
+                    : formatCurrencyAmount(value, currentCurrency());
+                  return `${context.label}: ${amount} (${percent}%)`;
                 }
               }
             },
@@ -19693,58 +19573,56 @@
       return String(Math.round(value));
     }
 
-    function downloadJsonFile(payload, filename) {
-      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-      const link = document.createElement("a");
-      const url = URL.createObjectURL(blob);
-      link.href = url;
-      link.download = filename;
-      link.style.display = "none";
-      document.body.appendChild(link);
-      link.click();
-      window.setTimeout(() => {
-        URL.revokeObjectURL(url);
-        link.remove();
-      }, 1500);
-    }
-
-    async function exportJson() {
-      if (!currentUser) return;
-      if (!secureCryptoAvailable()) {
-        toast(t("cryptoUnavailable"));
-        return;
-      }
-      const password = await requestPassword(t("confirmBackupPassword"), t("exportPasswordHint"));
-      if (!password) return;
-      const verified = await authenticateLocalAccount(currentUser.username, password);
-      if (!verified) {
-        toast(t("loginInvalid"));
-        return;
-      }
-      try {
-        const backup = await createEncryptedBackup(currentDataPayload(), password, currentUser);
-        downloadJsonFile(backup, `trackbelanja-${currentUser.usernameKey}-${todayISO()}.json`);
-        toast(t("encryptedExportReady"));
-      } catch (error) {
-        console.error("Export backup gagal:", error);
-        toast(t("cryptoUnavailable"));
-      }
-    }
-
     function excelLibrary() {
       if (window.XLSX) return window.XLSX;
       toast(t("excelLibraryMissing"));
       return null;
     }
 
-    function createExcelWorkbook(dataset) {
+    const EXCEL_BACKUP_SHEET = "_BelanjaTrackBackup";
+    const EXCEL_BACKUP_CHUNK_SIZE = 30000;
+
+    function appendExcelBackupSheet(XLSX, workbook, dataset) {
+      const serialized = JSON.stringify(dataset);
+      const rows = [];
+      for (let offset = 0; offset < serialized.length; offset += EXCEL_BACKUP_CHUNK_SIZE) {
+        rows.push({
+          Part: rows.length + 1,
+          Payload: serialized.slice(offset, offset + EXCEL_BACKUP_CHUNK_SIZE)
+        });
+      }
+      const sheet = XLSX.utils.json_to_sheet(rows, { header: ["Part", "Payload"] });
+      sheet["!cols"] = [{ wch: 10 }, { wch: 80 }];
+      XLSX.utils.book_append_sheet(workbook, sheet, EXCEL_BACKUP_SHEET);
+      workbook.Workbook = workbook.Workbook || {};
+      workbook.Workbook.Sheets = workbook.SheetNames.map((name) => ({
+        name,
+        Hidden: name === EXCEL_BACKUP_SHEET ? 2 : 0
+      }));
+    }
+
+    function readExcelBackupPayload(XLSX, workbook) {
+      const sheet = findExcelSheet(workbook, EXCEL_BACKUP_SHEET);
+      if (!sheet) return null;
+      const rows = XLSX.utils.sheet_to_json(sheet, { defval: "", raw: true })
+        .sort((a, b) => Number(a.Part || 0) - Number(b.Part || 0));
+      const serialized = rows.map((row) => String(row.Payload || "")).join("");
+      if (!serialized) throw new Error("Excel backup payload is empty.");
+      const parsed = JSON.parse(serialized);
+      if (!parsed || typeof parsed !== "object" || !Array.isArray(parsed.entries) || !Array.isArray(parsed.incomes)) {
+        throw new Error("Excel backup payload is invalid.");
+      }
+      return parsed;
+    }
+
+    function createExcelWorkbook(dataset, options = {}) {
       const XLSX = excelLibrary();
       if (!XLSX) return null;
       const incomeHeaders = ["Date", "Source", "Wallet", "Income", "Notes"];
       const expenseHeaders = ["Date", "Item", "Category", "Wallet", "Quantity", "Unit Price", "Expense", "Notes"];
       const transferHeaders = ["Date", "From Wallet", "To Wallet", "Amount", "Notes"];
       const goalHeaders = ["Name", "Wallet", "Target Amount", "Current Saved"];
-      const incomeRows = dataset.incomes
+      const incomeRows = (dataset.incomes || [])
         .slice()
         .sort((a, b) => a.date.localeCompare(b.date))
         .map((income) => ({
@@ -19754,7 +19632,7 @@
           Income: Number(income.amount || 0),
           Notes: income.note || ""
         }));
-      const expenseRows = dataset.entries
+      const expenseRows = (dataset.entries || [])
         .slice()
         .sort((a, b) => a.date.localeCompare(b.date))
         .map((entry) => ({
@@ -19805,18 +19683,14 @@
       XLSX.utils.book_append_sheet(workbook, expenseSheet, "Expense");
       XLSX.utils.book_append_sheet(workbook, transferSheet, "Transfer");
       XLSX.utils.book_append_sheet(workbook, goalSheet, "Budget Goals");
+      if (options.includeBackup !== false) appendExcelBackupSheet(XLSX, workbook, dataset);
       return workbook;
     }
 
     function exportExcel() {
       const XLSX = excelLibrary();
       if (!XLSX) return false;
-      const workbook = createExcelWorkbook({
-        entries: state.entries,
-        incomes: state.incomes,
-        transfers: state.transfers,
-        budgetGoals: state.budgetGoals
-      });
+      const workbook = createExcelWorkbook(currentDataPayload());
       if (!workbook) return false;
       XLSX.writeFile(workbook, `trackbelanja-${todayISO()}.xlsx`, { compression: true });
       toast(t("excelExported"));
@@ -19827,7 +19701,7 @@
       const XLSX = excelLibrary();
       if (!XLSX) return false;
       const sampleYear = new Date().getFullYear();
-      const workbook = createExcelWorkbook(createSampleDataset(sampleYear));
+      const workbook = createExcelWorkbook(createSampleDataset(sampleYear), { includeBackup: false });
       if (!workbook) return false;
       XLSX.writeFile(workbook, `trackbelanja-sample-${sampleYear}.xlsx`, { compression: true });
       toast(t("excelSampleDownloaded"));
@@ -19896,6 +19770,20 @@
       if (!XLSX) return false;
       try {
         const workbook = XLSX.read(await file.arrayBuffer(), { type: "array", cellDates: true });
+        const backupPayload = readExcelBackupPayload(XLSX, workbook);
+        if (backupPayload) {
+          if (!await requestAppConfirmation(t("excelReplaceConfirm"), {
+            title: t("confirmActionTitle"),
+            confirmLabel: t("continue"),
+            danger: true
+          })) return false;
+          const normalizedBackup = normalizedImportedPayload(backupPayload, true);
+          if (!normalizedBackup) throw new Error("Excel backup payload is invalid.");
+          exitEntryEditMode(true);
+          applyDataset(normalizedBackup);
+          toast(t("excelImportSuccess"));
+          return true;
+        }
         const incomeSheet = findExcelSheet(workbook, "Income");
         const expenseSheet = findExcelSheet(workbook, "Expense");
         const transferSheet = findExcelSheet(workbook, "Transfer");
@@ -20239,156 +20127,6 @@
       refreshWalletExchangeRates();
     }
 
-    async function importJson(file) {
-      if (!currentUser) return;
-      try {
-        let parsed = JSON.parse(await file.text());
-        if (parsed && parsed.format === BACKUP_FORMAT) {
-          const parsedAccount = parsed.account || {};
-          if (normalizeUsername(parsedAccount.usernameKey || parsedAccount.username) !== currentUser.usernameKey) {
-            throw new Error("different account");
-          }
-          const password = await requestPassword(t("confirmBackupPassword"), t("importPasswordHint"));
-          if (!password) return;
-          try {
-            parsed = await decryptBackup(parsed, password);
-          } catch (error) {
-            toast(t("backupPasswordWrong"));
-            return;
-          }
-        }
-        applyDataset(normalizedImportedPayload(parsed));
-        toast(t("importSuccess"));
-      } catch (error) {
-        console.error("Import JSON gagal:", error);
-        toast(t(error.message === "different account" ? "backupDifferentAccount" : "importInvalid"));
-      }
-    }
-
-    function setRestoreRegistrationMessage(message = "") {
-      $("restoreRegistrationMessage").textContent = message;
-    }
-
-    function closeRestoreRegistration() {
-      pendingAccountRestore = null;
-      $("restoreRegistrationDialog").hidden = true;
-      $("restoreRegistrationForm").reset();
-      setRestoreRegistrationMessage();
-    }
-
-    async function prepareAccountRestore(file) {
-      if (!secureCryptoAvailable()) {
-        setAuthMessage(t("cryptoUnavailable"));
-        return;
-      }
-      try {
-        const parsed = JSON.parse(await file.text());
-        $("restoreRegistrationForm").reset();
-        setRestoreRegistrationMessage();
-        if (parsed && parsed.format === BACKUP_FORMAT) {
-          const parsedAccount = parsed.account || {};
-          pendingAccountRestore = { type: "encrypted", backup: parsed };
-          $("restoreDisplayName").value = parsedAccount.displayName || "";
-          $("restoreUsername").value = parsedAccount.username || "";
-        } else {
-          pendingAccountRestore = {
-            type: "plain",
-            payload: normalizedImportedPayload(parsed)
-          };
-        }
-        $("restoreRegistrationDialog").hidden = false;
-        window.setTimeout(() => $("restoreDisplayName").focus(), 0);
-      } catch (error) {
-        console.error("Persiapan pemulihan akun gagal:", error);
-        setAuthMessage(t("importedJsonInvalid"));
-      }
-    }
-
-    async function completeAccountRestore() {
-      if (!pendingAccountRestore) return;
-      const displayName = $("restoreDisplayName").value;
-      const username = $("restoreUsername").value;
-      const password = $("restorePassword").value;
-      const confirmation = $("restorePasswordConfirm").value;
-        if (!validEmail(username)) {
-          setRestoreRegistrationMessage(t("usernameRequired"));
-          return;
-        }
-      if (password.length < 6) {
-        setRestoreRegistrationMessage(t("passwordTooShort"));
-        return;
-      }
-      if (password !== confirmation) {
-        setRestoreRegistrationMessage(t("passwordMismatch"));
-        return;
-      }
-
-      try {
-        let payload = pendingAccountRestore.payload;
-        if (pendingAccountRestore.type === "encrypted") {
-          const backup = pendingAccountRestore.backup;
-          const backupAccount = backup.account || {};
-          const backupUsernameKey = normalizeUsername(backupAccount.usernameKey || backupAccount.username);
-          if (normalizeUsername(username) !== backupUsernameKey) {
-            setRestoreRegistrationMessage(t("restoreUsernameMismatch"));
-            return;
-          }
-          try {
-            payload = normalizedImportedPayload(await decryptBackup(backup, password), true);
-          } catch (error) {
-            setRestoreRegistrationMessage(t("backupPasswordWrong"));
-            return;
-          }
-        }
-
-        let recoveryCode = null;
-        const backupPlanAccount = pendingAccountRestore.type === "encrypted" ? pendingAccountRestore.backup.account || {} : {};
-        const restoredPlanFields = backupPlanAccount.plan
-          ? {
-              plan: normalizePlan(backupPlanAccount.plan),
-              planSource: backupPlanAccount.planSource || "backup",
-              planExpiresAt: backupPlanAccount.planExpiresAt || null,
-              featureOverrides: backupPlanAccount.featureOverrides || {}
-            }
-          : {};
-        let account = loadAccounts().find((item) => item.usernameKey === normalizeUsername(username));
-        if (account) {
-          account = await authenticateLocalAccount(username, password);
-          if (!account) {
-            setRestoreRegistrationMessage(t("loginInvalid"));
-            return;
-          }
-          if (!account.recoveryHash) {
-            const issued = await issueRecoveryCode(account);
-            account = issued.account;
-            recoveryCode = issued.code;
-          }
-        } else {
-          account = await createLocalAccount({ username, displayName, password });
-          const issued = await issueRecoveryCode(account);
-          account = issued.account;
-          recoveryCode = issued.code;
-        }
-        if (Object.keys(restoredPlanFields).length) {
-          account = saveUpdatedAccount({ ...account, ...restoredPlanFields });
-        }
-
-        localStorage.setItem(userDataKey(account.id), JSON.stringify(payload));
-        pendingAccountRestore = null;
-        $("restoreRegistrationDialog").hidden = true;
-        $("restoreRegistrationForm").reset();
-        pendingOnboardingRecoveryCode = recoveryCode || "";
-        enterAccount(account, { message: t("accountRestored") });
-      } catch (error) {
-        console.error("Pemulihan akun gagal:", error);
-        if (error.message === "username taken") {
-          setRestoreRegistrationMessage(t("usernameTaken"));
-          return;
-        }
-        setRestoreRegistrationMessage(t("importInvalid"));
-      }
-    }
-
     function syncSettingsControls() {
       controls.theme.value = state.settings.theme || "system";
       if (controls.walletCurrency) controls.walletCurrency.value = currentCurrency();
@@ -20608,22 +20346,6 @@
           registerSubmit.disabled = false;
         }
       });
-      if ($("restoreAccountBtn")) {
-        $("restoreAccountBtn").addEventListener("click", () => {
-          setAuthMessage();
-          $("restoreAccountFile").click();
-        });
-      }
-      $("restoreAccountFile").addEventListener("change", async (event) => {
-        const file = event.target.files[0];
-        if (file) await prepareAccountRestore(file);
-        event.target.value = "";
-      });
-      $("restoreRegistrationForm").addEventListener("submit", async (event) => {
-        event.preventDefault();
-        await completeAccountRestore();
-      });
-      $("restoreRegistrationCancel").addEventListener("click", closeRestoreRegistration);
       $("passwordDialogForm").addEventListener("submit", (event) => {
         event.preventDefault();
         closePasswordDialog($("passwordDialogInput").value);
@@ -21547,8 +21269,6 @@
         desktopNotificationBannerDismissed = true;
         updateHeaderNotificationButton();
       });
-      $("testPushNotificationBtn").addEventListener("click", testPushNotification);
-
       $("sampleBtn").addEventListener("click", async () => {
         if (await seedSample()) closeSettingsMenu();
       });
@@ -21681,17 +21401,6 @@
       });
       controls.copyOnboardingRecoveryCode.addEventListener("click", copyOnboardingRecoveryCode);
       controls.finishOnboarding.addEventListener("click", closeOnboardingDialog);
-      $("exportBtn").addEventListener("click", async () => {
-        closeSettingsMenu();
-        await exportJson();
-      });
-      $("importBtn").addEventListener("click", () => $("importFile").click());
-      $("importFile").addEventListener("change", (event) => {
-        const file = event.target.files[0];
-        if (file) importJson(file);
-        event.target.value = "";
-        closeSettingsMenu();
-      });
       $("exportExcelBtn").addEventListener("click", () => {
         if (exportExcel()) closeSettingsMenu();
       });
@@ -21806,6 +21515,14 @@
         render();
       });
       $("homeCategoryLegend").addEventListener("click", (event) => {
+        const toggle = event.target.closest("[data-category-legend-toggle]");
+        if (toggle) {
+          const legend = toggle.closest(".category-chart-legend");
+          const expanded = legend.classList.toggle("is-expanded");
+          toggle.setAttribute("aria-expanded", String(expanded));
+          toggle.textContent = expanded ? t("showLess") : t("readMore");
+          return;
+        }
         const button = event.target.closest("[data-category-chart-index]");
         if (!button || !homeCategoryChartInstance) return;
         const index = Number(button.dataset.categoryChartIndex);
