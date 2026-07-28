@@ -8359,7 +8359,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-      <small id="appVersionBadge">v351</small>
+      <small id="appVersionBadge">v352</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -16649,11 +16649,20 @@
     }
 
     function toggleObligationStatus(id) {
-      state.obligations = state.obligations.map((item) => item.id === id ? {
-        ...item,
-        status: item.status === "paid" ? "unpaid" : "paid",
-        lastPaidDate: item.status === "paid" ? "" : todayISO()
-      } : item);
+      state.obligations = state.obligations.map((item) => {
+        if (item.id !== id) return item;
+        const markingPaid = item.status !== "paid";
+        const paidDate = markingPaid ? todayISO() : "";
+        const paidDueDate = markingPaid && item.type === "bill"
+          ? scheduledObligationDateOnOrAfter(item, paidDate)
+          : "";
+        return {
+          ...item,
+          status: markingPaid ? "paid" : "unpaid",
+          lastPaidDate: paidDate,
+          lastPaidDueDate: paidDueDate
+        };
+      });
       persist();
       render();
     }
@@ -16698,9 +16707,18 @@
         obligationId: item.id
       });
       if (!Array.isArray(item.payments)) item.payments = [];
-      item.payments.push({ id: createId(), entryId: expenseId, date: paymentDate, amount, wallet, automatic: true });
+      item.payments.push({
+        id: createId(),
+        entryId: expenseId,
+        date: paymentDate,
+        scheduledDate: paymentDate,
+        amount,
+        wallet,
+        automatic: true
+      });
       item.status = "paid";
       item.lastPaidDate = paymentDate;
+      item.lastPaidDueDate = paymentDate;
       item.lastPaymentEntryId = expenseId;
       return true;
     }
@@ -16739,7 +16757,7 @@
       state.obligations.forEach((item) => {
         if (item.type !== "bill" || item.active === false || item.autoPay !== true) return;
         const scheduledDate = latestScheduledBillDate(item, today);
-        if (!scheduledDate || String(item.lastPaidDate || "") >= scheduledDate) return;
+        if (!scheduledDate || obligationSettledThroughDate(item) >= scheduledDate) return;
         if ((!item.frequency || item.frequency === "none") && item.status === "paid") return;
         if (recordAutomaticBillPayment(item, scheduledDate)) changed = true;
       });
@@ -16831,7 +16849,10 @@
       const item = state.obligations.find((obligation) => obligation.id === pendingObligationPaymentId);
       if (!item || !["bill", "debt", "receivable"].includes(item.type)) return closeObligationPaymentDialog();
       const paymentDate = controls.obligationPaymentDate.value || todayISO();
-      if (item.type === "bill" && item.lastPaidDate === paymentDate) {
+      const scheduledDate = item.type === "bill"
+        ? scheduledObligationDateOnOrAfter(item, paymentDate)
+        : "";
+      if (item.type === "bill" && scheduledDate && obligationSettledThroughDate(item) >= scheduledDate) {
         closeObligationPaymentDialog();
         toast(t("billAlreadyPaidToday"));
         return;
@@ -16887,12 +16908,14 @@
       });
       item.status = "paid";
       item.lastPaidDate = paymentDate;
+      if (item.type === "bill") item.lastPaidDueDate = scheduledDate;
       item.lastPaymentEntryId = expenseId;
       if (!Array.isArray(item.payments)) item.payments = [];
       item.payments.push({
         id: createId(),
         entryId: expenseId,
         date: paymentDate,
+        scheduledDate: item.type === "bill" ? scheduledDate : "",
         amount,
         wallet
       });
@@ -17259,34 +17282,62 @@
       return today === item.dueDate;
     }
 
-    function nextObligationDueDate(item, referenceDate = todayISO()) {
+    function addISODateDays(value, days = 1) {
+      const date = new Date(`${value}T00:00:00`);
+      if (Number.isNaN(date.getTime())) return value;
+      date.setDate(date.getDate() + days);
+      return toISODate(date);
+    }
+
+    function scheduledObligationDateOnOrAfter(item, referenceDate = todayISO()) {
       if (!item || !item.dueDate) return "";
       const start = new Date(`${item.dueDate}T00:00:00`);
       const reference = new Date(`${referenceDate}T00:00:00`);
       if (Number.isNaN(start.getTime()) || Number.isNaN(reference.getTime())) return "";
       const frequency = item.frequency || "none";
-      if (frequency === "none") return item.status === "paid" ? "" : item.dueDate;
+      if (frequency === "none") return item.dueDate;
       let candidate = new Date(Math.max(start.getTime(), reference.getTime()));
       if (frequency === "daily") {
-        if (item.lastPaidDate === referenceDate) candidate.setDate(candidate.getDate() + 1);
       } else if (frequency === "weekly") {
         const offset = (start.getDay() - candidate.getDay() + 7) % 7;
         candidate.setDate(candidate.getDate() + offset);
-        if (item.lastPaidDate === toISODate(candidate)) candidate.setDate(candidate.getDate() + 7);
       } else if (frequency === "monthly") {
         const day = Math.min(31, Math.max(1, Number(item.paymentDay || start.getDate())));
         candidate.setDate(1);
         candidate.setDate(Math.min(day, new Date(candidate.getFullYear(), candidate.getMonth() + 1, 0).getDate()));
-        if (candidate < reference || item.lastPaidDate === toISODate(candidate)) {
+        if (candidate < reference) {
           candidate.setMonth(candidate.getMonth() + 1, 1);
           candidate.setDate(Math.min(day, new Date(candidate.getFullYear(), candidate.getMonth() + 1, 0).getDate()));
         }
       } else if (frequency === "yearly") {
         candidate = new Date(reference.getFullYear(), start.getMonth(), Math.min(Number(item.paymentDay || start.getDate()), new Date(reference.getFullYear(), start.getMonth() + 1, 0).getDate()));
-        if (candidate < reference || item.lastPaidDate === toISODate(candidate)) candidate.setFullYear(candidate.getFullYear() + 1);
+        if (candidate < reference) candidate.setFullYear(candidate.getFullYear() + 1);
       }
       const result = toISODate(candidate);
       return item.endDate && result > item.endDate ? "" : result;
+    }
+
+    function obligationSettledThroughDate(item) {
+      if (!item || item.type !== "bill") return "";
+      const recordedDates = Array.isArray(item.payments)
+        ? item.payments.map((payment) => payment && (payment.scheduledDate || payment.dueDate)).filter(Boolean)
+        : [];
+      if (item.lastPaidDueDate) recordedDates.push(item.lastPaidDueDate);
+      if (recordedDates.length) return recordedDates.sort().at(-1);
+      return item.lastPaidDate
+        ? scheduledObligationDateOnOrAfter(item, item.lastPaidDate)
+        : "";
+    }
+
+    function nextObligationDueDate(item, referenceDate = todayISO()) {
+      if (!item || !item.dueDate) return "";
+      if ((!item.frequency || item.frequency === "none") && item.status === "paid") return "";
+      let candidate = scheduledObligationDateOnOrAfter(item, referenceDate);
+      const settledThrough = obligationSettledThroughDate(item);
+      if (candidate && settledThrough && candidate <= settledThrough) {
+        candidate = scheduledObligationDateOnOrAfter(item, addISODateDays(settledThrough));
+      }
+      return candidate;
     }
 
     async function showObligationNotification(item) {
@@ -17326,8 +17377,8 @@
       const notifiedIds = new Set(Array.isArray(notified) ? notified : []);
       state.obligations.forEach((item) => {
         const recurring = item.frequency && item.frequency !== "none";
-        const settledToday = item.lastPaidDate === today;
-        if (item.active === false || !obligationTriggersToday(item) || settledToday || (!recurring && item.status === "paid") || notifiedIds.has(item.id)) return;
+        const dueToday = nextObligationDueDate(item, today) === today;
+        if (item.active === false || !obligationTriggersToday(item) || !dueToday || (!recurring && item.status === "paid") || notifiedIds.has(item.id)) return;
         notifiedIds.add(item.id);
         showObligationNotification(item);
       });
@@ -18604,9 +18655,16 @@
     function renderHomeObligationSummary() {
       const mount = $("homeObligationSummary");
       if (!mount) return;
-      const bills = state.obligations.filter((item) =>
+      const billCutoffDate = addISODateDays(todayISO(), 30);
+      const billRows = state.obligations.filter((item) =>
         item.type === "bill" && item.active !== false && ((item.frequency && item.frequency !== "none") || item.status !== "paid")
-      );
+      ).map((item) => ({
+        item,
+        nextDate: nextObligationDueDate(item)
+      })).filter((row) =>
+        row.nextDate && row.nextDate <= billCutoffDate
+      ).sort((a, b) => rowDate(a).localeCompare(rowDate(b)));
+      const bills = billRows.map((row) => row.item);
       const debts = state.obligations.filter((item) =>
         item.type === "debt" && Number(item.paidAmount || 0) < Number(item.amount || 0)
       );
@@ -18620,10 +18678,7 @@
       const debtRemaining = debts.reduce((total, item) => total + Math.max(0, Number(item.amount || 0) - Number(item.paidAmount || 0)), 0);
       const receivableRemaining = receivables.reduce((total, item) => total + Math.max(0, Number(item.amount || 0) - Number(item.receivedAmount || 0)), 0);
       const billTotal = bills.reduce((total, item) => total + Number(item.amount || 0), 0);
-      const nextBill = bills
-        .map((item) => ({ item, nextDate: nextObligationDueDate(item) }))
-        .filter((row) => row.nextDate)
-        .sort((a, b) => rowDate(a).localeCompare(rowDate(b)))[0];
+      const nextBill = billRows[0];
       function rowDate(row) { return String(row.nextDate || ""); }
       const cardData = [
         {
