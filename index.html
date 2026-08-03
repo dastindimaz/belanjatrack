@@ -1863,6 +1863,85 @@
       filter: brightness(1.05);
     }
 
+    .opening-attention-panel {
+      width: min(620px, 100%);
+    }
+
+    .opening-attention-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .opening-attention-eyebrow {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .opening-attention-close {
+      width: 40px;
+      height: 40px;
+      flex: 0 0 40px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: var(--panel-soft);
+      color: var(--text);
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .opening-attention-list {
+      display: grid;
+      max-height: min(48vh, 420px);
+      overflow-y: auto;
+      border-top: 1px solid var(--line);
+    }
+
+    .opening-attention-item {
+      display: grid;
+      grid-template-columns: 40px minmax(0, 1fr);
+      gap: 12px;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .opening-attention-icon {
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: color-mix(in srgb, var(--accent) 14%, var(--panel-soft));
+      color: var(--accent);
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .opening-attention-copy { min-width: 0; }
+    .opening-attention-copy strong,
+    .opening-attention-copy span { display: block; }
+    .opening-attention-copy strong { font-size: 14px; }
+    .opening-attention-copy span {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 600px) {
+      .opening-attention-panel { padding: 20px; }
+      .opening-attention-panel .secure-dialog-actions button { width: 100%; }
+    }
+
     #closeRecoveryCodeBtn,
     #finishOnboardingBtn {
       min-width: 148px;
@@ -4711,6 +4790,40 @@
     .executive-summary-list li strong {
       color: var(--ink);
       font-weight: 850;
+    }
+
+    .executive-summary-item-link {
+      appearance: none;
+      display: inline;
+      width: auto;
+      min-width: 0;
+      height: auto;
+      min-height: 0;
+      border: 0;
+      border-radius: 0;
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      box-shadow: none;
+      color: var(--ink);
+      font: inherit;
+      font-weight: 850;
+      line-height: inherit;
+      vertical-align: baseline;
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+      cursor: pointer;
+    }
+
+    .executive-summary-item-link:hover {
+      color: var(--accent);
+    }
+
+    .executive-summary-item-link:focus-visible {
+      border-radius: 3px;
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
     }
 
     .executive-summary-list li::before {
@@ -8359,7 +8472,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-      <small id="appVersionBadge">v352</small>
+      <small id="appVersionBadge">v357</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -8820,7 +8933,7 @@
             <canvas id="mainChart" role="img" aria-label="Grafik pengeluaran" data-i18n-aria="expenseChartAria"></canvas>
           </div>
         </div>
-        <div class="panel chart-wrap">
+        <div class="panel chart-wrap" id="priceHistoryPanel">
           <div class="chart-head price-trend-head">
             <h3 data-i18n="priceOverTime">Harga barang dari waktu ke waktu</h3>
             <div class="chart-item-autocomplete autocomplete-field">
@@ -9600,6 +9713,22 @@
       </div>
     </section>
   </div>
+  <div class="secure-dialog" id="openingAttentionDialog" hidden>
+    <section class="secure-dialog-panel opening-attention-panel" role="dialog" aria-modal="true" aria-labelledby="openingAttentionTitle" aria-describedby="openingAttentionIntro">
+      <div class="opening-attention-header">
+        <div>
+          <span class="opening-attention-eyebrow" id="openingAttentionEyebrow">Ringkasan hari ini</span>
+          <h2 id="openingAttentionTitle">Perlu perhatian</h2>
+        </div>
+        <button type="button" class="opening-attention-close" id="openingAttentionClose" aria-label="Tutup">&times;</button>
+      </div>
+      <p id="openingAttentionIntro">Ada beberapa hal yang perlu kamu cek.</p>
+      <div class="opening-attention-list" id="openingAttentionList"></div>
+      <div class="secure-dialog-actions">
+        <button type="button" class="primary" id="openingAttentionDone">Mengerti</button>
+      </div>
+    </section>
+  </div>
   <div class="secure-dialog" id="walletDeleteDialog" hidden>
     <section class="secure-dialog-panel" role="dialog" aria-modal="true" aria-labelledby="walletDeleteTitle">
       <h2 id="walletDeleteTitle" data-i18n="deleteWalletTitle">Hapus Wallet</h2>
@@ -9924,6 +10053,13 @@
         editCancelled: "Edit transaksi dibatalkan.", themeActive: "Tema {theme} aktif.",
         deleteConfirm: "Hapus semua data belanja di browser ini?", allDeleted: "Semua data sudah dihapus.",
         confirmDeleteTitle: "Konfirmasi Hapus", confirmActionTitle: "Konfirmasi Tindakan",
+        openingAttentionEyebrow: "Ringkasan hari ini", openingAttentionTitle: "Perlu perhatian",
+        openingAttentionIntro: "Ada beberapa hal yang perlu kamu cek.", openingAttentionBill: "Tagihan",
+        openingAttentionDebt: "Hutang", openingAttentionBudget: "Budget",
+        openingAttentionToday: "Jatuh tempo hari ini", openingAttentionTomorrow: "Jatuh tempo besok (H-1)",
+        openingAttentionTwoDays: "Jatuh tempo dalam 2 hari (H-2)", openingAttentionUnderstood: "Mengerti",
+        openingAttentionBillAmount: "Tagihan {amount}", openingAttentionDebtRemaining: "Sisa hutang {amount}",
+        openingAttentionBudgetUsage: "{percent}% terpakai · tersisa {remaining}",
         deleteTransactionConfirm: "Hapus transaksi pengeluaran ini? Data yang dihapus tidak dapat dipulihkan.",
         deleteIncomeRecordConfirm: "Hapus catatan pemasukan ini? Data yang dihapus tidak dapat dipulihkan.",
         deleteTransferRecordConfirm: "Hapus catatan transfer ini? Saldo wallet akan dihitung ulang.",
@@ -10299,6 +10435,13 @@
         editCancelled: "Transaction edit cancelled.", themeActive: "{theme} theme enabled.",
         deleteConfirm: "Delete all shopping data in this browser?", allDeleted: "All shopping data has been deleted.",
         confirmDeleteTitle: "Confirm deletion", confirmActionTitle: "Confirm action",
+        openingAttentionEyebrow: "Today's summary", openingAttentionTitle: "Needs attention",
+        openingAttentionIntro: "There are a few things you may want to check.", openingAttentionBill: "Bill",
+        openingAttentionDebt: "Debt", openingAttentionBudget: "Budget",
+        openingAttentionToday: "Due today", openingAttentionTomorrow: "Due tomorrow (D-1)",
+        openingAttentionTwoDays: "Due in 2 days (D-2)", openingAttentionUnderstood: "Got it",
+        openingAttentionBillAmount: "Bill {amount}", openingAttentionDebtRemaining: "Debt remaining {amount}",
+        openingAttentionBudgetUsage: "{percent}% used · {remaining} remaining",
         deleteTransactionConfirm: "Delete this expense transaction? Deleted data cannot be recovered.",
         deleteIncomeRecordConfirm: "Delete this income record? Deleted data cannot be recovered.",
         deleteTransferRecordConfirm: "Delete this transfer record? Wallet balances will be recalculated.",
@@ -10630,6 +10773,7 @@
     let samplePreviewActive = false;
     let passwordDialogResolver = null;
     let appConfirmResolver = null;
+    let openingAttentionAccountId = "";
     let greetingTimer = null;
     let accountRecoveryMode = "password";
     let monthPickerYear = new Date().getFullYear();
@@ -10862,6 +11006,7 @@
         currency,
         baseCurrency,
         exchangeRate: converted !== null && numericAmount > 0 ? converted / numericAmount : null,
+        exchangeRateDate: cachedWalletRateDate(currency, baseCurrency),
         baseAmount: converted
       };
     }
@@ -14639,6 +14784,7 @@
       if ([...document.querySelectorAll(".secure-dialog.entry-dialog")].every((dialog) => dialog.hidden)) {
         document.body.classList.remove("entry-dialog-open");
       }
+      window.setTimeout(showOpeningAttentionIfNeeded, 150);
     }
 
     function saveOnboarding(event) {
@@ -14732,12 +14878,15 @@
       closeSpendingBudgetDialog();
       closeObligationDialog();
       if (!$("appConfirmDialog").hidden) closeAppConfirmation(false);
+      if ($("openingAttentionDialog")) $("openingAttentionDialog").hidden = true;
+      openingAttentionAccountId = "";
       setAuthView("login");
       $("loginPassword").value = "";
     }
 
     function enterAccount(account, { message = "", migrateLegacy = false } = {}) {
       account = normalizeAccountDisplayName(account);
+      if (openingAttentionAccountId !== String(account?.id || "")) openingAttentionAccountId = "";
       const selectedLanguage = state.settings.language;
       currentUser = account;
       rememberAccountSession(account);
@@ -14804,6 +14953,7 @@
         }, 450);
       }
       window.setTimeout(() => safeAccountStep("obligation reminders", checkObligationReminders), 300);
+      window.setTimeout(() => safeAccountStep("opening attention", showOpeningAttentionIfNeeded), 650);
       safeAccountStep("startup notifications", requestStartupNotifications);
       window.setTimeout(() => safeAccountStep("push identity", identifyOneSignalUser), 900);
       if (shouldShowOnboarding()) window.setTimeout(() => safeAccountStep("onboarding", openOnboardingDialog), 120);
@@ -14830,6 +14980,7 @@
       clearWindowSessionMarker();
       clearCloudAuthSession();
       currentUser = null;
+      openingAttentionAccountId = "";
       cloudDirty = false;
       window.clearTimeout(cloudSyncTimer);
       resetUserState();
@@ -14890,6 +15041,97 @@
       const resolver = appConfirmResolver;
       appConfirmResolver = null;
       if (resolver) resolver(Boolean(confirmed));
+    }
+
+    function localCalendarDayDistance(startIso, endIso) {
+      const start = String(startIso || "").split("-").map(Number);
+      const end = String(endIso || "").split("-").map(Number);
+      if (start.length !== 3 || end.length !== 3 || ![...start, ...end].every(Number.isFinite)) return NaN;
+      return Math.round((Date.UTC(end[0], end[1] - 1, end[2]) - Date.UTC(start[0], start[1] - 1, start[2])) / 86400000);
+    }
+
+    function openingAttentionDueText(days) {
+      if (days === 0) return t("openingAttentionToday");
+      if (days === 1) return t("openingAttentionTomorrow");
+      return t("openingAttentionTwoDays");
+    }
+
+    function collectOpeningAttentionItems() {
+      const today = todayISO();
+      const dueItems = (state.obligations || []).flatMap((item) => {
+        if (item?.active === false || !["bill", "debt"].includes(item?.type)) return [];
+        const remaining = item.type === "debt"
+          ? Math.max(0, Number(item.amount || 0) - Number(item.paidAmount || 0))
+          : Number(item.amount || 0);
+        if (remaining <= 0 || item.status === "paid" && item.type === "debt") return [];
+        const dueDate = nextObligationDueDate(item, today);
+        const days = localCalendarDayDistance(today, dueDate);
+        if (!Number.isFinite(days) || days < 0 || days > 2) return [];
+        const typeLabel = item.type === "debt" ? t("openingAttentionDebt") : t("openingAttentionBill");
+        const currency = item.currency || walletCurrency(item.wallet || state.settings.defaultWallet);
+        const amount = formatCurrencyAmount(remaining, currency);
+        return [{
+          kind: item.type,
+          title: `${typeLabel}: ${item.name || item.creditor || item.category || "-"}`,
+          detail: `${openingAttentionDueText(days)} · ${item.type === "debt"
+            ? t("openingAttentionDebtRemaining", { amount })
+            : t("openingAttentionBillAmount", { amount })}`,
+          days
+        }];
+      }).sort((a, b) => a.days - b.days);
+
+      const budgetItems = (state.spendingBudgets || []).flatMap((budget) => {
+        if (budget?.active === false) return [];
+        const usage = spendingBudgetUsage(budget);
+        if (!(usage.limit > 0) || usage.percent < 85) return [];
+        const currency = budget.currency || currentCurrency();
+        return [{
+          kind: "budget",
+          title: `${t("openingAttentionBudget")}: ${budget.name || budget.category || t("openingAttentionBudget")}`,
+          detail: t("openingAttentionBudgetUsage", {
+            percent: Math.round(usage.percent),
+            remaining: formatCurrencyAmount(Math.max(0, usage.remaining), currency)
+          }),
+          percent: usage.percent
+        }];
+      }).sort((a, b) => b.percent - a.percent);
+      return [...dueItems, ...budgetItems];
+    }
+
+    function closeOpeningAttentionDialog() {
+      const dialog = $("openingAttentionDialog");
+      if (!dialog) return;
+      dialog.hidden = true;
+      if ($("authScreen").hidden) setMainLocked(false);
+    }
+
+    function showOpeningAttentionIfNeeded() {
+      const accountId = String(currentUser?.id || "");
+      if (!accountId || openingAttentionAccountId === accountId || samplePreviewActive) return;
+      if (!$("authScreen").hidden || shouldShowOnboarding() || !$("onboardingDialog").hidden) return;
+      const anotherDialogOpen = [...document.querySelectorAll(".secure-dialog")]
+        .some((dialog) => dialog.id !== "openingAttentionDialog" && !dialog.hidden);
+      if (anotherDialogOpen) return;
+      openingAttentionAccountId = accountId;
+      const items = collectOpeningAttentionItems();
+      if (!items.length) return;
+      $("openingAttentionEyebrow").textContent = t("openingAttentionEyebrow");
+      $("openingAttentionTitle").textContent = t("openingAttentionTitle");
+      $("openingAttentionIntro").textContent = t("openingAttentionIntro");
+      $("openingAttentionDone").textContent = t("openingAttentionUnderstood");
+      $("openingAttentionClose").setAttribute("aria-label", t("close"));
+      $("openingAttentionList").innerHTML = items.map((item) => `
+        <article class="opening-attention-item ${escapeHtml(item.kind)}">
+          <span class="opening-attention-icon" aria-hidden="true">${item.kind === "budget" ? "%" : item.kind === "debt" ? "-" : "!"}</span>
+          <span class="opening-attention-copy">
+            <strong>${escapeHtml(item.title)}</strong>
+            <span>${escapeHtml(item.detail)}</span>
+          </span>
+        </article>
+      `).join("");
+      $("openingAttentionDialog").hidden = false;
+      setMainLocked(true);
+      window.setTimeout(() => $("openingAttentionDone").focus(), 0);
     }
 
     function samplePreviewStorageKey(account = currentUser) {
@@ -17429,11 +17671,29 @@
       return `${year}-${String(month).padStart(2, "0")}`;
     }
 
+    function historicalTransactionBaseAmount(record, type) {
+      const nativeAmount = transactionNativeAmount(record, type);
+      const currency = transactionNativeCurrency(record);
+      if (currency === currentCurrency()) return nativeAmount;
+      if (record.baseCurrency !== currentCurrency()) return null;
+
+      const savedBaseAmount = Number(record.baseAmount);
+      if (record.baseAmount !== null && record.baseAmount !== undefined && Number.isFinite(savedBaseAmount)) {
+        return savedBaseAmount;
+      }
+
+      const savedExchangeRate = Number(record.exchangeRate);
+      if (Number.isFinite(savedExchangeRate) && savedExchangeRate > 0) {
+        return nativeAmount * savedExchangeRate;
+      }
+      return null;
+    }
+
     function comparableUnitPrice(entry) {
-      const quantity = Number(entry.quantity || 1);
-      const baseTotal = transactionBaseAmount(entry, "expense");
-      if (quantity > 0 && baseTotal > 0) return baseTotal / quantity;
-      return Number(entry.unitPrice || 0);
+      const quantity = Number(entry.qty || entry.quantity || 1);
+      const baseTotal = historicalTransactionBaseAmount(entry, "expense");
+      if (quantity > 0 && baseTotal !== null && baseTotal > 0) return baseTotal / quantity;
+      return null;
     }
 
     function averagePriceChangeForRange(startDate, endDate, requirePriorBeforeStart = false) {
@@ -17487,8 +17747,9 @@
         const current = sorted.filter((entry) => entry.date >= startDate && entry.date <= endDate).pop();
         const previous = sorted.filter((entry) => entry.date < startDate).pop();
         if (!current || !previous || Number(previous.total || 0) <= 0) return null;
-        const previousAmount = transactionBaseAmount(previous, "expense");
-        const currentAmount = transactionBaseAmount(current, "expense");
+        const previousAmount = historicalTransactionBaseAmount(previous, "expense");
+        const currentAmount = historicalTransactionBaseAmount(current, "expense");
+        if (previousAmount === null || currentAmount === null) return null;
         return {
           weight: previousAmount,
           percent: ((currentAmount - previousAmount) / previousAmount) * 100
@@ -17523,8 +17784,12 @@
         state.obligations.filter((item) => item.type === "bill").map((item) => item.id)
       );
       const baselineRows = effectiveEntries().filter((entry) => monthKey(entry.date) === baselineKey);
-      const billWeight = sum(baselineRows.filter((entry) => billIds.has(entry.obligationId)));
-      const itemWeight = sum(baselineRows.filter((entry) => !billIds.has(entry.obligationId)));
+      const historicalWeight = (rows) => rows.reduce((total, entry) => {
+        const amount = historicalTransactionBaseAmount(entry, "expense");
+        return total + (amount === null ? 0 : amount);
+      }, 0);
+      const billWeight = historicalWeight(baselineRows.filter((entry) => billIds.has(entry.obligationId)));
+      const itemWeight = historicalWeight(baselineRows.filter((entry) => !billIds.has(entry.obligationId)));
       return {
         item: itemInflation,
         bills: billInflation,
@@ -17580,8 +17845,9 @@
         const latest = sorted.filter((entry) => entry.date >= startDate && entry.date <= endDate).pop();
         const baseline = sorted.filter((entry) => entry.date < startDate).pop();
         if (!latest || !baseline) return;
-        const baselineAmount = transactionBaseAmount(baseline, "expense");
-        const latestAmount = transactionBaseAmount(latest, "expense");
+        const baselineAmount = historicalTransactionBaseAmount(baseline, "expense");
+        const latestAmount = historicalTransactionBaseAmount(latest, "expense");
+        if (baselineAmount === null || latestAmount === null) return;
         if (baselineAmount <= 0 || latestAmount <= 0 || baselineAmount === latestAmount) return;
         const bill = billById.get(obligationId);
         candidates.push({
@@ -18907,7 +19173,30 @@
       summaryList.className = "executive-summary-list";
       status.appendChild(summaryList);
 
-      function addSummaryItem(text, tone, highlights = []) {
+      const normalizedPriceHistoryItems = new Set(effectiveEntries()
+        .map((entry) => normalizeName(entry.item).toLocaleLowerCase("id-ID"))
+        .filter(Boolean));
+
+      function openPriceHistoryForItem(itemName) {
+        const insightButton = document.querySelector('[data-bottom-target="insight"]');
+        if (insightButton) navigateBottomNav(insightButton);
+        controls.trendItem.value = itemName;
+        controls.trendItem.dispatchEvent(new Event("change", { bubbles: true }));
+        const suggestions = $("trendItemSuggestions");
+        if (suggestions) {
+          suggestions.hidden = true;
+          suggestions.innerHTML = "";
+        }
+        window.requestAnimationFrame(() => {
+          renderCharts(periodEntries());
+          window.setTimeout(() => {
+            const panel = $("priceHistoryPanel");
+            if (panel) panel.scrollIntoView({ behavior: "smooth", block: "center" });
+          }, 120);
+        });
+      }
+
+      function addSummaryItem(text, tone, highlights = [], linkedItemName = "") {
         const item = document.createElement("li");
         const titleEnd = text.indexOf(":");
         const emphasized = new Set(highlights.filter(Boolean));
@@ -18928,7 +19217,18 @@
             return output;
           }), [{ text, strong: false }]);
         parts.forEach((part) => {
-          const node = document.createElement(part.strong ? "strong" : "span");
+          const isLinkedItem = linkedItemName && part.text === linkedItemName;
+          const node = document.createElement(isLinkedItem ? "button" : part.strong ? "strong" : "span");
+          if (isLinkedItem) {
+            node.type = "button";
+            node.className = "executive-summary-item-link";
+            node.setAttribute("aria-label", `${part.text} - ${t("priceOverTime")}`);
+            node.addEventListener("click", (event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              openPriceHistoryForItem(linkedItemName);
+            });
+          }
           node.textContent = part.text;
           item.appendChild(node);
         });
@@ -18958,19 +19258,25 @@
         const contributors = livingCostContributorsForMonths(currentIndex, months);
         if (contributors.inflation) {
           const value = signedPercent(contributors.inflation.percent);
+          const linkedItemName = normalizedPriceHistoryItems.has(
+            normalizeName(contributors.inflation.name).toLocaleLowerCase("id-ID")
+          ) ? contributors.inflation.name : "";
           addSummaryItem(t("summaryInflationContributor", {
             period: label,
             name: contributors.inflation.name,
             value
-          }), "bad", [contributors.inflation.name, value]);
+          }), "bad", [contributors.inflation.name, value], linkedItemName);
         }
         if (contributors.deflation) {
           const value = signedPercent(contributors.deflation.percent);
+          const linkedItemName = normalizedPriceHistoryItems.has(
+            normalizeName(contributors.deflation.name).toLocaleLowerCase("id-ID")
+          ) ? contributors.deflation.name : "";
           addSummaryItem(t("summaryDeflationContributor", {
             period: label,
             name: contributors.deflation.name,
             value
-          }), "good", [contributors.deflation.name, value]);
+          }), "good", [contributors.deflation.name, value], linkedItemName);
         }
       });
 
@@ -19244,14 +19550,21 @@
 
     function priceTrend(rows) {
       const filtered = rows.slice().sort((a, b) => a.date.localeCompare(b.date));
-      return filtered.map((entry) => [`${formatDate(entry.date)}\n${entry.item}`, entry.unitPrice]);
+      return filtered.reduce((points, entry) => {
+        const historicalUnitPrice = comparableUnitPrice(entry);
+        if (historicalUnitPrice === null) return points;
+        points.push([`${formatDate(entry.date)}\n${entry.item}`, historicalUnitPrice]);
+        return points;
+      }, []);
     }
 
     function averagePriceTrend(rows) {
       const grouped = rows.reduce((result, entry) => {
+        const historicalUnitPrice = comparableUnitPrice(entry);
+        if (historicalUnitPrice === null) return result;
         const key = monthKey(entry.date);
         if (!result[key]) result[key] = { total: 0, count: 0 };
-        result[key].total += Number(entry.unitPrice || 0);
+        result[key].total += historicalUnitPrice;
         result[key].count += 1;
         return result;
       }, {});
@@ -20411,6 +20724,11 @@
       $("appConfirmDialog").addEventListener("mousedown", (event) => {
         if (event.target === $("appConfirmDialog")) closeAppConfirmation(false);
       });
+      $("openingAttentionClose").addEventListener("click", closeOpeningAttentionDialog);
+      $("openingAttentionDone").addEventListener("click", closeOpeningAttentionDialog);
+      $("openingAttentionDialog").addEventListener("mousedown", (event) => {
+        if (event.target === $("openingAttentionDialog")) closeOpeningAttentionDialog();
+      });
       $("walletDeleteForm").addEventListener("submit", (event) => {
         event.preventDefault();
         confirmWalletDelete();
@@ -21493,7 +21811,9 @@
       });
       document.addEventListener("keydown", (event) => {
         if (event.key !== "Escape") return;
-        if (!$("appConfirmDialog").hidden) {
+        if (!$("openingAttentionDialog").hidden) {
+          closeOpeningAttentionDialog();
+        } else if (!$("appConfirmDialog").hidden) {
           closeAppConfirmation(false);
         } else if (!$("appDatePickerDialog").hidden) {
           closeAppDatePicker();
