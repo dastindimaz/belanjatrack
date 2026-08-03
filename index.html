@@ -4794,6 +4794,8 @@
 
     .executive-summary-item-link {
       appearance: none;
+      position: relative;
+      z-index: 1;
       display: inline;
       width: auto;
       min-width: 0;
@@ -4814,6 +4816,7 @@
       text-decoration-thickness: 1px;
       text-underline-offset: 3px;
       cursor: pointer;
+      pointer-events: auto;
     }
 
     .executive-summary-item-link:hover {
@@ -8472,7 +8475,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-      <small id="appVersionBadge">v357</small>
+      <small id="appVersionBadge">v358</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -19179,20 +19182,19 @@
 
       function openPriceHistoryForItem(itemName) {
         const insightButton = document.querySelector('[data-bottom-target="insight"]');
-        if (insightButton) navigateBottomNav(insightButton);
-        controls.trendItem.value = itemName;
-        controls.trendItem.dispatchEvent(new Event("change", { bubbles: true }));
-        const suggestions = $("trendItemSuggestions");
-        if (suggestions) {
-          suggestions.hidden = true;
-          suggestions.innerHTML = "";
-        }
+        if (insightButton) insightButton.click();
         window.requestAnimationFrame(() => {
+          controls.trendItem.value = itemName;
+          const suggestions = $("trendItemSuggestions");
+          if (suggestions) {
+            suggestions.hidden = true;
+            suggestions.innerHTML = "";
+          }
           renderCharts(periodEntries());
           window.setTimeout(() => {
             const panel = $("priceHistoryPanel");
-            if (panel) panel.scrollIntoView({ behavior: "smooth", block: "center" });
-          }, 120);
+            if (panel) panel.scrollIntoView({ behavior: "smooth", block: "start" });
+          }, 180);
         });
       }
 
