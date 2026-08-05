@@ -5491,9 +5491,20 @@
 
     #expenseItemRows { display: grid; gap: 12px; }
 
+    .expense-category-control {
+      display: grid;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .expense-category-control > button {
+      width: 100%;
+      min-height: 42px;
+    }
+
     .expense-item-row {
       display: grid;
-      grid-template-columns: minmax(220px, 2fr) minmax(120px, 1fr) minmax(90px, .65fr);
+      grid-template-columns: minmax(150px, 1fr) minmax(220px, 1.6fr) minmax(120px, .85fr) minmax(90px, .55fr);
       gap: 12px;
       align-items: end;
       padding: 14px;
@@ -5916,6 +5927,11 @@
       width: min(860px, 100%);
       padding: 0;
       border-radius: 24px;
+      transition: width .2s ease;
+    }
+
+    .entry-dialog-panel.has-open-suggestions {
+      width: min(1040px, 100%);
     }
 
     body.entry-dialog-open {
@@ -6296,7 +6312,7 @@
       left: 0;
       right: 0;
       top: calc(100% + 6px);
-      z-index: 30;
+      z-index: 300;
       display: grid;
       gap: 4px;
       max-height: 220px;
@@ -6307,6 +6323,8 @@
       background: #fff;
       box-shadow: var(--shadow);
       text-transform: none;
+      pointer-events: auto;
+      touch-action: manipulation;
     }
 
     .suggestion-box button {
@@ -7195,6 +7213,13 @@
         max-height: 180px;
       }
 
+      .entry-dialog-panel.has-open-suggestions .suggestion-box:not([hidden]) {
+        position: relative;
+        inset: auto;
+        width: 100%;
+        margin-top: 6px;
+      }
+
       .secure-dialog.entry-dialog {
         place-items: center;
         padding:
@@ -7212,6 +7237,20 @@
         border-radius: 20px;
         overscroll-behavior: contain;
         scroll-padding-block: 18px;
+      }
+
+      /* Keep the Income wallet picker inside the mobile form's scroll flow. */
+      #incomeEntryDialog .entry-dialog-panel.has-open-custom-select .panel-body {
+        overflow-x: hidden;
+        overflow-y: auto;
+      }
+
+      #incomeEntryDialog .custom-select-shell.is-open .custom-select-menu {
+        position: relative;
+        inset: auto;
+        width: 100%;
+        max-height: min(330px, 42dvh);
+        margin-top: 7px;
       }
 
       .entry-dialog-panel .panel-header {
@@ -7531,13 +7570,21 @@
       font-weight: 850;
     }
 
-    .wallet-currency-field {
+    .wallet-currency-field,
+    .wallet-opening-balance-field {
       display: grid;
       gap: 7px;
       color: var(--muted);
       font-size: 11px;
       font-weight: 900;
       text-transform: uppercase;
+    }
+
+    .wallet-opening-balance-field small {
+      font-size: 10px;
+      font-weight: 750;
+      line-height: 1.45;
+      text-transform: none;
     }
 
     .wallet-add-actions {
@@ -7802,6 +7849,10 @@
       text-transform: none;
     }
 
+    .custom-select-shell.is-open {
+      z-index: 360;
+    }
+
     .custom-select-trigger {
       display: flex;
       align-items: center;
@@ -7953,6 +8004,27 @@
       -webkit-backdrop-filter: blur(26px) saturate(175%);
       backdrop-filter: blur(26px) saturate(175%);
       transform-origin: top center;
+    }
+
+    #incomeEntryDialog .custom-select-shell.is-open .custom-select-menu {
+      z-index: 362;
+      max-height: min(290px, 42dvh);
+      background: rgba(255, 255, 255, .98);
+      border-color: rgba(209, 213, 219, .96);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .98),
+        0 22px 48px rgba(30, 41, 59, .25);
+    }
+
+    #incomeEntryDialog .entry-dialog-panel.has-open-custom-select .panel-body {
+      overflow: visible;
+    }
+
+    html[data-resolved-theme="dark"] #incomeEntryDialog .custom-select-shell.is-open .custom-select-menu {
+      background: #1c2027;
+      border-color: rgba(255, 255, 255, .14);
+      color: #f5f5f7;
+      box-shadow: 0 22px 48px rgba(0, 0, 0, .52);
     }
 
     .custom-select-search {
@@ -8183,12 +8255,26 @@
       isolation: isolate;
     }
 
+    #expenseEntryDialog .expense-category-control,
+    #expenseEntryDialog .expense-item-row {
+      position: relative;
+    }
+
+    #expenseEntryDialog .expense-category-control:focus-within,
+    #expenseEntryDialog .expense-item-row:has(.autocomplete-field:focus-within) {
+      z-index: 240;
+    }
+
     .autocomplete-field:focus-within .suggestion-box {
-      z-index: 121;
+      z-index: 300;
       background: var(--panel);
       -webkit-backdrop-filter: none;
       backdrop-filter: none;
       box-shadow: 0 18px 42px rgba(15, 23, 42, .22);
+    }
+
+    .entry-dialog-panel.has-open-suggestions .panel-body {
+      overflow: visible;
     }
 
     #expenseEntryDialog .form-footer {
@@ -8475,7 +8561,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-      <small id="appVersionBadge">v358</small>
+      <small id="appVersionBadge">v364</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -8613,6 +8699,11 @@
               </div>
               <div class="wallet-add-form" id="walletAddForm" hidden>
                 <input id="walletNameInput" type="text" placeholder="Contoh: Cash, BCA, GoPay" data-i18n-placeholder="walletPlaceholder" autocomplete="new-password" autocapitalize="words" autocorrect="off" spellcheck="false">
+                <label class="wallet-opening-balance-field" id="walletOpeningBalanceField" hidden>
+                  <span data-i18n="openingBalance">Saldo awal</span>
+                  <input id="walletOpeningBalanceInput" type="text" inputmode="numeric" placeholder="0" autocomplete="off">
+                  <small data-i18n="openingBalanceHelp">Koreksi saldo awal tanpa mencatatnya sebagai pemasukan.</small>
+                </label>
                 <label class="wallet-currency-toggle-row">
                   <span data-i18n="differentWalletCurrency">Gunakan mata uang berbeda</span>
                   <span class="mini-toggle">
@@ -9256,10 +9347,12 @@
             <label class="expense-wallet-field" data-expense-step="0"><span data-i18n="expenseWalletQuestion">Bayar pakai wallet apa?</span>
               <select id="expenseWalletSelect" aria-label="Pilih wallet" data-i18n-aria="chooseWallet"></select>
             </label>
-            <label class="expense-category-field autocomplete-field" data-expense-step="0"><span data-i18n="expenseCategoryQuestion">Masuk kategori apa?</span>
-              <input id="categoryInput" type="text" placeholder="Sembako" autocomplete="new-password" autocapitalize="words" autocorrect="off" spellcheck="false" required>
-              <div class="suggestion-box" id="categorySuggestions" hidden></div>
-            </label>
+            <div class="expense-category-control" data-expense-step="0">
+              <label class="expense-category-field autocomplete-field"><span data-i18n="expenseCategoryQuestion">Masuk kategori apa?</span>
+                <input id="categoryInput" type="text" placeholder="Sembako" autocomplete="new-password" autocapitalize="words" autocorrect="off" spellcheck="false" required>
+                <div class="suggestion-box" id="categorySuggestions" hidden></div>
+              </label>
+            </div>
             <div class="expense-items-editor" id="expenseItemsEditor" data-expense-step="1">
               <div id="expenseItemRows">
                 <div class="expense-item-row" data-expense-item-row>
@@ -9271,6 +9364,11 @@
                     <div class="expense-item-summary-copy"><strong></strong><span></span></div>
                     <button type="button" class="ghost expense-item-edit" data-i18n="edit">Edit</button>
                   </div>
+                  <label class="autocomplete-field expense-row-category">
+                    <span class="expense-item-category-label">Kategori barang</span>
+                    <input class="expense-row-category-input" type="text" placeholder="Kategori" autocomplete="new-password" autocapitalize="words" autocorrect="off" spellcheck="false" required>
+                    <div class="suggestion-box expense-row-category-suggestions" hidden></div>
+                  </label>
                   <label class="autocomplete-field expense-row-item">
                     <input class="expense-row-item-input" id="itemInput" type="text" placeholder="Nama barang" aria-label="Nama barang" autocomplete="new-password" autocapitalize="words" autocorrect="off" spellcheck="false" required>
                     <div class="suggestion-box expense-row-suggestions" id="itemSuggestions" hidden></div>
@@ -9321,6 +9419,11 @@
                 <div class="expense-item-summary-copy"><strong></strong><span></span></div>
                 <button type="button" class="ghost expense-item-edit" data-i18n="edit">Edit</button>
               </div>
+              <label class="autocomplete-field expense-row-category">
+                <span class="expense-item-category-label">Kategori barang</span>
+                <input class="expense-row-category-input" type="text" placeholder="Kategori" autocomplete="new-password" autocapitalize="words" autocorrect="off" spellcheck="false" required>
+                <div class="suggestion-box expense-row-category-suggestions" hidden></div>
+              </label>
               <label class="autocomplete-field expense-row-item">
                 <input class="expense-row-item-input" type="text" placeholder="Nama barang" aria-label="Nama barang" autocomplete="new-password" autocapitalize="words" autocorrect="off" spellcheck="false" required>
                 <div class="suggestion-box expense-row-suggestions" hidden></div>
@@ -9835,10 +9938,11 @@
         chooseLanguage: "Pilih bahasa", chooseTheme: "Pilih tema", openSettings: "Buka menu pengaturan", theme: "Tema",
         wallets: "Wallet", wallet: "Wallet", chooseWallet: "Pilih wallet", addWallet: "Tambah wallet",
         addNewWallet: "Tambah wallet baru", differentWalletCurrency: "Gunakan mata uang berbeda", walletCurrency: "Mata uang wallet",
+        openingBalance: "Saldo awal", openingBalanceHelp: "Koreksi saldo awal tanpa mencatatnya sebagai pemasukan.",
         walletPlaceholder: "Contoh: Cash, BCA, GoPay", defaultWallet: "Cash",
         primaryWalletLabel: "Wallet utama (default)",
         walletAdded: "Wallet berhasil ditambahkan.", walletExists: "Wallet sudah ada.",
-        editWallet: "Edit", walletUpdated: "Nama wallet berhasil diubah.",
+        editWallet: "Edit", walletUpdated: "Wallet berhasil diperbarui.",
         walletDeleted: "Wallet dihapus. Sisa saldo dan riwayat dipindahkan.",
         deleteWalletTitle: "Hapus Wallet", moveBalanceTo: "Pindahkan saldo ke",
         chooseTargetWallet: "Pilih wallet tujuan",
@@ -10217,10 +10321,11 @@
         chooseLanguage: "Choose language", chooseTheme: "Choose theme", openSettings: "Open settings menu", theme: "Theme",
         wallets: "Wallets", wallet: "Wallet", chooseWallet: "Choose wallet", addWallet: "Add wallet",
         addNewWallet: "Add new wallet", differentWalletCurrency: "Use a different currency", walletCurrency: "Wallet currency",
+        openingBalance: "Opening balance", openingBalanceHelp: "Correct the opening balance without recording it as income.",
         walletPlaceholder: "Example: Cash, BCA, GoPay", defaultWallet: "Cash",
         primaryWalletLabel: "Primary wallet (default)",
         walletAdded: "Wallet added.", walletExists: "Wallet already exists.",
-        editWallet: "Edit", walletUpdated: "Wallet name updated.",
+        editWallet: "Edit", walletUpdated: "Wallet updated.",
         walletDeleted: "Wallet deleted. Remaining balance and history were moved.",
         deleteWalletTitle: "Delete Wallet", moveBalanceTo: "Move balance to",
         chooseTargetWallet: "Choose target wallet",
@@ -10795,6 +10900,7 @@
       let onboardingCurrencyDetectedByIp = false;
       let onboardingCurrencyLoading = false;
       let editingObligationCategory = false;
+      let editingObligationId = "";
       let debtStoryStep = 0;
       let expenseStoryStep = 0;
       let incomeStoryStep = 0;
@@ -11694,7 +11800,7 @@
             <span class="wallet-row-label">
               <span>${escapeHtml(wallet)}</span>
               ${badge}
-              <small>${escapeHtml(currency)}${usedCount ? ` · ${formatCurrencyAmount(balance, currency)} · ${numberFmt.format(usedCount)}` : ""}${equivalent ? ` · ${escapeHtml(equivalent)}` : ""}</small>
+              <small>${escapeHtml(currency)} · ${formatCurrencyAmount(balance, currency)}${usedCount ? ` · ${numberFmt.format(usedCount)}` : ""}${equivalent ? ` · ${escapeHtml(equivalent)}` : ""}</small>
             </span>
             <span class="wallet-row-actions">
               <button type="button" data-edit-wallet="${escapeHtml(wallet)}">${t("editWallet")}</button>
@@ -11776,16 +11882,29 @@
       controls.walletCurrency.disabled = !usesDifferentCurrency;
       if (!usesDifferentCurrency) controls.walletCurrency.value = currentCurrency();
       syncCustomSelect(controls.walletCurrency);
+      const openingInput = $("walletOpeningBalanceInput");
+      if (openingInput) {
+        openingInput.inputMode = currencyFractionDigits(selectedWalletCurrency()) ? "decimal" : "numeric";
+      }
     }
 
     function openWalletForm(wallet = "") {
       const form = $("walletAddForm");
       const trigger = $("openWalletFormBtn");
       const input = $("walletNameInput");
+      const openingField = $("walletOpeningBalanceField");
+      const openingInput = $("walletOpeningBalanceInput");
       if (!form || !input) return;
       editingWalletName = wallet ? normalizeWalletName(wallet) : "";
       const selectedCurrency = editingWalletName ? walletCurrency(editingWalletName) : currentCurrency();
       input.value = editingWalletName;
+      if (openingField) openingField.hidden = !editingWalletName;
+      if (openingInput) {
+        openingInput.value = editingWalletName
+          ? formatTransferAmount(walletOpeningBalance(editingWalletName), selectedCurrency)
+          : "";
+        openingInput.inputMode = currencyFractionDigits(selectedCurrency) ? "decimal" : "numeric";
+      }
       if (controls.walletCurrency) controls.walletCurrency.value = selectedCurrency;
       if (controls.walletDifferentCurrency) {
         controls.walletDifferentCurrency.checked = selectedCurrency !== currentCurrency();
@@ -11806,6 +11925,8 @@
       const trigger = $("openWalletFormBtn");
       editingWalletName = "";
       if ($("walletNameInput")) $("walletNameInput").value = "";
+      if ($("walletOpeningBalanceInput")) $("walletOpeningBalanceInput").value = "";
+      if ($("walletOpeningBalanceField")) $("walletOpeningBalanceField").hidden = true;
       if (controls.walletDifferentCurrency) controls.walletDifferentCurrency.checked = false;
       if (controls.walletCurrency) controls.walletCurrency.value = currentCurrency();
       syncWalletCurrencyForm();
@@ -11837,12 +11958,25 @@
       }
       const nextName = normalizeWalletName(rawNextName);
       const nextCurrency = selectedWalletCurrency();
+      const openingInput = $("walletOpeningBalanceInput");
+      const nextOpeningBalance = openingInput
+        ? Math.max(0, parseTransferAmount(openingInput.value, nextCurrency))
+        : walletOpeningBalance(previousName);
+      const openingBalanceDate = walletOpeningBalanceDate(previousName) || todayISO();
+      if (!state.settings.walletOpeningBalances || typeof state.settings.walletOpeningBalances !== "object") {
+        state.settings.walletOpeningBalances = {};
+      }
       if (walletKey(previousName) === walletKey(nextName)) {
+        state.settings.walletOpeningBalances[walletKey(previousName)] = {
+          amount: nextOpeningBalance,
+          date: openingBalanceDate
+        };
         setWalletCurrency(previousName, nextCurrency);
         closeWalletForm();
         persist();
         render();
         refreshWalletExchangeRates();
+        toast(t("walletUpdated"));
         return;
       }
       ensureWallets();
@@ -11873,11 +12007,11 @@
       if (walletKey(defaultWalletName()) === walletKey(previousName)) {
         state.settings.defaultWallet = nextName;
       }
-      const previousOpeningBalance = state.settings.walletOpeningBalances?.[walletKey(previousName)];
-      if (previousOpeningBalance !== undefined) {
-        state.settings.walletOpeningBalances[walletKey(nextName)] = previousOpeningBalance;
-        delete state.settings.walletOpeningBalances[walletKey(previousName)];
-      }
+      state.settings.walletOpeningBalances[walletKey(nextName)] = {
+        amount: nextOpeningBalance,
+        date: openingBalanceDate
+      };
+      delete state.settings.walletOpeningBalances[walletKey(previousName)];
       delete state.settings.walletCurrencies[walletKey(previousName)];
       setWalletCurrency(nextName, nextCurrency);
       if (walletKey(controls.expenseWallet.value) === walletKey(previousName)) controls.expenseWallet.value = nextName;
@@ -12188,6 +12322,7 @@
 
     function expenseItemsPayload() {
       return expenseItemRows().map((row) => ({
+        category: row.querySelector(".expense-row-category-input")?.value || controls.category.value || "",
         item: row.querySelector(".expense-row-item-input")?.value || "",
         price: row.querySelector(".expense-row-price-input")?.value || "",
         qty: row.querySelector(".expense-row-qty-input")?.value || "1",
@@ -12196,9 +12331,14 @@
     }
 
     function validateExpenseItemRow(row) {
+      const categoryInput = row.querySelector(".expense-row-category-input");
       const itemInput = row.querySelector(".expense-row-item-input");
       const priceInput = row.querySelector(".expense-row-price-input");
       const qtyInput = row.querySelector(".expense-row-qty-input");
+      if (!categoryInput?.value.trim()) {
+        categoryInput?.reportValidity();
+        return false;
+      }
       if (!itemInput?.value.trim()) {
         itemInput?.reportValidity();
         return false;
@@ -12219,13 +12359,14 @@
 
     function updateExpenseItemSummary(row) {
       const currency = walletCurrency(controls.expenseWallet.value || defaultWalletName());
+      const category = capitalizeText(row.querySelector(".expense-row-category-input")?.value.trim() || "");
       const item = capitalizeText(row.querySelector(".expense-row-item-input")?.value.trim() || "");
       const price = parseTransferAmount(row.querySelector(".expense-row-price-input")?.value || "", currency);
       const qty = Number(row.querySelector(".expense-row-qty-input")?.value || 1);
       const title = row.querySelector(".expense-item-summary-copy strong");
       const detail = row.querySelector(".expense-item-summary-copy span");
       if (title) title.textContent = item;
-      if (detail) detail.textContent = `${formatCurrencyAmount(price, currency)} x ${numberFmt.format(qty)} = ${formatCurrencyAmount(price * qty, currency)}`;
+      if (detail) detail.textContent = `${category} · ${formatCurrencyAmount(price, currency)} x ${numberFmt.format(qty)} = ${formatCurrencyAmount(price * qty, currency)}`;
     }
 
     function collapseExpenseItemRow(row) {
@@ -12250,6 +12391,7 @@
     function addExpenseItemRow(item = {}) {
       const fragment = $("expenseItemRowTemplate").content.cloneNode(true);
       const row = fragment.querySelector("[data-expense-item-row]");
+      const categoryInput = row.querySelector(".expense-row-category-input");
       const itemInput = row.querySelector(".expense-row-item-input");
       const priceInput = row.querySelector(".expense-row-price-input");
       const qtyInput = row.querySelector(".expense-row-qty-input");
@@ -12265,6 +12407,7 @@
         removeButton.setAttribute("aria-label", t("deleteItem"));
         removeButton.title = t("deleteItem");
       }
+      categoryInput.value = capitalizeText(item.category || controls.category.value || "");
       itemInput.value = capitalizeText(item.item || "");
       priceInput.value = formatTransferAmount(item.price || "", walletCurrency(controls.expenseWallet.value || defaultWalletName()));
       qtyInput.value = item.qty || "1";
@@ -12273,7 +12416,7 @@
         updateExpenseItemSummary(row);
         row.classList.add("is-collapsed");
       }
-      setupAutocomplete(itemInput, row.querySelector(".expense-row-suggestions"), expenseItemsForSelectedCategory);
+      setupExpenseItemRowAutocomplete(row);
       syncExpenseItemRemoveButtons();
       updateExpenseRowCurrencyLabels();
       return row;
@@ -12285,6 +12428,7 @@
       const first = expenseItemRows()[0];
       first.classList.remove("is-collapsed");
       const firstItem = items[0] || {};
+      first.querySelector(".expense-row-category-input").value = capitalizeText(firstItem.category || controls.category.value || "");
       first.querySelector(".expense-row-item-input").value = capitalizeText(firstItem.item || "");
       first.querySelector(".expense-row-price-input").value = formatTransferAmount(firstItem.price || "", walletCurrency(controls.expenseWallet.value || defaultWalletName()));
       first.querySelector(".expense-row-qty-input").value = firstItem.qty || "1";
@@ -12299,11 +12443,13 @@
     function updateExpenseRowCurrencyLabels() {
       const currency = walletCurrency(controls.expenseWallet.value || defaultWalletName());
       expenseItemRows().forEach((row) => {
+        const categoryLabel = row.querySelector(".expense-item-category-label");
         const itemLabel = row.querySelector(".expense-item-name-label");
         const label = row.querySelector(".expense-row-price-label");
         const removeButton = row.querySelector(".expense-item-remove");
         const saveButton = row.querySelector(".expense-item-save-draft");
         const editButton = row.querySelector(".expense-item-edit");
+        if (categoryLabel) categoryLabel.textContent = currentLanguage() === "id" ? "Kategori barang" : "Item category";
         if (itemLabel) itemLabel.textContent = t("itemName");
         if (label) label.textContent = `${t("expensePriceQuestion")} (${currency})`;
         if (saveButton) saveButton.textContent = t("saveItemDraft");
@@ -12571,7 +12717,9 @@
           controls.date.value = draft.date || todayISO();
           controls.expenseWallet.value = normalizeWalletName(draft.wallet || defaultWalletName());
           controls.category.value = capitalizeText(draft.category);
-          resetExpenseItemRows(Array.isArray(draft.items) && draft.items.length ? draft.items : [{ item: draft.item, price: draft.price, qty: draft.qty }]);
+          resetExpenseItemRows(Array.isArray(draft.items) && draft.items.length
+            ? draft.items
+            : [{ category: draft.category, item: draft.item, price: draft.price, qty: draft.qty }]);
           controls.note.value = capitalizeText(draft.note);
         }
         updateDateDisplays();
@@ -15457,6 +15605,13 @@
     function updateExpenseStoryStep(nextStep = expenseStoryStep, { focus = false } = {}) {
       const form = controls.form;
       expenseStoryStep = Math.max(0, Math.min(2, Number(nextStep) || 0));
+      if (expenseStoryStep === 1) {
+        const defaultCategory = capitalizeText(controls.category.value || "");
+        expenseItemRows().forEach((row) => {
+          const categoryInput = row.querySelector(".expense-row-category-input");
+          if (categoryInput && !categoryInput.value.trim()) categoryInput.value = defaultCategory;
+        });
+      }
       form.classList.add("expense-step-mode");
       form.querySelectorAll("[data-expense-step]").forEach((node) => {
         const active = Number(node.dataset.expenseStep) === expenseStoryStep;
@@ -15481,7 +15636,9 @@
       closeCustomSelectMenus();
       hideSuggestionBoxes();
       if (!focus) return;
-      const focusTarget = form.querySelector(`[data-expense-step="${expenseStoryStep}"] input, [data-expense-step="${expenseStoryStep}"] select, [data-expense-step="${expenseStoryStep}"] textarea`);
+      const focusTarget = expenseStoryStep === 1
+        ? expenseItemRows().find((row) => !row.classList.contains("is-collapsed"))?.querySelector(".expense-row-item-input")
+        : form.querySelector(`[data-expense-step="${expenseStoryStep}"] input, [data-expense-step="${expenseStoryStep}"] select, [data-expense-step="${expenseStoryStep}"] textarea`);
       if (focusTarget) window.setTimeout(() => focusTarget.focus(), 0);
     }
 
@@ -15941,9 +16098,9 @@
 
       controls.obligationType.value = selectedType;
       $("obligationTypePill").textContent = t(selectedType);
-      $("obligationDialogTitle").textContent = t(
-        selectedType === "bill" ? "addBill" : selectedType === "debt" ? "addDebt" : "addReceivable"
-      );
+      $("obligationDialogTitle").textContent = editingObligationId && selectedType === "bill"
+        ? `${t("edit")} ${t("bill")}`
+        : t(selectedType === "bill" ? "addBill" : selectedType === "debt" ? "addDebt" : "addReceivable");
       $("obligationNameLabel").textContent = t(context.name);
       controls.obligationName.placeholder = t(context.namePlaceholder);
       $("obligationAmountLabel").textContent = t(context.amount);
@@ -16034,8 +16191,12 @@
       $("obligationNextDuePreview").textContent = `${formatDate(dueDate)} · ${days === 0 ? t("dueToday") : t("daysUntilDue", { days })}`;
     }
 
-    function openObligationDialog(type = "bill") {
+    function openObligationDialog(type = "bill", obligationId = "") {
       closeQuickAddMenu();
+      const existing = obligationId
+        ? state.obligations.find((item) => item.id === obligationId && item.type === "bill")
+        : null;
+      editingObligationId = existing ? existing.id : "";
       controls.obligationDate.value = todayISO();
       controls.obligationName.value = "";
       controls.obligationAmount.value = "";
@@ -16059,13 +16220,30 @@
       editingObligationCategory = false;
       renderDownPaymentOptions();
       setObligationType(type);
+      if (existing) {
+        controls.obligationDate.value = existing.dueDate || todayISO();
+        controls.obligationName.value = existing.name || "";
+        controls.obligationAmount.value = formatCurrencyInput(existing.amount || 0);
+        controls.obligationParty.value = existing.party || "";
+        controls.obligationCategory.value = existing.category || t("billCategoryDefault");
+        controls.obligationWallet.value = normalizeWalletName(existing.wallet || defaultWalletName());
+        controls.obligationFrequency.value = existing.frequency || "monthly";
+        controls.obligationPaymentDay.value = String(existing.paymentDay || new Date(`${controls.obligationDate.value}T00:00:00`).getDate());
+        controls.obligationEndDate.value = existing.endDate || "";
+        controls.obligationNoEnd.checked = !existing.endDate;
+        controls.obligationHasInterest.checked = Number(existing.interest || 0) > 0;
+        controls.obligationInterest.value = existing.interest || "";
+        controls.obligationInterestPeriod.value = existing.interestPeriod || "none";
+        controls.obligationInstallment.value = existing.installmentAmount ? formatCurrencyInput(existing.installmentAmount) : "";
+        controls.obligationNote.value = existing.note || "";
+      }
       syncCustomSelect(controls.obligationWallet);
       syncCustomSelect(controls.obligationFrequency);
       syncCustomSelect(controls.obligationInterestPeriod);
       syncCustomSelect(controls.obligationDownPaymentEntry);
       updateObligationEndDateControl();
       updateObligationNextDuePreview();
-      restoreDraft("obligation", type);
+      if (!existing) restoreDraft("obligation", type);
       $("obligationDialog").hidden = false;
       document.body.classList.add("entry-dialog-open");
       // Draft restoration can replace the obligation type and active step.
@@ -16073,11 +16251,13 @@
       // left in the legacy all-fields state.
       setObligationType(controls.obligationType.value);
       updateDebtStoryStep(debtStoryStep);
+      updateDateDisplays();
       window.setTimeout(() => controls.obligationName.focus(), 0);
     }
 
     function closeObligationDialog() {
       $("obligationDialog").hidden = true;
+      editingObligationId = "";
       if ($("incomeEntryDialog").hidden && $("expenseEntryDialog").hidden && $("transferEntryDialog").hidden && $("budgetGoalDialog").hidden && $("spendingBudgetDialog").hidden) {
         document.body.classList.remove("entry-dialog-open");
       }
@@ -16372,11 +16552,12 @@
       const wallet = normalizeWalletName(controls.expenseWallet.value);
       const currency = walletCurrency(wallet);
       const items = expenseItemsPayload().map((item) => ({
+        category: normalizeName(capitalizeText(item.category)) || normalizeName(capitalizeText(controls.category.value)) || "Lainnya",
         item: normalizeName(capitalizeText(item.item)),
         qty: Number(item.qty),
         unitPrice: parseTransferAmount(item.price, currency)
       }));
-      const invalidItem = items.find((item) => !item.item || !Number.isFinite(item.qty) || item.qty <= 0 || item.unitPrice <= 0);
+      const invalidItem = items.find((item) => !item.category || !item.item || !Number.isFinite(item.qty) || item.qty <= 0 || item.unitPrice <= 0);
       if (invalidItem) {
         updateExpenseStoryStep(1, { focus: true });
         toast(t("quantityPositive"));
@@ -16424,7 +16605,7 @@
       controls.date.value = entry.date;
       controls.category.value = entry.category;
       controls.expenseWallet.value = normalizeWalletName(entry.wallet || defaultWalletName());
-      resetExpenseItemRows([{ item: entry.item, qty: String(entry.qty), price: entry.unitPrice }]);
+      resetExpenseItemRows([{ category: entry.category, item: entry.item, qty: String(entry.qty), price: entry.unitPrice }]);
       controls.note.value = entry.note || "";
       $("entryFormTitle").textContent = t("editTransaction");
       controls.saveEntry.textContent = t("saveChanges");
@@ -16852,8 +17033,10 @@
         controls.obligationDownPayment.focus();
         return;
       }
-      state.obligations.unshift({
-        id: createId(),
+      const existing = editingObligationId
+        ? state.obligations.find((item) => item.id === editingObligationId && item.type === "bill")
+        : null;
+      const editableData = {
         type: controls.obligationType.value,
         dueDate: controls.obligationDate.value,
         name: normalizeName(capitalizeText(controls.obligationName.value)),
@@ -16875,15 +17058,25 @@
           : 0,
         downPaymentAmount,
         downPaymentEntryId: controls.obligationType.value === "debt" ? controls.obligationDownPaymentEntry.value : "",
-        paidAmount: controls.obligationType.value === "debt" ? downPaymentAmount : 0,
-        receivedAmount: 0,
-        payments: [],
-        autoPay: false,
-        note: capitalizeText(controls.obligationNote.value.trim()),
-        active: true,
-        status: "unpaid",
-        createdAt: new Date().toISOString()
-      });
+        note: capitalizeText(controls.obligationNote.value.trim())
+      };
+      if (existing) {
+        state.obligations = state.obligations.map((item) => item.id === existing.id
+          ? { ...item, ...editableData, id: item.id, updatedAt: new Date().toISOString() }
+          : item);
+      } else {
+        state.obligations.unshift({
+          id: createId(),
+          ...editableData,
+          paidAmount: controls.obligationType.value === "debt" ? downPaymentAmount : 0,
+          receivedAmount: 0,
+          payments: [],
+          autoPay: false,
+          active: true,
+          status: "unpaid",
+          createdAt: new Date().toISOString()
+        });
+      }
       state.obligations.sort((a, b) => a.dueDate.localeCompare(b.dueDate));
       clearDraft("obligation", { resetForm: false });
       persist();
@@ -17964,24 +18157,50 @@
     function matchingSuggestions(options, query) {
       const q = normalizeName(query || "").toLowerCase();
       const matches = q
-        ? options.filter((option) => option.toLowerCase().includes(q))
+        ? options
+            .filter((option) => option.toLowerCase().includes(q))
+            .sort((a, b) => {
+              const aStartsWithQuery = a.toLowerCase().startsWith(q);
+              const bStartsWithQuery = b.toLowerCase().startsWith(q);
+              return Number(bStartsWithQuery) - Number(aStartsWithQuery);
+            })
         : options;
-      return matches.slice(0, 8);
+      return matches.slice(0, 5);
     }
 
-    function expenseItemsForSelectedCategory() {
-      const selectedCategory = normalizeName(controls.category.value).toLowerCase();
-      if (!selectedCategory) return state.suggestions.items;
+    function expenseItemHistory() {
+      return state.entries.flatMap((entry) => {
+        if (Array.isArray(entry.items) && entry.items.length) {
+          return entry.items.map((item) => ({
+            date: item.date || entry.date,
+            category: item.category || entry.category,
+            item: item.item || item.name || ""
+          }));
+        }
+        return [{
+          date: entry.date,
+          category: entry.category,
+          item: entry.item
+        }];
+      });
+    }
+
+    function expenseItemsForSelectedCategory(categoryValue = controls.category.value) {
+      const selectedCategory = normalizeName(categoryValue).toLowerCase();
+      const itemHistory = expenseItemHistory();
+      if (!selectedCategory) return uniqueRecentValues(itemHistory, (entry) => entry.item);
       return uniqueRecentValues(
-        state.entries.filter((entry) => normalizeName(entry.category).toLowerCase() === selectedCategory),
+        itemHistory.filter((entry) => normalizeName(entry.category).toLowerCase() === selectedCategory),
         (entry) => entry.item
       );
     }
 
-    function inferExpenseCategoryFromItem() {
-      const query = normalizeName(controls.item.value).toLowerCase();
+    function inferExpenseCategoryFromItem(itemInput = controls.item, categoryInput = controls.category, row = null) {
+      // A category explicitly chosen by the user must stay authoritative.
+      if (normalizeName(categoryInput.value)) return;
+      const query = normalizeName(itemInput.value).toLowerCase();
       if (query.length < 2) return;
-      const recentEntries = state.entries
+      const recentEntries = expenseItemHistory()
         .slice()
         .sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
       const exactMatches = recentEntries.filter((entry) => normalizeName(entry.item).toLowerCase() === query);
@@ -17990,12 +18209,39 @@
         : recentEntries.filter((entry) => normalizeName(entry.item).toLowerCase().includes(query));
       const candidateCategories = uniqueRecentValues(candidateEntries, (entry) => entry.category);
       if (candidateCategories.length !== 1) return;
-      controls.category.value = capitalizeText(candidateCategories[0]);
-      const itemSuggestions = $("itemSuggestions");
+      categoryInput.value = capitalizeText(candidateCategories[0]);
+      const itemSuggestions = row?.querySelector(".expense-row-suggestions") || $("itemSuggestions");
       if (itemSuggestions && !itemSuggestions.hidden) {
-        renderSuggestionBox(controls.item, itemSuggestions, expenseItemsForSelectedCategory());
+        renderSuggestionBox(itemInput, itemSuggestions, expenseItemsForSelectedCategory(categoryInput.value));
       }
       saveDraft("expense");
+    }
+
+    function setupExpenseItemRowAutocomplete(row) {
+      if (!row || row.dataset.autocompleteReady === "true") return;
+      const categoryInput = row.querySelector(".expense-row-category-input");
+      const categorySuggestions = row.querySelector(".expense-row-category-suggestions");
+      const itemInput = row.querySelector(".expense-row-item-input");
+      const itemSuggestions = row.querySelector(".expense-row-suggestions");
+      if (!categoryInput || !itemInput) return;
+      row.dataset.autocompleteReady = "true";
+      setupAutocomplete(categoryInput, categorySuggestions, () => state.suggestions.categories);
+      setupAutocomplete(itemInput, itemSuggestions, () => expenseItemsForSelectedCategory(categoryInput.value));
+      const inferCategory = () => inferExpenseCategoryFromItem(itemInput, categoryInput, row);
+      itemInput.addEventListener("input", inferCategory);
+      itemInput.addEventListener("change", inferCategory);
+      const refreshSuggestions = () => {
+        if (itemSuggestions && !itemSuggestions.hidden) {
+          renderSuggestionBox(itemInput, itemSuggestions, expenseItemsForSelectedCategory(categoryInput.value));
+        }
+      };
+      categoryInput.addEventListener("input", refreshSuggestions);
+      categoryInput.addEventListener("change", () => {
+        refreshSuggestions();
+        if (!normalizeName(itemInput.value)) {
+          renderSuggestionBox(itemInput, itemSuggestions, expenseItemsForSelectedCategory(categoryInput.value));
+        }
+      });
     }
 
     function renderSuggestionBox(input, box, options) {
@@ -18003,6 +18249,7 @@
       if (!matches.length) {
         box.hidden = true;
         box.innerHTML = "";
+        box.closest(".entry-dialog-panel")?.classList.remove("has-open-suggestions");
         return;
       }
 
@@ -18010,11 +18257,13 @@
         `<button type="button" data-suggestion-value="${escapeHtml(value)}">${escapeHtml(value)}</button>`
       )).join("");
       box.hidden = false;
+      box.closest(".entry-dialog-panel")?.classList.add("has-open-suggestions");
     }
 
     function hideSuggestionBoxes() {
       document.querySelectorAll(".suggestion-box").forEach((box) => {
         box.hidden = true;
+        box.closest(".entry-dialog-panel")?.classList.remove("has-open-suggestions");
       });
     }
 
@@ -18023,6 +18272,8 @@
         if (select === exceptSelect) return;
         ui.menu.hidden = true;
         ui.menu.classList.remove("is-opening");
+        ui.shell.classList.remove("is-open");
+        ui.shell.closest(".entry-dialog-panel")?.classList.remove("has-open-custom-select");
         if (ui.search) ui.search.value = "";
         ui.trigger.setAttribute("aria-expanded", "false");
       });
@@ -18077,7 +18328,7 @@
           !normalizedQuery ||
           option.textContent.toLowerCase().includes(normalizedQuery) ||
           option.value.toLowerCase().includes(normalizedQuery)
-        )).slice(0, normalizedQuery ? 32 : (isDownPaymentSearch ? 12 : 14))
+        )).slice(0, isWalletSearch ? 5 : (normalizedQuery ? 32 : (isDownPaymentSearch ? 12 : 14)))
         : options;
       visibleOptions.forEach((option) => {
         const index = options.indexOf(option);
@@ -18147,6 +18398,8 @@
           if (!willOpen) return;
           syncCustomSelect(select);
           menu.hidden = false;
+          shell.classList.add("is-open");
+          shell.closest(".entry-dialog-panel")?.classList.add("has-open-custom-select");
           menu.classList.remove("is-opening");
           void menu.offsetWidth;
           menu.classList.add("is-opening");
@@ -18202,20 +18455,23 @@
       input.addEventListener("blur", () => {
         window.setTimeout(() => {
           box.hidden = true;
+          box.closest(".entry-dialog-panel")?.classList.remove("has-open-suggestions");
         }, 80);
       });
-      box.addEventListener("mousedown", (event) => {
+      const selectSuggestion = (event) => {
         const button = event.target.closest("[data-suggestion-value]");
         if (!button) return;
         event.preventDefault();
+        event.stopPropagation();
         input.value = capitalizeText(button.dataset.suggestionValue);
         input.dispatchEvent(new Event("change", { bubbles: true }));
-        input.dispatchEvent(new Event("input", { bubbles: true }));
         hideSuggestionBoxes();
         box.hidden = true;
         box.innerHTML = "";
         input.focus();
-      });
+      };
+      box.addEventListener("pointerdown", selectSuggestion);
+      box.addEventListener("click", selectSuggestion);
     }
 
     function setupFilterOptions() {
@@ -18482,18 +18738,19 @@
 
     function walletBalanceForMonth(wallet, month) {
       const key = walletKey(wallet);
-      const openingBalance = monthKey(walletOpeningBalanceDate(wallet)) === month ? walletOpeningBalance(wallet) : 0;
+      const openingMonth = monthKey(walletOpeningBalanceDate(wallet));
+      const openingBalance = !openingMonth || openingMonth <= month ? walletOpeningBalance(wallet) : 0;
       const incomeTotal = effectiveIncomes().filter((income) =>
-        monthKey(income.date) === month && walletKey(income.wallet) === key
+        monthKey(income.date) && monthKey(income.date) <= month && walletKey(income.wallet) === key
       ).reduce((total, income) => total + Number(income.amount || 0), 0);
       const expenseTotal = effectiveEntries().filter((entry) =>
-        monthKey(entry.date) === month && walletKey(entry.wallet) === key
+        monthKey(entry.date) && monthKey(entry.date) <= month && walletKey(entry.wallet) === key
       ).reduce((total, entry) => total + Number(entry.total || 0), 0);
       const transferIn = effectiveTransfers().filter((transfer) =>
-        monthKey(transfer.date) === month && walletKey(transfer.toWallet) === key
+        monthKey(transfer.date) && monthKey(transfer.date) <= month && walletKey(transfer.toWallet) === key
       ).reduce((total, transfer) => total + Number(transfer.toAmount ?? transfer.amount ?? 0), 0);
       const transferOut = effectiveTransfers().filter((transfer) =>
-        monthKey(transfer.date) === month && walletKey(transfer.fromWallet) === key
+        monthKey(transfer.date) && monthKey(transfer.date) <= month && walletKey(transfer.fromWallet) === key
       ).reduce((total, transfer) => total + Number(transfer.amount || 0), 0);
       return openingBalance + incomeTotal - expenseTotal + transferIn - transferOut;
     }
@@ -18821,6 +19078,7 @@
             </span>
             <span class="obligation-actions">
               <b>${rupiah.format(Number(item.amount || 0))}</b>
+              ${item.type === "bill" ? `<button type="button" class="ghost" data-edit-obligation="${escapeHtml(item.id)}">${t("edit")}</button>` : ""}
               ${canPay ? `<button type="button" data-pay-obligation="${escapeHtml(item.id)}">${t("payBill")}</button>` : ""}
               ${canReceive ? `<button type="button" data-pay-obligation="${escapeHtml(item.id)}">${t("receiveReceivable")}</button>` : ""}
               <button type="button" class="danger" data-delete-obligation="${escapeHtml(item.id)}">${t("delete")}</button>
@@ -21105,19 +21363,11 @@
         window.addEventListener("resize", syncBottomNavIndicator);
       }
       window.requestAnimationFrame(syncBottomNavIndicator);
-      setupAutocomplete(controls.item, $("itemSuggestions"), expenseItemsForSelectedCategory);
+      setupExpenseItemRowAutocomplete(expenseItemRows()[0]);
       setupAutocomplete(controls.category, $("categorySuggestions"), () => state.suggestions.categories);
       setupAutocomplete(controls.incomeSource, $("incomeSourceSuggestions"), () => state.suggestions.incomeSources);
       setupAutocomplete(controls.trendItem, $("trendItemSuggestions"), () => state.suggestions.items);
       setupAutocomplete(controls.spendingBudgetCategory, $("spendingBudgetCategorySuggestions"), () => state.suggestions.categories);
-      controls.item.addEventListener("input", inferExpenseCategoryFromItem);
-      controls.item.addEventListener("change", inferExpenseCategoryFromItem);
-      const refreshExpenseItemSuggestions = () => {
-        const itemSuggestions = $("itemSuggestions");
-        if (!itemSuggestions.hidden) renderSuggestionBox(controls.item, itemSuggestions, expenseItemsForSelectedCategory());
-      };
-      controls.category.addEventListener("input", refreshExpenseItemSuggestions);
-      controls.category.addEventListener("change", refreshExpenseItemSuggestions);
       $("activeMonthButton").addEventListener("pointermove", (event) => {
         const rect = event.currentTarget.getBoundingClientRect();
         const x = ((event.clientX - rect.left) / rect.width) * 100;
@@ -21242,7 +21492,7 @@
         const row = addExpenseItemRow();
         updateEstimate();
         saveDraft("expense");
-        row.querySelector(".expense-row-item-input")?.focus();
+        window.setTimeout(() => row.querySelector(".expense-row-item-input")?.focus(), 0);
       });
       $("expenseItemRows").addEventListener("click", (event) => {
         const saveButton = event.target.closest(".expense-item-save-draft");
@@ -21514,6 +21764,11 @@
         });
       });
       $("obligationList").addEventListener("click", (event) => {
+        const editButton = event.target.closest("[data-edit-obligation]");
+        if (editButton) {
+          openObligationDialog("bill", editButton.dataset.editObligation);
+          return;
+        }
         const editCategoryButton = event.target.closest("[data-edit-obligation-category]");
         if (editCategoryButton) {
           const id = editCategoryButton.dataset.editObligationCategory;
