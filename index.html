@@ -8561,7 +8561,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-      <small id="appVersionBadge">v364</small>
+      <small id="appVersionBadge">v365</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -18463,14 +18463,21 @@
         if (!button) return;
         event.preventDefault();
         event.stopPropagation();
-        input.value = capitalizeText(button.dataset.suggestionValue);
+        const selectedValue = button.dataset.suggestionValue;
+        input.value = capitalizeText(selectedValue);
         input.dispatchEvent(new Event("change", { bubbles: true }));
         hideSuggestionBoxes();
         box.hidden = true;
         box.innerHTML = "";
         input.focus();
       };
-      box.addEventListener("pointerdown", selectSuggestion);
+      box.addEventListener("pointerdown", (event) => {
+        // Keep the input focused until the tap completes. Selecting here and
+        // again on click can make a mobile tap fall through to another option.
+        if (!event.target.closest("[data-suggestion-value]")) return;
+        event.preventDefault();
+        event.stopPropagation();
+      });
       box.addEventListener("click", selectSuggestion);
     }
 
