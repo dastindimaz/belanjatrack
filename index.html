@@ -8561,7 +8561,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-      <small id="appVersionBadge">v365</small>
+      <small id="appVersionBadge">v367</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -9756,7 +9756,7 @@
                 <input class="date-native" id="obligationPaymentDateInput" type="date" autocomplete="off" required>
               </span>
             </label>
-            <label class="span-2"><span data-i18n="actualPaymentAmount">Nominal Aktual yang Dibayar (Rp)</span>
+            <label class="span-2"><span id="obligationPaymentAmountLabel" data-i18n="actualPaymentAmount">Nominal Aktual yang Dibayar ({currency})</span>
               <input id="obligationPaymentAmountInput" type="text" inputmode="numeric" autocomplete="off" required>
             </label>
             <label class="span-2"><span data-i18n="paymentWallet">Wallet Transaksi</span>
@@ -9999,7 +9999,8 @@
         billAlreadyPaidToday: "Tagihan ini sudah dibayar hari ini.",
         billWalletInsufficient: "Saldo {wallet} tidak cukup untuk membayar tagihan ini.",
         nextDueDate: "Next due date", daysUntilDue: "H-{days}", dueToday: "Hari ini (H-0)",
-        confirmBillPayment: "Konfirmasi Pembayaran", actualPaymentAmount: "Nominal Aktual yang Dibayar (Rp)",
+        confirmBillPayment: "Konfirmasi Pembayaran", actualPaymentAmount: "Nominal Aktual yang Dibayar ({currency})",
+        paymentRateUnavailable: "Kurs {currency} ke {baseCurrency} belum tersedia. Coba lagi setelah kurs diperbarui.",
         confirmPaid: "Konfirmasi Sudah Bayar", estimatedBillAmount: "Estimasi tagihan: {amount}",
         editCategory: "Edit kategori", categoryUpdated: "Kategori tagihan dan transaksi lama berhasil diperbarui.",
         debtProgressTitle: "Progress Hutang", monthlyInstallment: "Cicilannya berapa? (Rp)",
@@ -10382,7 +10383,8 @@
         billAlreadyPaidToday: "This bill has already been paid today.",
         billWalletInsufficient: "{wallet} balance is insufficient to pay this bill.",
         nextDueDate: "Next due date", daysUntilDue: "D-{days}", dueToday: "Today (D-0)",
-        confirmBillPayment: "Confirm Payment", actualPaymentAmount: "Actual Amount Paid (Rp)",
+        confirmBillPayment: "Confirm Payment", actualPaymentAmount: "Actual Amount Paid ({currency})",
+        paymentRateUnavailable: "The {currency} to {baseCurrency} rate is not available yet. Try again after rates refresh.",
         confirmPaid: "Confirm Paid", estimatedBillAmount: "Estimated bill: {amount}",
         editCategory: "Edit category", categoryUpdated: "Bill category and previous transactions updated.",
         debtProgressTitle: "Debt Progress", monthlyInstallment: "How much is each payment? (Rp)",
@@ -10891,6 +10893,8 @@
     let pendingWalletDelete = null;
     let transferReceivedManuallyEdited = false;
     let pendingObligationPaymentId = null;
+    let pendingObligationPaymentBaseAmount = 0;
+    let pendingObligationPaymentWallet = "";
     let pendingOnboardingRecoveryCode = "";
     let onboardingStep = 0;
       let onboardingWalletDrafts = [];
@@ -11066,6 +11070,25 @@
       return `${String(from || "").toUpperCase()}_${String(to || "").toUpperCase()}_${todayRateKey()}`;
     }
 
+    function latestStoredWalletRate(from, to) {
+      const base = String(from || "").toUpperCase();
+      const quote = String(to || "").toUpperCase();
+      if (!base || !quote || base === quote) return { rate: 1, date: todayRateKey() };
+      const rates = state.settings.exchangeRates || {};
+      const findLatest = (rateBase, rateQuote) => Object.entries(rates)
+        .filter(([key, value]) => key.startsWith(`${rateBase}_${rateQuote}_`) && Number(value) > 0)
+        .sort(([left], [right]) => right.localeCompare(left))[0] || null;
+      const direct = findLatest(base, quote);
+      if (direct) {
+        return { rate: Number(direct[1]), date: direct[0].slice(`${base}_${quote}_`.length) };
+      }
+      const reverse = findLatest(quote, base);
+      if (reverse) {
+        return { rate: 1 / Number(reverse[1]), date: reverse[0].slice(`${quote}_${base}_`.length) };
+      }
+      return null;
+    }
+
     function cachedWalletRate(from, to) {
       const base = String(from || "").toUpperCase();
       const quote = String(to || "").toUpperCase();
@@ -11074,7 +11097,8 @@
       const rate = Number(rates[walletRateKey(base, quote)]);
       if (Number.isFinite(rate) && rate > 0) return rate;
       const reverseRate = Number(rates[walletRateKey(quote, base)]);
-      return Number.isFinite(reverseRate) && reverseRate > 0 ? 1 / reverseRate : null;
+      if (Number.isFinite(reverseRate) && reverseRate > 0) return 1 / reverseRate;
+      return latestStoredWalletRate(base, quote)?.rate || null;
     }
 
     function cachedWalletRateDate(from, to) {
@@ -11082,7 +11106,10 @@
       const quote = String(to || "").toUpperCase();
       if (!base || !quote || base === quote) return todayRateKey();
       const dates = state.settings.exchangeRateDates || {};
-      return dates[walletRateKey(base, quote)] || dates[walletRateKey(quote, base)] || todayRateKey();
+      return dates[walletRateKey(base, quote)]
+        || dates[walletRateKey(quote, base)]
+        || latestStoredWalletRate(base, quote)?.date
+        || todayRateKey();
     }
 
     function convertedCurrencyAmount(amount, from, to) {
@@ -11133,10 +11160,48 @@
 
     function transactionBaseAmount(record, type) {
       const nativeAmount = transactionNativeAmount(record, type);
-      const savedBaseAmount = Number(record.baseAmount);
-      if (record.baseAmount !== null && record.baseAmount !== undefined && Number.isFinite(savedBaseAmount) && record.baseCurrency === currentCurrency()) return savedBaseAmount;
       const currency = transactionNativeCurrency(record);
-      return amountInCurrentCurrency(nativeAmount, currency);
+      const savedBaseAmount = Number(record.baseAmount);
+      const savedRate = Number(record.exchangeRate);
+      const hasSavedBaseAmount = record.baseAmount !== null && record.baseAmount !== undefined
+        && Number.isFinite(savedBaseAmount) && record.baseCurrency === currentCurrency();
+      const hasSavedRate = record.baseCurrency === currentCurrency()
+        && Number.isFinite(savedRate) && savedRate > 0;
+      const fallbackConverted = currency === currentCurrency()
+        ? nativeAmount
+        : convertedCurrencyAmount(nativeAmount, currency, currentCurrency());
+      if (currency !== currentCurrency() && hasSavedRate) {
+        const convertedFromSavedRate = nativeAmount * savedRate;
+        const baseAmountMismatch = hasSavedBaseAmount
+          && Math.abs(savedBaseAmount - convertedFromSavedRate) / Math.max(1, Math.abs(convertedFromSavedRate)) > 0.01;
+        if (!hasSavedBaseAmount || baseAmountMismatch) return convertedFromSavedRate;
+      }
+      if (hasSavedBaseAmount) {
+        const fallbackMismatch = currency !== currentCurrency()
+          && fallbackConverted !== null
+          && Math.abs(savedBaseAmount - fallbackConverted) / Math.max(1, Math.abs(fallbackConverted)) > 0.5;
+        return fallbackMismatch ? fallbackConverted : savedBaseAmount;
+      }
+      if (hasSavedRate) return nativeAmount * savedRate;
+      return fallbackConverted === null ? nativeAmount : fallbackConverted;
+    }
+
+    function transactionCurrencyMetaWithBaseAmount(wallet, nativeAmount, baseAmount) {
+      const meta = transactionCurrencyMeta(wallet, nativeAmount);
+      const numericNative = Number(nativeAmount || 0);
+      const numericBase = Number(baseAmount || 0);
+      return {
+        ...meta,
+        baseCurrency: currentCurrency(),
+        baseAmount: numericBase,
+        exchangeRate: numericNative > 0 ? numericBase / numericNative : meta.exchangeRate
+      };
+    }
+
+    function walletAmountFromBaseAmount(baseAmount, wallet) {
+      const currency = walletCurrency(wallet);
+      if (currency === currentCurrency()) return Number(baseAmount || 0);
+      return convertedCurrencyAmount(baseAmount, currentCurrency(), currency);
     }
 
     function transactionAmountMarkup(record, type, options = {}) {
@@ -17127,9 +17192,11 @@
     }
 
     function recordAutomaticBillPayment(item, paymentDate = todayISO()) {
+      if (!item) return false;
       const wallet = normalizeWalletName(item.wallet || defaultWalletName());
-      const amount = Number(item.amount || 0);
-      if (!item || amount <= 0 || walletBalance(wallet) < amount) return false;
+      const baseAmount = Number(item.amount || 0);
+      const nativeAmount = walletAmountFromBaseAmount(baseAmount, wallet);
+      if (baseAmount <= 0 || nativeAmount === null || walletBalance(wallet) < nativeAmount) return false;
       const expenseId = createId();
       state.entries.unshift({
         id: expenseId,
@@ -17138,9 +17205,9 @@
         category: normalizeName(item.category || "") || t("billCategoryDefault"),
         wallet,
         qty: 1,
-        unitPrice: amount,
-        total: amount,
-        ...transactionCurrencyMeta(wallet, amount),
+        unitPrice: nativeAmount,
+        total: nativeAmount,
+        ...transactionCurrencyMetaWithBaseAmount(wallet, nativeAmount, baseAmount),
         note: `Pembayaran otomatis · ${item.name}`,
         obligationId: item.id
       });
@@ -17150,7 +17217,9 @@
         entryId: expenseId,
         date: paymentDate,
         scheduledDate: paymentDate,
-        amount,
+        amount: baseAmount,
+        nativeAmount,
+        currency: walletCurrency(wallet),
         wallet,
         automatic: true
       });
@@ -17254,9 +17323,12 @@
           : (Array.isArray(item.payments) && item.payments.length
             ? Number(item.payments[item.payments.length - 1].amount || item.amount)
             : item.amount);
-      controls.obligationPaymentAmount.value = formatCurrencyInput(suggestedAmount);
-      $("obligationPaymentSummary").textContent = `${item.name} · ${t("estimatedBillAmount", { amount: rupiah.format(Number(item.amount || 0)) })}`;
-      updateObligationPaymentWalletPreview();
+      pendingObligationPaymentBaseAmount = Number(suggestedAmount || 0);
+      pendingObligationPaymentWallet = wallet;
+      const nativeSuggestedAmount = walletAmountFromBaseAmount(pendingObligationPaymentBaseAmount, wallet);
+      controls.obligationPaymentAmount.value = formatTransferAmount(nativeSuggestedAmount === null ? 0 : nativeSuggestedAmount, walletCurrency(wallet));
+      $("obligationPaymentSummary").textContent = `${item.name} · ${t("estimatedBillAmount", { amount: formatCurrencyAmount(Number(item.amount || 0), currentCurrency()) })}`;
+      updateObligationPaymentWalletPreview(false);
       $("obligationPaymentDialog").hidden = false;
       document.body.classList.add("entry-dialog-open");
       syncCustomSelect(controls.obligationPaymentWallet);
@@ -17270,16 +17342,38 @@
     function closeObligationPaymentDialog() {
       $("obligationPaymentDialog").hidden = true;
       pendingObligationPaymentId = null;
+      pendingObligationPaymentBaseAmount = 0;
+      pendingObligationPaymentWallet = "";
       if ($("incomeEntryDialog").hidden && $("expenseEntryDialog").hidden && $("transferEntryDialog").hidden && $("budgetGoalDialog").hidden && $("obligationDialog").hidden) {
         document.body.classList.remove("entry-dialog-open");
       }
     }
 
-    function updateObligationPaymentWalletPreview() {
+    function updateObligationPaymentWalletPreview(convertInput = true) {
       const wallet = normalizeWalletName(controls.obligationPaymentWallet.value || defaultWalletName());
+      const currency = walletCurrency(wallet);
       const balance = walletBalance(wallet);
+      if (convertInput && pendingObligationPaymentBaseAmount > 0 && wallet !== pendingObligationPaymentWallet) {
+        const converted = walletAmountFromBaseAmount(pendingObligationPaymentBaseAmount, wallet);
+        controls.obligationPaymentAmount.value = formatTransferAmount(converted === null ? 0 : converted, currency);
+      }
+      pendingObligationPaymentWallet = wallet;
+      controls.obligationPaymentAmount.inputMode = currencyFractionDigits(currency) > 0 ? "decimal" : "numeric";
+      $("obligationPaymentAmountLabel").textContent = t("actualPaymentAmount", { currency });
       $("obligationPaymentWalletPreview").textContent = wallet;
-      $("obligationPaymentWalletBalance").textContent = t("transferSourceBalance", { amount: rupiah.format(balance) });
+      $("obligationPaymentWalletBalance").textContent = t("transferSourceBalance", { amount: formatCurrencyAmount(balance, currency) });
+    }
+
+    function updateObligationPaymentAmount() {
+      const wallet = normalizeWalletName(controls.obligationPaymentWallet.value || defaultWalletName());
+      const currency = walletCurrency(wallet);
+      controls.obligationPaymentAmount.value = formatTransferAmount(controls.obligationPaymentAmount.value, currency);
+      const nativeAmount = parseTransferAmount(controls.obligationPaymentAmount.value, currency);
+      const converted = currency === currentCurrency()
+        ? nativeAmount
+        : convertedCurrencyAmount(nativeAmount, currency, currentCurrency());
+      if (converted !== null) pendingObligationPaymentBaseAmount = converted;
+      pendingObligationPaymentWallet = wallet;
     }
 
     function confirmObligationPayment(event) {
@@ -17296,13 +17390,21 @@
         return;
       }
       const wallet = normalizeWalletName(controls.obligationPaymentWallet.value || item.wallet || defaultWalletName());
-      const amount = parseCurrencyInput(controls.obligationPaymentAmount.value);
-      if (amount <= 0) {
+      const currency = walletCurrency(wallet);
+      const nativeAmount = parseTransferAmount(controls.obligationPaymentAmount.value, currency);
+      const baseAmount = currency === currentCurrency()
+        ? nativeAmount
+        : convertedCurrencyAmount(nativeAmount, currency, currentCurrency());
+      if (nativeAmount <= 0) {
         toast(t("obligationAmountPositive"));
         controls.obligationPaymentAmount.focus();
         return;
       }
-      if (item.type !== "receivable" && walletBalance(wallet) < amount) {
+      if (baseAmount === null) {
+        toast(t("paymentRateUnavailable", { currency, baseCurrency: currentCurrency() }));
+        return;
+      }
+      if (item.type !== "receivable" && walletBalance(wallet) < nativeAmount) {
         toast(t("billWalletInsufficient", { wallet }));
         controls.obligationPaymentAmount.focus();
         return;
@@ -17311,15 +17413,15 @@
         state.incomes.unshift({
           id: createId(),
           date: paymentDate,
-          amount,
+          amount: nativeAmount,
           wallet,
-          ...transactionCurrencyMeta(wallet, amount),
+          ...transactionCurrencyMetaWithBaseAmount(wallet, nativeAmount, baseAmount),
           source: normalizeName(item.name || t("receivable")),
           category: normalizeName(item.category || "") || t("receivableCategoryDefault"),
           note: item.party ? `Pembayaran piutang · ${item.party}` : "Pembayaran piutang",
           obligationId: item.id
         });
-        item.receivedAmount = Math.min(Number(item.amount || 0), Number(item.receivedAmount || 0) + amount);
+        item.receivedAmount = Math.min(Number(item.amount || 0), Number(item.receivedAmount || 0) + baseAmount);
         item.status = item.receivedAmount >= Number(item.amount || 0) ? "paid" : "unpaid";
         item.lastPaidDate = paymentDate;
         state.incomes.sort((a, b) => b.date.localeCompare(a.date));
@@ -17338,9 +17440,9 @@
         category: normalizeName(item.category || "") || t(item.type === "debt" ? "debtCategoryDefault" : "billCategoryDefault"),
         wallet,
         qty: 1,
-        unitPrice: amount,
-        total: amount,
-        ...transactionCurrencyMeta(wallet, amount),
+        unitPrice: nativeAmount,
+        total: nativeAmount,
+        ...transactionCurrencyMetaWithBaseAmount(wallet, nativeAmount, baseAmount),
         note: item.type === "debt" ? `Pembayaran cicilan · ${item.name}` : `Pembayaran tagihan · ${item.category || t("billCategoryDefault")}`,
         obligationId: item.id
       });
@@ -17354,11 +17456,13 @@
         entryId: expenseId,
         date: paymentDate,
         scheduledDate: item.type === "bill" ? scheduledDate : "",
-        amount,
+        amount: baseAmount,
+        nativeAmount,
+        currency,
         wallet
       });
       if (item.type === "debt") {
-        item.paidAmount = Math.min(Number(item.amount || 0), Number(item.paidAmount || 0) + amount);
+        item.paidAmount = Math.min(Number(item.amount || 0), Number(item.paidAmount || 0) + baseAmount);
         item.status = item.paidAmount >= Number(item.amount || 0) ? "paid" : "unpaid";
       }
       state.entries.sort((a, b) => b.date.localeCompare(a.date));
@@ -17874,13 +17978,21 @@
       if (record.baseCurrency !== currentCurrency()) return null;
 
       const savedBaseAmount = Number(record.baseAmount);
-      if (record.baseAmount !== null && record.baseAmount !== undefined && Number.isFinite(savedBaseAmount)) {
-        return savedBaseAmount;
-      }
-
       const savedExchangeRate = Number(record.exchangeRate);
       if (Number.isFinite(savedExchangeRate) && savedExchangeRate > 0) {
-        return nativeAmount * savedExchangeRate;
+        const convertedFromSavedRate = nativeAmount * savedExchangeRate;
+        const hasSavedBaseAmount = record.baseAmount !== null && record.baseAmount !== undefined
+          && Number.isFinite(savedBaseAmount);
+        const baseAmountMismatch = hasSavedBaseAmount
+          && Math.abs(savedBaseAmount - convertedFromSavedRate) / Math.max(1, Math.abs(convertedFromSavedRate)) > 0.01;
+        return !hasSavedBaseAmount || baseAmountMismatch ? convertedFromSavedRate : savedBaseAmount;
+      }
+
+      if (record.baseAmount !== null && record.baseAmount !== undefined && Number.isFinite(savedBaseAmount)) {
+        const latestConverted = convertedCurrencyAmount(nativeAmount, currency, currentCurrency());
+        const baseAmountMismatch = latestConverted !== null
+          && Math.abs(savedBaseAmount - latestConverted) / Math.max(1, Math.abs(latestConverted)) > 0.5;
+        return baseAmountMismatch ? latestConverted : savedBaseAmount;
       }
       return null;
     }
@@ -21648,7 +21760,7 @@
         updateDebtInterestDailyPreview();
         saveDraft("obligation");
       });
-      controls.obligationPaymentAmount.addEventListener("input", () => formatCurrencyField(controls.obligationPaymentAmount));
+      controls.obligationPaymentAmount.addEventListener("input", updateObligationPaymentAmount);
       controls.obligationPaymentWallet.addEventListener("change", updateObligationPaymentWalletPreview);
       controls.obligationType.addEventListener("change", () => {
         setObligationType(controls.obligationType.value);
