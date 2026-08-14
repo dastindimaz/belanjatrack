@@ -8561,7 +8561,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-      <small id="appVersionBadge">v367</small>
+      <small id="appVersionBadge">v370</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -10207,6 +10207,14 @@
         summaryInflationHorizons: "Inflasi biaya hidup: bulanan {monthly}, 6 bulan {sixMonths}, dan 12 bulan {yearly}. Hanya barang dan tagihan rutin yang sama yang dibandingkan.",
         summaryInflationContributor: "{period}: kontribusi inflasi terbesar berasal dari {name} ({value}).",
         summaryDeflationContributor: "{period}: kontribusi deflasi terbesar berasal dari {name} ({value}).",
+        summaryInflationContributorRanked: "Inflasi {period} #{rank}: {name} naik {value}.",
+        summaryDeflationContributorRanked: "Deflasi {period} #{rank}: {name} turun {value}.",
+        summaryInflationDeflationAverage: "Ringkasan {period}: rata-rata inflasi {inflation} dan rata-rata deflasi {deflation}. {comparison}",
+        summaryInflationHigher: "Rata-rata kenaikan harga lebih besar {difference} poin persentase daripada rata-rata penurunan harga.",
+        summaryDeflationHigher: "Rata-rata penurunan harga lebih besar {difference} poin persentase daripada rata-rata kenaikan harga.",
+        summaryInflationDeflationEqual: "Rata-rata kenaikan dan penurunan harga seimbang.",
+        summaryInflationOnly: "Belum ada rata-rata penurunan harga untuk dibandingkan.",
+        summaryDeflationOnly: "Belum ada rata-rata kenaikan harga untuk dibandingkan.",
         summaryPeakIncome: "Pemasukan tertinggi tercatat pada {period}: {source}, sebesar {amount}.",
         summaryIncomeVsInflation: "Pemasukan berubah {incomeGrowth}, dibanding inflasi biaya hidup {inflation}.",
         summaryPurchasingPower: "Daya beli {direction} {gap}, setara {moneyGap}.",
@@ -10591,6 +10599,14 @@
         summaryInflationHorizons: "Living-cost inflation: monthly {monthly}, six months {sixMonths}, and 12 months {yearly}. Only matching items and recurring bills are compared.",
         summaryInflationContributor: "{period}: the largest inflation contribution came from {name} ({value}).",
         summaryDeflationContributor: "{period}: the largest deflation contribution came from {name} ({value}).",
+        summaryInflationContributorRanked: "{period} inflation #{rank}: {name} increased by {value}.",
+        summaryDeflationContributorRanked: "{period} deflation #{rank}: {name} decreased by {value}.",
+        summaryInflationDeflationAverage: "{period} summary: average inflation {inflation} and average deflation {deflation}. {comparison}",
+        summaryInflationHigher: "The average price increase is {difference} percentage points higher than the average price decrease.",
+        summaryDeflationHigher: "The average price decrease is {difference} percentage points higher than the average price increase.",
+        summaryInflationDeflationEqual: "The average price increase and decrease are balanced.",
+        summaryInflationOnly: "There is no average price decrease to compare yet.",
+        summaryDeflationOnly: "There is no average price increase to compare yet.",
         summaryPeakIncome: "The highest income was recorded in {period}: {source}, totaling {amount}.",
         summaryIncomeVsInflation: "Income changed {incomeGrowth}, compared with living-cost inflation of {inflation}.",
         summaryPurchasingPower: "Purchasing power {direction} by {gap}, equal to {moneyGap}.",
@@ -18165,13 +18181,30 @@
         });
       });
 
-      const inflation = candidates
+      const inflations = candidates
         .filter((item) => item.impact > 0)
-        .sort((a, b) => b.impact - a.impact)[0] || null;
-      const deflation = candidates
+        .sort((a, b) => b.impact - a.impact);
+      const deflations = candidates
         .filter((item) => item.impact < 0)
-        .sort((a, b) => a.impact - b.impact)[0] || null;
-      return { inflation, deflation };
+        .sort((a, b) => a.impact - b.impact);
+      const averageInflation = inflations.length
+        ? inflations.reduce((total, item) => total + item.percent, 0) / inflations.length
+        : null;
+      const averageDeflation = deflations.length
+        ? deflations.reduce((total, item) => total + item.percent, 0) / deflations.length
+        : null;
+      const difference = averageInflation !== null && averageDeflation !== null
+        ? averageInflation - Math.abs(averageDeflation)
+        : null;
+      return {
+        inflation: inflations[0] || null,
+        deflation: deflations[0] || null,
+        inflations,
+        deflations,
+        averageInflation,
+        averageDeflation,
+        difference
+      };
     }
 
     function highestIncomePeriod(endIndex) {
@@ -19615,6 +19648,46 @@
         summaryList.appendChild(item);
       }
 
+      const addInflationDeflationAverageSummary = (label, contributors) => {
+        if (contributors.averageInflation === null && contributors.averageDeflation === null) return;
+        const averageInflation = contributors.averageInflation === null
+          ? "—"
+          : signedPercent(contributors.averageInflation);
+        const averageDeflation = contributors.averageDeflation === null
+          ? "—"
+          : signedPercent(contributors.averageDeflation);
+        const differenceValue = contributors.difference;
+        const difference = differenceValue === null
+          ? "—"
+          : `${numberFmt.format(Math.round(Math.abs(differenceValue) * 10) / 10)}`;
+        const comparison = contributors.averageInflation === null
+          ? t("summaryDeflationOnly")
+          : contributors.averageDeflation === null
+            ? t("summaryInflationOnly")
+            : differenceValue > 0
+              ? t("summaryInflationHigher", { difference })
+              : differenceValue < 0
+                ? t("summaryDeflationHigher", { difference })
+                : t("summaryInflationDeflationEqual");
+        addSummaryItem(t("summaryInflationDeflationAverage", {
+          period: label,
+          inflation: averageInflation,
+          deflation: averageDeflation,
+          comparison
+        }), differenceValue === null || differenceValue === 0
+          ? "neutral"
+          : differenceValue > 0 ? "bad" : "good", [
+          averageInflation,
+          averageDeflation,
+          difference
+        ]);
+      };
+
+      addInflationDeflationAverageSummary(
+        t("monthly"),
+        livingCostContributorsForMonths(currentIndex, 1)
+      );
+
       const horizonInflationValues = [
         inflationHorizons.monthly.combined,
         inflationHorizons.sixMonths.combined,
@@ -19635,28 +19708,31 @@
         { label: t("yearly"), months: 12 }
       ].forEach(({ label, months }) => {
         const contributors = livingCostContributorsForMonths(currentIndex, months);
-        if (contributors.inflation) {
-          const value = signedPercent(contributors.inflation.percent);
+        contributors.inflations.slice(0, 3).forEach((contributor, index) => {
+          const value = signedPercent(contributor.percent);
           const linkedItemName = normalizedPriceHistoryItems.has(
-            normalizeName(contributors.inflation.name).toLocaleLowerCase("id-ID")
-          ) ? contributors.inflation.name : "";
-          addSummaryItem(t("summaryInflationContributor", {
+            normalizeName(contributor.name).toLocaleLowerCase("id-ID")
+          ) ? contributor.name : "";
+          addSummaryItem(t("summaryInflationContributorRanked", {
             period: label,
-            name: contributors.inflation.name,
+            rank: index + 1,
+            name: contributor.name,
             value
-          }), "bad", [contributors.inflation.name, value], linkedItemName);
-        }
-        if (contributors.deflation) {
-          const value = signedPercent(contributors.deflation.percent);
+          }), "bad", [contributor.name, value], linkedItemName);
+        });
+        contributors.deflations.slice(0, 3).forEach((contributor, index) => {
+          const value = `${numberFmt.format(Math.round(Math.abs(contributor.percent) * 10) / 10)}%`;
           const linkedItemName = normalizedPriceHistoryItems.has(
-            normalizeName(contributors.deflation.name).toLocaleLowerCase("id-ID")
-          ) ? contributors.deflation.name : "";
-          addSummaryItem(t("summaryDeflationContributor", {
+            normalizeName(contributor.name).toLocaleLowerCase("id-ID")
+          ) ? contributor.name : "";
+          addSummaryItem(t("summaryDeflationContributorRanked", {
             period: label,
-            name: contributors.deflation.name,
+            rank: index + 1,
+            name: contributor.name,
             value
-          }), "good", [contributors.deflation.name, value], linkedItemName);
-        }
+          }), "good", [contributor.name, value], linkedItemName);
+        });
+        if (months !== 1) addInflationDeflationAverageSummary(label, contributors);
       });
 
       const peakIncome = highestIncomePeriod(currentIndex);
