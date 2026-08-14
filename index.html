@@ -8561,7 +8561,7 @@
         <div>
           <h2 id="authTitle">BelanjaTrack Pro</h2>
           <p data-i18n="localAccountSubtitle">Akun lokal untuk data belanja Anda</p>
-      <small id="appVersionBadge">v370</small>
+      <small id="appVersionBadge">v372</small>
         </div>
       </div>
       <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Akun" data-active="login">
@@ -10879,6 +10879,7 @@
     let priceChartInstance = null;
     let homeCategoryChartInstance = null;
     let homeCashflowChartInstance = null;
+    let homeAnalyticsChartSignature = "";
     let chartLibraryWarningShown = false;
     let deferredInstallPrompt = null;
     let currentUser = null;
@@ -18370,7 +18371,10 @@
       const itemSuggestions = row.querySelector(".expense-row-suggestions");
       if (!categoryInput || !itemInput) return;
       row.dataset.autocompleteReady = "true";
-      setupAutocomplete(categoryInput, categorySuggestions, () => state.suggestions.categories);
+      setupAutocomplete(categoryInput, categorySuggestions, () => state.suggestions.categories, {
+        showOnPointer: false,
+        requireQuery: true
+      });
       setupAutocomplete(itemInput, itemSuggestions, () => expenseItemsForSelectedCategory(categoryInput.value));
       const inferCategory = () => inferExpenseCategoryFromItem(itemInput, categoryInput, row);
       itemInput.addEventListener("input", inferCategory);
@@ -18590,12 +18594,29 @@
       });
     }
 
-    function setupAutocomplete(input, box, getOptions) {
+    function setupAutocomplete(input, box, getOptions, {
+      showOnPointer = true,
+      requireQuery = false
+    } = {}) {
       const show = () => {
+        if (requireQuery && !normalizeName(input.value)) {
+          box.hidden = true;
+          box.innerHTML = "";
+          box.closest(".entry-dialog-panel")?.classList.remove("has-open-suggestions");
+          return;
+        }
         hideSuggestionBoxes();
         renderSuggestionBox(input, box, getOptions());
       };
-      input.addEventListener("pointerdown", show);
+      if (showOnPointer) {
+        input.addEventListener("pointerdown", show);
+      } else {
+        input.addEventListener("pointerdown", () => {
+          box.hidden = true;
+          box.innerHTML = "";
+          box.closest(".entry-dialog-panel")?.classList.remove("has-open-suggestions");
+        });
+      }
       input.addEventListener("input", show);
       input.addEventListener("blur", () => {
         window.setTimeout(() => {
@@ -20169,6 +20190,20 @@
           : ""}`
         : "";
 
+      const chartSignature = JSON.stringify({
+        activeMonth,
+        categoryLabels,
+        categoryValues,
+        incomeTotal,
+        expenseTotal,
+        colors,
+        language: currentLanguage()
+      });
+      if (chartSignature === homeAnalyticsChartSignature
+          && homeCategoryChartInstance
+          && homeCashflowChartInstance) return;
+      homeAnalyticsChartSignature = chartSignature;
+
       if (homeCategoryChartInstance) homeCategoryChartInstance.destroy();
       homeCategoryChartInstance = new ChartLibrary($("homeCategoryChart"), {
         type: "doughnut",
@@ -20189,7 +20224,7 @@
           maintainAspectRatio: false,
           devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
           cutout: "68%",
-          animation: { duration: 320 },
+          animation: false,
           onHover(event, elements, chart) {
             chart.canvas.style.cursor = elements.length ? "pointer" : "default";
           },
@@ -20240,7 +20275,7 @@
           responsive: true,
           maintainAspectRatio: false,
           devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
-          animation: { duration: 320 },
+          animation: false,
           interaction: { mode: "nearest", intersect: false, axis: "x" },
           onHover(event, elements, chart) {
             chart.canvas.style.cursor = elements.length ? "pointer" : "default";
@@ -20291,12 +20326,25 @@
     function renderInteractiveChart(existingChart, canvas, type, pairs, datasetLabel, colorKey) {
       const ChartLibrary = chartLibrary();
       if (!ChartLibrary) return null;
-      if (existingChart) existingChart.destroy();
       const colors = chartTheme();
       const color = colors[colorKey];
       const labels = pairs.map(([label]) => type === "line" ? String(label).split("\n") : label);
       const values = pairs.map(([, value]) => Number(value || 0));
       const isLine = type === "line";
+      const chartSignature = JSON.stringify({
+        type,
+        labels,
+        values,
+        datasetLabel,
+        color,
+        panel: colors.panel,
+        muted: colors.muted,
+        line: colors.line,
+        language: currentLanguage()
+      });
+      if (existingChart && canvas.dataset.chartSignature === chartSignature) return existingChart;
+      canvas.dataset.chartSignature = chartSignature;
+      if (existingChart) existingChart.destroy();
       return new ChartLibrary(canvas, {
         type,
         data: {
@@ -20325,7 +20373,7 @@
           maintainAspectRatio: false,
           devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
           resizeDelay: 100,
-          animation: { duration: 320 },
+          animation: false,
           interaction: { mode: "nearest", intersect: false, axis: "x" },
           onHover(event, elements, chart) {
             chart.canvas.style.cursor = elements.length ? "pointer" : "default";
@@ -21559,8 +21607,14 @@
       }
       window.requestAnimationFrame(syncBottomNavIndicator);
       setupExpenseItemRowAutocomplete(expenseItemRows()[0]);
-      setupAutocomplete(controls.category, $("categorySuggestions"), () => state.suggestions.categories);
-      setupAutocomplete(controls.incomeSource, $("incomeSourceSuggestions"), () => state.suggestions.incomeSources);
+      setupAutocomplete(controls.category, $("categorySuggestions"), () => state.suggestions.categories, {
+        showOnPointer: false,
+        requireQuery: true
+      });
+      setupAutocomplete(controls.incomeSource, $("incomeSourceSuggestions"), () => state.suggestions.incomeSources, {
+        showOnPointer: false,
+        requireQuery: true
+      });
       setupAutocomplete(controls.trendItem, $("trendItemSuggestions"), () => state.suggestions.items);
       setupAutocomplete(controls.spendingBudgetCategory, $("spendingBudgetCategorySuggestions"), () => state.suggestions.categories);
       $("activeMonthButton").addEventListener("pointermove", (event) => {
@@ -22501,9 +22555,11 @@
           showAuth();
         }
         window.setTimeout(checkObligationReminders, 500);
-        window.setInterval(checkObligationReminders, 60000);
         window.setInterval(() => {
-          if (cloudDirty) syncCloudNow({ force: true });
+          if (!document.hidden) checkObligationReminders();
+        }, 60000);
+        window.setInterval(() => {
+          if (!document.hidden && cloudDirty) syncCloudNow({ force: true });
         }, CLOUD_SYNC_INTERVAL_MS);
         window.addEventListener("online", () => {
           if (cloudDirty) {
@@ -22521,7 +22577,6 @@
         document.addEventListener("visibilitychange", () => {
           if (document.visibilityState === "hidden") {
             if (currentUser) rememberAccountSession(currentUser);
-            syncCloudNow({ force: true });
           } else if (cloudDirty) {
             syncCloudNow({ force: true });
           }
