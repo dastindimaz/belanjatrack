@@ -4440,6 +4440,12 @@
       opacity: .58;
     }
 
+    .obligation-item.overdue {
+      border-color: rgba(239, 68, 68, .42);
+      opacity: 1;
+      filter: none;
+    }
+
     .obligation-item.inactive {
       opacity: .48;
       filter: saturate(.35);
@@ -15298,6 +15304,7 @@
           : Number(item.amount || 0);
         if (remaining <= 0 || item.status === "paid" && item.type === "debt") return [];
         const dueDate = nextObligationDueDate(item, today);
+        if (item.type === "bill" && dueDate && obligationSettledThroughDate(item) >= dueDate) return [];
         const days = localCalendarDayDistance(today, dueDate);
         if (!Number.isFinite(days) || days < 0 || days > 2) return [];
         const typeLabel = item.type === "debt" ? t("openingAttentionDebt") : t("openingAttentionBill");
@@ -19210,7 +19217,10 @@
         return;
       }
       mount.innerHTML = items.map((item) => {
-        const done = item.status === "paid";
+        const recurring = Boolean(item.frequency && item.frequency !== "none");
+        const done = !recurring && item.status === "paid";
+        const nextDueDate = nextObligationDueDate(item);
+        const overdue = !done && Boolean(nextDueDate) && nextDueDate < todayISO();
         const frequencyLabel = t(item.frequency === "none" || !item.frequency ? "noRepeat" : item.frequency);
         const paymentDay = item.paymentDay || new Date(`${item.dueDate}T00:00:00`).getDate();
         const endLabel = item.endDate ? formatDate(item.endDate) : t("noEndDate");
@@ -19221,7 +19231,7 @@
         );
         const canReceive = active && item.type === "receivable" && Number(item.receivedAmount || 0) < Number(item.amount || 0);
         return `
-          <article class="obligation-item ${done ? "done" : ""} ${active ? "" : "inactive"}">
+          <article class="obligation-item ${done ? "done" : ""} ${overdue ? "overdue" : ""}">
             <span class="obligation-copy">
               <strong>${escapeHtml(item.name || t(item.type))}</strong>
               <small>${escapeHtml(t(item.type))} · ${formatDate(item.dueDate)}</small>
