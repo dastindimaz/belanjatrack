@@ -4728,6 +4728,42 @@
       margin-bottom: 12px;
     }
 
+    .executive-summary-actions,
+    .executive-summary-timeframe {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .executive-summary-timeframe {
+      padding: 3px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+
+    .executive-summary-timeframe button {
+      min-height: 26px;
+      padding: 4px 8px;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .executive-summary-timeframe button:hover {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .executive-summary-timeframe button.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
     .purchasing-power-status h3 {
       margin: 0;
       font-size: 14px;
@@ -4856,6 +4892,57 @@
 
     .executive-summary-list li.bad::before {
       background: var(--danger);
+    }
+
+    .executive-ai-insight {
+      display: grid;
+      gap: 9px;
+      margin-top: 15px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+    }
+
+    .executive-ai-insight-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .executive-ai-insight-header strong {
+      font-size: 13px;
+    }
+
+    .executive-ai-insight button {
+      min-height: 32px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+    }
+
+    .executive-ai-insight-result {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+      line-height: 1.55;
+      white-space: pre-line;
+    }
+
+    .executive-ai-insight-result.error {
+      color: var(--danger);
+    }
+
+    @media (max-width: 560px) {
+      .executive-summary-heading {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .executive-summary-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
     }
 
     .purchasing-power-status.good {
@@ -10203,8 +10290,16 @@
         incomeChange: "Perubahan Pemasukan", expenseChange: "Perubahan Pengeluaran",
         itemPriceInflation: "Inflasi Harga Barang", livingCostInflation: "Inflasi Biaya Hidup", billInflationBreakdown: "Barang {items} · Tagihan rutin {bills}", monthlyBalanceChange: "Perubahan Saldo Bulanan",
         executiveSummary: "Executive Summary",
+        executiveSummaryTimeframe: "Rentang waktu Executive Summary",
         executiveSummaryHelp: "Apa artinya?",
         executiveSummaryHelpClose: "Tutup penjelasan",
+        aiInsightTitle: "AI Insight",
+        aiInsightGenerate: "Buat AI Insight",
+        aiInsightRegenerate: "Buat ulang",
+        aiInsightGenerating: "Menyusun insight...",
+        aiInsightPrivacy: "Hanya ringkasan angka dan tren yang dikirim untuk dibuatkan insight.",
+        aiInsightSignIn: "Masuk ke akun cloud untuk membuat AI Insight.",
+        aiInsightUnavailable: "AI Insight belum siap. Pastikan layanan AI sudah dikonfigurasi.",
         inflationLabel: "Inflasi",
         deflationLabel: "Deflasi",
         inflationDefinition: "Inflasi berarti harga barang atau tagihan yang sama naik dibanding periode acuannya.",
@@ -10595,8 +10690,16 @@
         incomeChange: "Income Change", expenseChange: "Expense Change",
         itemPriceInflation: "Item Price Inflation", livingCostInflation: "Living Cost Inflation", billInflationBreakdown: "Items {items} · Recurring bills {bills}", monthlyBalanceChange: "Monthly Balance Change",
         executiveSummary: "Executive Summary",
+        executiveSummaryTimeframe: "Executive Summary timeframe",
         executiveSummaryHelp: "What does this mean?",
         executiveSummaryHelpClose: "Close explanation",
+        aiInsightTitle: "AI Insight",
+        aiInsightGenerate: "Generate AI insight",
+        aiInsightRegenerate: "Generate again",
+        aiInsightGenerating: "Generating insight...",
+        aiInsightPrivacy: "Only calculated totals and trends are sent to generate this insight.",
+        aiInsightSignIn: "Sign in to cloud to generate an AI insight.",
+        aiInsightUnavailable: "AI Insight is not ready yet. Make sure the AI service is configured.",
         inflationLabel: "Inflation",
         deflationLabel: "Deflation",
         inflationDefinition: "Inflation means the price of the same item or bill increased compared with its reference period.",
@@ -10827,6 +10930,10 @@
       sdkUrl: "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js",
       allowedOrigin: "https://dastindimaz.github.io"
     };
+    const AI_INSIGHT_CONFIG = {
+      enabled: true,
+      functionPath: "/functions/v1/clever-action"
+    };
     let oneSignalSdkPromise = null;
     let oneSignalReady = false;
     let oneSignalPushSubscribed = false;
@@ -10907,6 +11014,7 @@
     let passwordDialogResolver = null;
     let appConfirmResolver = null;
     let openingAttentionAccountId = "";
+    let executiveSummaryMonths = 1;
     let greetingTimer = null;
     let accountRecoveryMode = "password";
     let monthPickerYear = new Date().getFullYear();
@@ -19481,6 +19589,33 @@
       return { delta, percent };
     }
 
+    async function generateExecutiveInsight(summary, output, button) {
+      if (!AI_INSIGHT_CONFIG.enabled) return;
+      button.disabled = true;
+      button.textContent = t("aiInsightGenerating");
+      output.className = "executive-ai-insight-result";
+      output.textContent = t("aiInsightGenerating");
+      try {
+        const sessionReady = await ensureCurrentCloudSession();
+        const token = readCloudAuthSession()?.access_token || currentUser?.cloudAccessToken || "";
+        if (!sessionReady || !token) throw new Error(t("aiInsightSignIn"));
+        const data = await supabaseRequest(AI_INSIGHT_CONFIG.functionPath, {
+          method: "POST",
+          token,
+          body: { summary }
+        });
+        if (!data?.insight) throw new Error(t("aiInsightUnavailable"));
+        output.textContent = data.insight;
+        button.textContent = t("aiInsightRegenerate");
+      } catch (error) {
+        output.classList.add("error");
+        output.textContent = error?.message || t("aiInsightUnavailable");
+        button.textContent = t("aiInsightGenerate");
+      } finally {
+        button.disabled = false;
+      }
+    }
+
     function renderGrowthAnalytics() {
       const selectedYear = Number(controls.year.value);
       const selectedMonth = Number(controls.month.value);
@@ -19581,12 +19716,36 @@
       summaryHeading.className = "executive-summary-heading";
       const summaryTitle = document.createElement("h3");
       summaryTitle.textContent = t("executiveSummary");
+      const summaryActions = document.createElement("div");
+      summaryActions.className = "executive-summary-actions";
+      const summaryTimeframe = document.createElement("div");
+      summaryTimeframe.className = "executive-summary-timeframe";
+      summaryTimeframe.setAttribute("role", "group");
+      summaryTimeframe.setAttribute("aria-label", t("executiveSummaryTimeframe"));
+      [
+        { months: 1, label: t("monthly") },
+        { months: 6, label: t("sixMonths") },
+        { months: 12, label: t("yearly") }
+      ].forEach(({ months, label }) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = label;
+        button.classList.toggle("active", executiveSummaryMonths === months);
+        button.setAttribute("aria-pressed", String(executiveSummaryMonths === months));
+        button.addEventListener("click", () => {
+          if (executiveSummaryMonths === months) return;
+          executiveSummaryMonths = months;
+          renderGrowthAnalytics();
+        });
+        summaryTimeframe.appendChild(button);
+      });
       const summaryHelp = document.createElement("button");
       summaryHelp.type = "button";
       summaryHelp.className = "executive-summary-help";
       summaryHelp.textContent = t("executiveSummaryHelp");
       summaryHelp.setAttribute("aria-expanded", "false");
-      summaryHeading.append(summaryTitle, summaryHelp);
+      summaryActions.append(summaryTimeframe, summaryHelp);
+      summaryHeading.append(summaryTitle, summaryActions);
       status.appendChild(summaryHeading);
 
       const summaryExplanation = document.createElement("div");
@@ -19714,10 +19873,17 @@
         ]);
       };
 
-      addInflationDeflationAverageSummary(
-        t("monthly"),
-        livingCostContributorsForMonths(currentIndex, 1)
+      const selectedSummaryRange = {
+        months: executiveSummaryMonths,
+        label: executiveSummaryMonths === 1
+          ? t("monthly")
+          : executiveSummaryMonths === 6 ? t("sixMonths") : t("yearly")
+      };
+      const selectedContributors = livingCostContributorsForMonths(
+        currentIndex,
+        selectedSummaryRange.months
       );
+      addInflationDeflationAverageSummary(selectedSummaryRange.label, selectedContributors);
 
       const horizonInflationValues = [
         inflationHorizons.monthly.combined,
@@ -19733,38 +19899,90 @@
         }), "neutral", values);
       }
 
-      [
-        { label: t("monthly"), months: 1 },
-        { label: t("sixMonths"), months: 6 },
-        { label: t("yearly"), months: 12 }
-      ].forEach(({ label, months }) => {
-        const contributors = livingCostContributorsForMonths(currentIndex, months);
-        contributors.inflations.slice(0, 3).forEach((contributor, index) => {
-          const value = signedPercent(contributor.percent);
-          const linkedItemName = normalizedPriceHistoryItems.has(
-            normalizeName(contributor.name).toLocaleLowerCase("id-ID")
-          ) ? contributor.name : "";
-          addSummaryItem(t("summaryInflationContributorRanked", {
-            period: label,
-            rank: index + 1,
-            name: contributor.name,
-            value
-          }), "bad", [contributor.name, value], linkedItemName);
-        });
-        contributors.deflations.slice(0, 3).forEach((contributor, index) => {
-          const value = `${numberFmt.format(Math.round(Math.abs(contributor.percent) * 10) / 10)}%`;
-          const linkedItemName = normalizedPriceHistoryItems.has(
-            normalizeName(contributor.name).toLocaleLowerCase("id-ID")
-          ) ? contributor.name : "";
-          addSummaryItem(t("summaryDeflationContributorRanked", {
-            period: label,
-            rank: index + 1,
-            name: contributor.name,
-            value
-          }), "good", [contributor.name, value], linkedItemName);
-        });
-        if (months !== 1) addInflationDeflationAverageSummary(label, contributors);
+      selectedContributors.inflations.slice(0, 3).forEach((contributor, index) => {
+        const value = signedPercent(contributor.percent);
+        const linkedItemName = normalizedPriceHistoryItems.has(
+          normalizeName(contributor.name).toLocaleLowerCase("id-ID")
+        ) ? contributor.name : "";
+        addSummaryItem(t("summaryInflationContributorRanked", {
+          period: selectedSummaryRange.label,
+          rank: index + 1,
+          name: contributor.name,
+          value
+        }), "bad", [contributor.name, value], linkedItemName);
       });
+      selectedContributors.deflations.slice(0, 3).forEach((contributor, index) => {
+        const value = `${numberFmt.format(Math.round(Math.abs(contributor.percent) * 10) / 10)}%`;
+        const linkedItemName = normalizedPriceHistoryItems.has(
+          normalizeName(contributor.name).toLocaleLowerCase("id-ID")
+        ) ? contributor.name : "";
+        addSummaryItem(t("summaryDeflationContributorRanked", {
+          period: selectedSummaryRange.label,
+          rank: index + 1,
+          name: contributor.name,
+          value
+        }), "good", [contributor.name, value], linkedItemName);
+      });
+
+      const rangeStartKey = monthKeyFromIndex(currentIndex - selectedSummaryRange.months + 1);
+      const previousRangeStartKey = monthKeyFromIndex(currentIndex - (selectedSummaryRange.months * 2) + 1);
+      const previousRangeEndKey = monthKeyFromIndex(currentIndex - selectedSummaryRange.months);
+      const rowsInRange = (rows, startKey, endKey) => rows.filter((row) => {
+        const key = monthKey(row.date);
+        return key >= startKey && key <= endKey;
+      });
+      const selectedExpenseRows = rowsInRange(effectiveEntries(), rangeStartKey, currentKey);
+      const previousExpenseRange = rowsInRange(effectiveEntries(), previousRangeStartKey, previousRangeEndKey);
+      const selectedIncomeRows = rowsInRange(effectiveIncomes(), rangeStartKey, currentKey);
+      const previousIncomeRange = rowsInRange(effectiveIncomes(), previousRangeStartKey, previousRangeEndKey);
+      const selectedExpenseTotal = sum(selectedExpenseRows);
+      const previousExpenseTotal = sum(previousExpenseRange);
+      const selectedIncomeTotal = sumIncome(selectedIncomeRows);
+      const previousIncomeTotal = sumIncome(previousIncomeRange);
+      const executiveInsightSummary = {
+        timeframe: selectedSummaryRange.label,
+        currency: currentCurrency(),
+        living_cost_inflation_percent: inflationHorizons[
+          selectedSummaryRange.months === 1 ? "monthly" : selectedSummaryRange.months === 6 ? "sixMonths" : "yearly"
+        ].combined,
+        average_inflation_percent: selectedContributors.averageInflation,
+        average_deflation_percent: selectedContributors.averageDeflation,
+        top_inflation: selectedContributors.inflations.slice(0, 3).map(({ name, percent }) => ({ name, percent })),
+        top_deflation: selectedContributors.deflations.slice(0, 3).map(({ name, percent }) => ({ name, percent })),
+        income: {
+          current: selectedIncomeTotal,
+          change_percent: percentageChange(selectedIncomeTotal, previousIncomeTotal)
+        },
+        expenses: {
+          current: selectedExpenseTotal,
+          change_percent: percentageChange(selectedExpenseTotal, previousExpenseTotal)
+        },
+        balance: {
+          current: selectedIncomeTotal - selectedExpenseTotal,
+          previous: previousIncomeTotal - previousExpenseTotal
+        }
+      };
+      if (AI_INSIGHT_CONFIG.enabled) {
+        const aiInsight = document.createElement("section");
+        aiInsight.className = "executive-ai-insight";
+        const aiHeader = document.createElement("div");
+        aiHeader.className = "executive-ai-insight-header";
+        const aiTitle = document.createElement("strong");
+        aiTitle.textContent = t("aiInsightTitle");
+        const aiButton = document.createElement("button");
+        aiButton.type = "button";
+        aiButton.className = "ghost";
+        aiButton.textContent = t("aiInsightGenerate");
+        const aiOutput = document.createElement("p");
+        aiOutput.className = "executive-ai-insight-result";
+        aiOutput.textContent = t("aiInsightPrivacy");
+        aiButton.addEventListener("click", () => {
+          generateExecutiveInsight(executiveInsightSummary, aiOutput, aiButton);
+        });
+        aiHeader.append(aiTitle, aiButton);
+        aiInsight.append(aiHeader, aiOutput);
+        status.appendChild(aiInsight);
+      }
 
       const peakIncome = highestIncomePeriod(currentIndex);
       if (peakIncome) {
