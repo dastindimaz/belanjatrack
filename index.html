@@ -5576,6 +5576,47 @@
       z-index: 320;
     }
 
+    .expense-payment-currency-field {
+      grid-column: span 2;
+      display: grid;
+      gap: 8px;
+    }
+
+    .expense-payment-currency-field > span {
+      color: var(--muted);
+      font-size: .78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .expense-payment-currency-toggle {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+      padding: 5px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--soft);
+    }
+
+    .expense-payment-currency-toggle button {
+      min-height: 38px;
+      padding: 7px 10px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      color: var(--muted);
+      background: transparent;
+      font-size: .78rem;
+      font-weight: 850;
+    }
+
+    .expense-payment-currency-toggle button.active {
+      color: var(--accent);
+      border-color: color-mix(in srgb, var(--accent) 28%, var(--line));
+      background: var(--panel);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, .12);
+    }
+
     .expense-items-editor.active {
       grid-column: span 2;
       display: grid;
@@ -9440,6 +9481,10 @@
             <label class="expense-wallet-field" data-expense-step="0"><span data-i18n="expenseWalletQuestion">Bayar pakai wallet apa?</span>
               <select id="expenseWalletSelect" aria-label="Pilih wallet" data-i18n-aria="chooseWallet"></select>
             </label>
+            <div class="expense-payment-currency-field" id="expensePaymentCurrencyField" data-expense-step="0" hidden>
+              <span data-i18n="expensePaymentCurrency">Nominal yang diketik dalam</span>
+              <div class="expense-payment-currency-toggle" id="expensePaymentCurrencyToggle" role="group" aria-label="Mata uang nominal pengeluaran"></div>
+            </div>
             <div class="expense-category-control" data-expense-step="0">
               <label class="expense-category-field autocomplete-field"><span data-i18n="expenseCategoryQuestion">Masuk kategori apa?</span>
                 <input id="categoryInput" type="text" placeholder="Sembako" autocomplete="new-password" autocapitalize="words" autocorrect="off" spellcheck="false" required>
@@ -10214,7 +10259,7 @@
         transferStoryTitle1: "Wallet mana yang mau dipindahkan?",
         transferStoryTitle2: "Berapa nominalnya dan ada biaya admin?",
         transferStoryTitle3: "Ada catatan untuk transfer ini?",
-        expenseDateQuestion: "Belanjanya kapan?", expenseCategoryQuestion: "Masuk kategori apa?",
+        expenseDateQuestion: "Belanjanya kapan?", expenseCategoryQuestion: "Masuk kategori apa?", expensePaymentCurrency: "Nominal yang diketik dalam", expenseWalletCurrency: "mata uang wallet",
         expenseItemQuestion: "Kamu beli apa?", expensePriceQuestion: "Berapa harga satuannya?",
         expenseQuantityQuestion: "Jumlahnya berapa?", expenseWalletQuestion: "Bayar pakai wallet apa?",
         expenseNoteQuestion: "Ada catatan tambahan? (Opsional)",
@@ -10614,7 +10659,7 @@
         transferStoryTitle1: "Which wallets are involved?",
         transferStoryTitle2: "How much is it, and is there an admin fee?",
         transferStoryTitle3: "Any note for this transfer?",
-        expenseDateQuestion: "When did you buy it?", expenseCategoryQuestion: "Which category is it in?",
+        expenseDateQuestion: "When did you buy it?", expenseCategoryQuestion: "Which category is it in?", expensePaymentCurrency: "Enter amounts in", expenseWalletCurrency: "wallet currency",
         expenseItemQuestion: "What did you buy?", expensePriceQuestion: "What was the unit price?",
         expenseQuantityQuestion: "How many did you buy?", expenseWalletQuestion: "Which wallet did you use?",
         expenseNoteQuestion: "Anything else to note? (Optional)",
@@ -11038,6 +11083,7 @@
       let editingObligationId = "";
       let debtStoryStep = 0;
       let expenseStoryStep = 0;
+      let expensePaymentCurrency = "";
       let incomeStoryStep = 0;
       let transferStoryStep = 0;
     let activeDatePickerInput = null;
@@ -11118,6 +11164,8 @@
       obligationPaymentDate: $("obligationPaymentDateInput"),
       obligationPaymentWallet: $("obligationPaymentWalletSelect"),
       expenseWallet: $("expenseWalletSelect"),
+      expensePaymentCurrencyField: $("expensePaymentCurrencyField"),
+      expensePaymentCurrencyToggle: $("expensePaymentCurrencyToggle"),
       discardIncomeDraft: $("discardIncomeDraftBtn"),
       discardExpenseDraft: $("discardExpenseDraftBtn"),
       discardObligationDraft: $("discardObligationDraftBtn"),
@@ -11926,9 +11974,10 @@
     function updateTransactionCurrencyLabels() {
       const incomeLabel = $("incomeAmountCurrencyLabel");
       const incomeCurrency = walletCurrency(controls.incomeWallet.value || defaultWalletName());
-      const expenseCurrency = walletCurrency(controls.expenseWallet.value || defaultWalletName());
+      const expenseCurrency = expenseInputCurrency();
       if (incomeLabel) incomeLabel.textContent = `${t("amount")} (${incomeCurrency})`;
       if (controls.incomeAmount) controls.incomeAmount.inputMode = currencyFractionDigits(incomeCurrency) ? "decimal" : "numeric";
+      updateExpensePaymentCurrencyToggle();
       updateExpenseRowCurrencyLabels();
       expenseItemRows().forEach((row) => {
         const input = row.querySelector(".expense-row-price-input");
@@ -12516,6 +12565,65 @@
       return [...document.querySelectorAll("#expenseItemRows [data-expense-item-row]")];
     }
 
+    function expenseInputCurrency() {
+      const walletCurrencyCode = walletCurrency(controls.expenseWallet.value || defaultWalletName());
+      const baseCurrency = currentCurrency();
+      return expensePaymentCurrency === baseCurrency && walletCurrencyCode !== baseCurrency
+        ? baseCurrency
+        : walletCurrencyCode;
+    }
+
+    function convertExpenseInputPrices(fromCurrency, toCurrency) {
+      if (fromCurrency === toCurrency) return true;
+      const rate = cachedWalletRate(fromCurrency, toCurrency);
+      if (!rate) {
+        toast(t("exchangeRateUpdating", { from: fromCurrency, to: toCurrency }));
+        return false;
+      }
+      expenseItemRows().forEach((row) => {
+        const input = row.querySelector(".expense-row-price-input");
+        const amount = parseTransferAmount(input?.value || "", fromCurrency);
+        if (!input?.value.trim() || !Number.isFinite(amount)) return;
+        input.value = formatTransferAmount(amount * rate, toCurrency);
+      });
+      return true;
+    }
+
+    function updateExpensePaymentCurrencyToggle() {
+      const walletCurrencyCode = walletCurrency(controls.expenseWallet.value || defaultWalletName());
+      const baseCurrency = currentCurrency();
+      const field = controls.expensePaymentCurrencyField;
+      const toggle = controls.expensePaymentCurrencyToggle;
+      if (!field || !toggle) return;
+      if (walletCurrencyCode === baseCurrency) {
+        expensePaymentCurrency = walletCurrencyCode;
+        field.hidden = true;
+        toggle.replaceChildren();
+        return;
+      }
+      if (![walletCurrencyCode, baseCurrency].includes(expensePaymentCurrency)) {
+        expensePaymentCurrency = walletCurrencyCode;
+      }
+      field.hidden = false;
+      toggle.innerHTML = [baseCurrency, walletCurrencyCode].map((currency) => `
+        <button type="button" class="${currency === expensePaymentCurrency ? "active" : ""}" data-expense-payment-currency="${escapeHtml(currency)}" aria-pressed="${currency === expensePaymentCurrency}">${escapeHtml(currency)}${currency === walletCurrencyCode ? ` · ${escapeHtml(t("expenseWalletCurrency"))}` : ""}</button>
+      `).join("");
+    }
+
+    function setExpensePaymentCurrency(nextCurrency, { convertPrices = true } = {}) {
+      const next = String(nextCurrency || "").toUpperCase();
+      const previous = expenseInputCurrency();
+      const walletCurrencyCode = walletCurrency(controls.expenseWallet.value || defaultWalletName());
+      const baseCurrency = currentCurrency();
+      if (![walletCurrencyCode, baseCurrency].includes(next)) return;
+      if (convertPrices && !convertExpenseInputPrices(previous, next)) return;
+      expensePaymentCurrency = next;
+      updateExpensePaymentCurrencyToggle();
+      updateExpenseRowCurrencyLabels();
+      updateEstimate();
+      saveDraft("expense");
+    }
+
     function expenseItemsPayload() {
       return expenseItemRows().map((row) => ({
         category: row.querySelector(".expense-row-category-input")?.value || controls.category.value || "",
@@ -12539,7 +12647,7 @@
         itemInput?.reportValidity();
         return false;
       }
-      const currency = walletCurrency(controls.expenseWallet.value || defaultWalletName());
+      const currency = expenseInputCurrency();
       if (parseTransferAmount(priceInput?.value || "", currency) <= 0) {
         priceInput.setCustomValidity(t("pricePositive"));
         priceInput.reportValidity();
@@ -12554,7 +12662,7 @@
     }
 
     function updateExpenseItemSummary(row) {
-      const currency = walletCurrency(controls.expenseWallet.value || defaultWalletName());
+      const currency = expenseInputCurrency();
       const category = capitalizeText(row.querySelector(".expense-row-category-input")?.value.trim() || "");
       const item = capitalizeText(row.querySelector(".expense-row-item-input")?.value.trim() || "");
       const price = parseTransferAmount(row.querySelector(".expense-row-price-input")?.value || "", currency);
@@ -12605,7 +12713,7 @@
       }
       categoryInput.value = capitalizeText(item.category || controls.category.value || "");
       itemInput.value = capitalizeText(item.item || "");
-      priceInput.value = formatTransferAmount(item.price || "", walletCurrency(controls.expenseWallet.value || defaultWalletName()));
+      priceInput.value = formatTransferAmount(item.price || "", expenseInputCurrency());
       qtyInput.value = item.qty || "1";
       $("expenseItemRows").appendChild(fragment);
       if (item.saved) {
@@ -12626,7 +12734,7 @@
       const firstItem = items[0] || {};
       first.querySelector(".expense-row-category-input").value = capitalizeText(firstItem.category || controls.category.value || "");
       first.querySelector(".expense-row-item-input").value = capitalizeText(firstItem.item || "");
-      first.querySelector(".expense-row-price-input").value = formatTransferAmount(firstItem.price || "", walletCurrency(controls.expenseWallet.value || defaultWalletName()));
+      first.querySelector(".expense-row-price-input").value = formatTransferAmount(firstItem.price || "", expenseInputCurrency());
       first.querySelector(".expense-row-qty-input").value = firstItem.qty || "1";
       if (firstItem.saved) {
         updateExpenseItemSummary(first);
@@ -12637,7 +12745,7 @@
     }
 
     function updateExpenseRowCurrencyLabels() {
-      const currency = walletCurrency(controls.expenseWallet.value || defaultWalletName());
+      const currency = expenseInputCurrency();
       expenseItemRows().forEach((row) => {
         const categoryLabel = row.querySelector(".expense-item-category-label");
         const itemLabel = row.querySelector(".expense-item-name-label");
@@ -12699,6 +12807,7 @@
       return {
         date: controls.date.value,
         wallet: controls.expenseWallet.value,
+        paymentCurrency: expenseInputCurrency(),
         category: controls.category.value,
         items: expenseItemsPayload(),
         item: controls.item.value,
@@ -12825,6 +12934,8 @@
       } else {
         controls.date.value = todayISO();
         controls.expenseWallet.value = defaultWalletName();
+        expensePaymentCurrency = walletCurrency(controls.expenseWallet.value);
+        updateExpensePaymentCurrencyToggle();
         controls.category.value = "";
         resetExpenseItemRows();
         controls.note.value = "";
@@ -12912,6 +13023,8 @@
         } else {
           controls.date.value = draft.date || todayISO();
           controls.expenseWallet.value = normalizeWalletName(draft.wallet || defaultWalletName());
+          expensePaymentCurrency = String(draft.paymentCurrency || walletCurrency(controls.expenseWallet.value)).toUpperCase();
+          updateExpensePaymentCurrencyToggle();
           controls.category.value = capitalizeText(draft.category);
           resetExpenseItemRows(Array.isArray(draft.items) && draft.items.length
             ? draft.items
@@ -15848,7 +15961,7 @@
         return false;
       }
       if (expenseStoryStep === 1) {
-        const currency = walletCurrency(controls.expenseWallet.value || defaultWalletName());
+        const currency = expenseInputCurrency();
         for (const row of expenseItemRows()) {
           const priceInput = row.querySelector(".expense-row-price-input");
           const qtyInput = row.querySelector(".expense-row-qty-input");
@@ -16748,13 +16861,19 @@
       }
       const wallet = normalizeWalletName(controls.expenseWallet.value);
       const currency = walletCurrency(wallet);
+      const paymentCurrency = expenseInputCurrency();
+      if (paymentCurrency !== currency && !cachedWalletRate(paymentCurrency, currency)) {
+        updateExpenseStoryStep(1, { focus: true });
+        toast(t("exchangeRateUpdating", { from: paymentCurrency, to: currency }));
+        return;
+      }
       const items = expenseItemsPayload().map((item) => ({
         category: normalizeName(capitalizeText(item.category)) || normalizeName(capitalizeText(controls.category.value)) || "Lainnya",
         item: normalizeName(capitalizeText(item.item)),
         qty: Number(item.qty),
-        unitPrice: parseTransferAmount(item.price, currency)
+        paymentUnitPrice: parseTransferAmount(item.price, paymentCurrency)
       }));
-      const invalidItem = items.find((item) => !item.category || !item.item || !Number.isFinite(item.qty) || item.qty <= 0 || item.unitPrice <= 0);
+      const invalidItem = items.find((item) => !item.category || !item.item || !Number.isFinite(item.qty) || item.qty <= 0 || item.paymentUnitPrice <= 0);
       if (invalidItem) {
         updateExpenseStoryStep(1, { focus: true });
         toast(t("quantityPositive"));
@@ -16769,13 +16888,26 @@
         note: capitalizeText(controls.note.value.trim())
       };
       const entries = items.map((item, index) => {
-        const total = roundCurrencyAmount(item.qty * item.unitPrice, currency);
+        const paymentTotal = roundCurrencyAmount(item.qty * item.paymentUnitPrice, paymentCurrency);
+        const total = roundCurrencyAmount(
+          paymentCurrency === currency ? paymentTotal : convertedCurrencyAmount(paymentTotal, paymentCurrency, currency),
+          currency
+        );
+        const baseAmount = paymentCurrency === currentCurrency()
+          ? paymentTotal
+          : convertedCurrencyAmount(total, currency, currentCurrency());
         return {
           id: editingIndex >= 0 && index === 0 ? state.entries[editingIndex].id : createId(),
           ...sharedEntry,
           ...item,
+          unitPrice: roundCurrencyAmount(
+            paymentCurrency === currency ? item.paymentUnitPrice : convertedCurrencyAmount(item.paymentUnitPrice, paymentCurrency, currency),
+            currency
+          ),
           total,
-          ...transactionCurrencyMeta(wallet, total),
+          paymentCurrency,
+          paymentTotal,
+          ...transactionCurrencyMetaWithBaseAmount(wallet, total, baseAmount),
           ...(batchId ? { batchId } : {})
         };
       });
@@ -16802,7 +16934,14 @@
       controls.date.value = entry.date;
       controls.category.value = entry.category;
       controls.expenseWallet.value = normalizeWalletName(entry.wallet || defaultWalletName());
-      resetExpenseItemRows([{ category: entry.category, item: entry.item, qty: String(entry.qty), price: entry.unitPrice }]);
+      expensePaymentCurrency = String(entry.paymentCurrency || walletCurrency(controls.expenseWallet.value)).toUpperCase();
+      updateExpensePaymentCurrencyToggle();
+      resetExpenseItemRows([{
+        category: entry.category,
+        item: entry.item,
+        qty: String(entry.qty),
+        price: entry.paymentUnitPrice ?? entry.unitPrice
+      }]);
       controls.note.value = entry.note || "";
       $("entryFormTitle").textContent = t("editTransaction");
       controls.saveEntry.textContent = t("saveChanges");
@@ -18957,21 +19096,39 @@
       const localEquivalent = $("estimateLocalEquivalent");
       const exchangeRateInfo = $("estimateExchangeRate");
       if (!estimate) return;
-      const currency = walletCurrency(controls.expenseWallet.value || defaultWalletName());
+      const currency = expenseInputCurrency();
+      const walletCurrencyCode = walletCurrency(controls.expenseWallet.value || defaultWalletName());
       const baseCurrency = currentCurrency();
       const total = roundCurrencyAmount(expenseItemsPayload().reduce((sum, item) => {
         const qty = Number(item.qty || 0);
         const price = parseTransferAmount(item.price, currency);
         return sum + (Number.isFinite(qty) ? qty : 0) * price;
       }, 0), currency);
-      estimate.textContent = formatCurrencyAmount(total, currency);
+      const walletTotal = currency === walletCurrencyCode
+        ? total
+        : convertedCurrencyAmount(total, currency, walletCurrencyCode);
+      estimate.textContent = formatCurrencyAmount(walletTotal === null ? total : walletTotal, walletTotal === null ? currency : walletCurrencyCode);
       if (!localEquivalent || !exchangeRateInfo) return;
-      if (currency === baseCurrency) {
+      if (currency !== walletCurrencyCode) {
+        const rate = cachedWalletRate(walletCurrencyCode, currency);
+        localEquivalent.hidden = false;
+        localEquivalent.textContent = `${formatCurrencyAmount(total, currency)} → ${formatCurrencyAmount(walletTotal === null ? 0 : walletTotal, walletCurrencyCode)}`;
+        exchangeRateInfo.hidden = !rate;
+        if (rate) {
+          exchangeRateInfo.textContent = t("exchangeRateInfo", {
+            from: walletCurrencyCode,
+            rate: formatCurrencyAmount(rate, currency),
+            date: formatDate(cachedWalletRateDate(walletCurrencyCode, currency))
+          });
+        }
+        return;
+      }
+      if (walletCurrencyCode === baseCurrency) {
         localEquivalent.hidden = true;
         exchangeRateInfo.hidden = true;
         return;
       }
-      const rate = cachedWalletRate(currency, baseCurrency);
+      const rate = cachedWalletRate(walletCurrencyCode, baseCurrency);
       if (!rate) {
         localEquivalent.hidden = true;
         exchangeRateInfo.hidden = false;
@@ -18984,7 +19141,7 @@
         amount: formatCurrencyAmount(total * rate, baseCurrency)
       });
       exchangeRateInfo.textContent = t("exchangeRateInfo", {
-        from: currency,
+        from: walletCurrencyCode,
         rate: formatCurrencyAmount(rate, baseCurrency),
         date: formatDate(cachedWalletRateDate(currency, baseCurrency))
       });
@@ -21948,7 +22105,7 @@
       });
       controls.qty.addEventListener("input", updateEstimate);
       controls.price.addEventListener("input", () => {
-        const currency = walletCurrency(controls.expenseWallet.value || defaultWalletName());
+        const currency = expenseInputCurrency();
         controls.price.value = formatTransferAmount(controls.price.value, currency);
         updateEstimate();
       });
@@ -21997,7 +22154,7 @@
         const priceInput = event.target.closest(".expense-row-price-input");
         if (itemInput) capitalizeTextField(itemInput);
         if (priceInput) {
-          const currency = walletCurrency(controls.expenseWallet.value || defaultWalletName());
+          const currency = expenseInputCurrency();
           priceInput.value = formatTransferAmount(priceInput.value, currency);
         }
         updateEstimate();
@@ -22026,11 +22183,25 @@
         saveDraft("income");
       });
       controls.expenseWallet.addEventListener("change", () => {
+        const previousWallet = state.wallets.find((wallet) => walletCurrency(wallet) === expenseInputCurrency()) || defaultWalletName();
+        const previousCurrency = expenseInputCurrency();
+        const nextCurrency = walletCurrency(controls.expenseWallet.value || defaultWalletName());
+        if (!convertExpenseInputPrices(previousCurrency, nextCurrency)) {
+          controls.expenseWallet.value = previousWallet;
+          syncCustomSelect(controls.expenseWallet);
+          return;
+        }
+        expensePaymentCurrency = nextCurrency;
         updateTransactionCurrencyLabels();
         updateExpenseRowCurrencyLabels();
         updateEstimate();
         refreshWalletExchangeRates();
         saveDraft("expense");
+      });
+      controls.expensePaymentCurrencyToggle.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-expense-payment-currency]");
+        if (!button) return;
+        setExpensePaymentCurrency(button.dataset.expensePaymentCurrency);
       });
       controls.incomeSource.addEventListener("input", () => {
         capitalizeTextField(controls.incomeSource);
